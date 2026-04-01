@@ -28,7 +28,7 @@ echo -e "${GREEN}✅ Build date updated to: $DATE_STR${NC}"
 # 3. Run flutter build
 echo -e "${YELLOW}🔨 Building Flutter web (Release Mode)...${NC}"
 # flutter build web --release --no-tree-shake-icons --pwa-strategy=none
-flutter build web --release --pwa-strategy=none --web-renderer html
+flutter build web --release --pwa-strategy=none
 
 
 # Check if build was successful (redundant with set -e, but good for clarity)
