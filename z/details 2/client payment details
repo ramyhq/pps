@@ -1,0 +1,102 @@
+<div id="DIV_1">
+    <div id="DIV_2">
+        <div id="DIV_3">
+            <div id="DIV_4">
+                Client payment details
+            </div>
+            <div id="DIV_5">
+                <a href="https://rms.key2soft.com:9090/App/ClientOperations/CreateOrEdit?rms=T3BLVVVFSExsS2o2UGFha2h2dlplMWtTMDFLS0NUejdETGNwcExqRnM3bEJRSDJyeFJQcVJEK1RPLzBVcmpzaQ=="
+                    id="A_6"><em id="EM_7"></em> Create client payment</a>
+            </div>
+        </div>
+    </div>
+    <div id="DIV_8">
+        <div id="DIV_9">
+            <div id="DIV_10">
+                <h6 id="H6_11">
+                    Total sale
+                </h6> <span id="SPAN_12">478,210</span>
+            </div>
+            <div id="DIV_13">
+                <h6 id="H6_14">
+                    Paid amount
+                </h6> <span id="SPAN_15">6,000</span>
+                <button type="button" id="BUTTON_16">
+                    <em id="EM_17"></em>
+                </button>
+            </div>
+            <div id="DIV_18">
+                <h6 id="H6_19">
+                    Refund amount
+                </h6> <span id="SPAN_20">0</span>
+            </div>
+            <div id="DIV_21">
+                <h6 id="H6_22">
+                    Remaining amount
+                </h6> <span id="SPAN_23">472,210</span>
+            </div>
+            <div id="DIV_24">
+                <div id="DIV_25">
+
+                    <button id="BUTTON_26">
+                        <em id="EM_27"></em>View balance
+                    </button><span id="SPAN_28"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- CSS -->
+
+<div id="DIV_1">
+    <div id="DIV_2">
+        <div id="DIV_3">
+            <div id="DIV_4">
+                Client payment details
+            </div>
+            <div id="DIV_5">
+                <a href="https://rms.key2soft.com:9090/App/ClientOperations/CreateOrEdit?rms=T3BLVVVFSExsS2o2UGFha2h2dlplMWtTMDFLS0NUejdETGNwcExqRnM3bEJRSDJyeFJQcVJEK1RPLzBVcmpzaQ=="
+                    id="A_6"><em id="EM_7"></em> Create client payment</a>
+            </div>
+        </div>
+    </div>
+    <div id="DIV_8">
+        <div id="DIV_9">
+            <div id="DIV_10">
+                <h6 id="H6_11">
+                    Total sale
+                </h6> <span id="SPAN_12">478,210</span>
+            </div>
+            <div id="DIV_13">
+                <h6 id="H6_14">
+                    Paid amount
+                </h6> <span id="SPAN_15">6,000</span>
+                <button type="button" id="BUTTON_16">
+                    <em id="EM_17"></em>
+                </button>
+            </div>
+            <div id="DIV_18">
+                <h6 id="H6_19">
+                    Refund amount
+                </h6> <span id="SPAN_20">0</span>
+            </div>
+            <div id="DIV_21">
+                <h6 id="H6_22">
+                    Remaining amount
+                </h6> <span id="SPAN_23">472,210</span>
+            </div>
+            <div id="DIV_24">
+                <div id="DIV_25">
+
+                    <button id="BUTTON_26">
+                        <em id="EM_27"></em>View balance
+                    </button><span id="SPAN_28"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

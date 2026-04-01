@@ -1,0 +1,336 @@
+﻿td .fa-caret-left {
+    transform: rotate(180deg);
+}
+/*menu*/
+.cancel-search {
+    left: 90%;
+    top: 10px;
+}
+/*datatables arrows*/
+.dataTables_paginate .fa-angle-double-right:before {
+    content: "\f101";
+}
+
+.dataTables_paginate .fa-angle-right:before {
+    content: "\f105";
+}
+
+.dataTables_paginate .fa-angle-left:before {
+    content: "\f104";
+}
+
+.dataTables_paginate .fa-angle-double-left:before {
+    content: "\f100";
+}
+
+.dataTables_info {
+    margin: 5px 10px 0 !important;
+}
+
+table.dataTable tfoot td,
+table.dataTable tfoot th,
+table.dataTable thead td,
+table.dataTable thead th {
+    text-align: left;
+}
+.table.border .border-start.border-secondary,
+.table.border .border-start {
+    border-left-color: #ccc !important;
+}
+.btn-primary i.fa {
+    margin-right: 5px;
+}
+.btn-primary i.fa, .btn-outline i.fa {
+    margin-top: 0;
+}
+/*.breadcrumb .breadcrumb-item {
+    padding: 0;
+}*/
+.breadcrumb .breadcrumb-item:after {
+    margin-left: 5px;
+}
+.btn .fa-chevron-left {
+    transform: none;
+}
+/*Fix Padding Table*/
+
+.table tr:last-child, .table th:last-child, .table td:last-child, .table tbody tr:last-child td {
+    padding-right: 0.75rem !important;
+}
+
+.table tr:first-child, .table th:first-child, .table td:first-child,
+.table-rms-border tr, .table-rms-border th, .table-rms-border td{
+    padding-left: 0.75rem !important;
+}
+.table-editable tbody tr,
+.table-editable tbody tr td,
+.table-editable:not(.table-notes) tbody tr td:first-child,
+.table-editable:not(.table-notes) tbody tr:last-child td,
+.table-editable:not(.table-notes) tbody tr:first-child td 
+{
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+}
+.table td.td-indent,
+.table.table-prices td.td-indent,
+.table.table-editable tbody tr td.td-indent {
+    padding-left: 2rem !important;
+}
+.table-editable.table-notes tbody tr td {
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+}
+.table th.th-scroll-bottom:last-child {
+    padding-right: 40px !important;
+}
+.scroll-bottom {
+    right: 1px;
+}
+.scroll-bottom.scroll-form {
+    right: 7px;
+}
+.rc-scroll {
+    right: 0;
+}
+.btn-link i {
+    margin-top: 0px;
+}
+table.dataTable > tbody > tr.child span.dtr-title {
+    margin-right: 1rem;
+}
+/*tables tootbar*/
+.btn-toolbar-group .btn {
+    border-right: 1px solid #f1ebeb !important;
+}
+/*stack buttons*/
+.btn-toolbar-group .fa-plus-circle.fa-stack-1x {
+    font-size: 13px;
+    top: 18px;
+    left: 50%;
+}
+.btn-toolbar-group .fa-file.fa-stack-2x,
+.btn-toolbar-group .fa-copy.fa-stack-2x {
+    font-size: 20px !important;
+    top: 10px;
+    left: 40%;
+}
+/*Sticky Table*/
+.sticky-table .sticky-col {
+    left: 0;
+    border-right: 1px solid var(--kt-text-primary);
+}
+.sticky-scroller {
+    margin-left: 150px;
+}
+.sticky-rates-table .sticky-col {
+    width: 200px;
+}
+.sticky-rates-table .sticky-scroller {
+    margin-left: 200px;
+}
+.sticky-hotels-table .sticky-col {
+    width: 250px;
+}
+
+.sticky-hotels-table .sticky-scroller {
+    margin-left: 250px;
+}
+.sticky-roomtypes-table .sticky-col {
+    width: 200px;
+}
+.sticky-roomtypes-table .sticky-scroller {
+    margin-left: 200px;
+}
+    table#tblEmployessReport th.border-start,
+    table#tblEmployessReport td.border-start {
+        border-left-color: #ccc;
+    }
+.tbl-employess td.border-start,
+.tbl-employess th.border-start {
+    border-left: 1px solid #ccc !important;
+}
+.day-border{
+    border-left-width:3px !important;
+}
+/*dashboard*/
+.db-date-filter .fa-filter {
+    left: 15px;
+}
+.db-date-filter .fa-angle-down {
+    left: 88%;
+}
+.fa-hotel-arrow {
+    font-size: 8px !important;
+    margin-top: 4px;
+    margin-left: 8px;
+}
+/*draw arrow for select2*/
+.select2-selection--multiple:before,
+.select2-selection--single .select2-selection__arrow:before {
+    right: 4px;
+}
+.roles-permissions .select2-selection__choice__display {
+    margin-left: 20px !important;
+}
+#generateLinkModal .select2-container--default .select2-selection--multiple .select2-selection__clear {
+    right: 5px !important;
+}
+/*fix controls alignment*/
+.HotelReservation input.form-control,
+.ClientReservation input.form-control,
+.Allotment input.form-control,
+.SaleAllotment input.form-control,
+.Agent input.form-control,
+.UserReservation input.form-control,
+.HotelExtraService input.form-control,
+.NewClientReservation input.form-control,
+.search-group input.form-control {
+    padding-top: 1px !important;
+}
+.rms-pills .nav-link.active {
+    border-left: 4px solid var(--bs-primary);
+}
+/*.select2-selection--multiple ul.select2-selection__rendered,
+.select2-selection--single span.select2-selection__rendered {
+    padding-right: 8px !important;
+}
+*/
+.rms-select-check .select2-container--default .select2-selection--multiple .select2-selection__clear {
+    margin-right: 15px !important;
+}
+.text-right {
+    text-align: right !important;
+}
+.header-center {
+    text-align: center !important;
+}
+
+.header-input-group .btn {
+    border-right: 1px solid #ced4da !important;
+    border-left: none !important;
+}
+.header-input-group .form-control {
+    border-right: none !important;
+    width: 180px;
+    padding-right:0;
+}
+.border-start-secondary.border-start {
+    border-left-color: #ccc !important;
+}
+/*reservations trace*/
+.task-border-overdue {
+    border-left: 5px solid #F8285A !important;
+}
+.task-border-completed {
+    border-left: 5px solid #17C653 !important;
+}
+.task-border-deleted {
+    border-left: 5px solid var(--kt-secondary) !important;
+}
+.task-border-todo {
+    border-left: 5px solid #1B84FF !important;
+}
+/*reservations chat*/
+#chat-toggle-btn {
+    right: 55px;
+}
+.fa-cog.mt--9 {
+    margin-top: -9px !important;
+}
+/*Tablet*/
+@media (max-width: 992px) {
+    .rms-dashboard .card-header{
+        text-align:left;
+    }
+}
+@media (max-width: 576px) {
+    .sticky-hotels-table .sticky-col {
+        width: 200px;
+    }
+    .sticky-hotels-table .sticky-scroller {
+        margin-left: 200px;
+    }
+}
+/*Mobile View*/
+@media only screen and (max-width: 600px) {
+    .nav-line-tabs .nav-item .nav-link {
+        margin-left: 0;
+    }
+}
+@media only screen and (max-width: 768px) {
+    abp-page-subheader #kt_app_toolbar_container .btn.dropdown-toggle {
+        padding: 0 5px !important;
+    }
+
+    .app-footer {
+        padding-left:10px;
+    }
+}
+@media Print {
+    .col-md-1, .col-md-2, .col-md-3, .col-md-4,
+    .col-md-5, .col-md-6, .col-md-7, .col-md-8,
+    .col-md-9, .col-md-10, .col-md-11, .col-md-12 {
+        float: left;
+    }
+}
+/*------------- theme 11 -------------*/
+/*search in topbar menu*/
+.searchMenuContainerSelect2 span.select2-selection.select2-selection--single:before {
+    right: 10px;
+    left: auto;
+}
+.searchMenuContainerSelect2 .select2-selection__rendered {
+    padding-right: 36px !important;
+    padding-left:0 !important;
+}
+/**Menu**/
+#kt_app_sidebar_menu_wrapper .menu-link {
+    padding-left: 0;
+    padding-right: 5px;
+}
+#kt_app_sidebar_menu_wrapper .menu-sub-indention .menu-sub:not([data-popper-placement]) {
+    margin-left: 1.5rem;
+}
+/**new table styles**/
+
+.table:not(.dataTable):not(.border):not(.table-extra-services) thead tr:first-child th:first-child,
+.table:not(.dataTable):not(.border):not(.table-extra-services) thead tr:first-child td:first-child {
+    border-top-left-radius: 0.475rem;
+}
+.table:not(.dataTable):not(.border):not(.table-extra-services) thead tr:first-child th:last-child,
+.table:not(.dataTable):not(.border):not(.table-extra-services) thead tr:first-child td:last-child {
+    border-top-right-radius: 0.475rem;
+}
+.table:not(.dataTable):not(.border):not(.table-extra-services) tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 0.475rem;
+}
+.table:not(.dataTable):not(.border):not(.table-extra-services) tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 0.475rem;
+}
+.table:not(.dataTable):not(.border):not(.table-extra-services) tfoot tr:last-child th:first-child,
+.table:not(.dataTable):not(.border):not(.table-extra-services) tfoot tr:last-child td:first-child {
+    border-bottom-left-radius: 0.475rem;
+}
+.table:not(.dataTable):not(.border):not(.table-extra-services) tfoot tr:last-child th:last-child,
+.table:not(.dataTable):not(.border):not(.table-extra-services) tfoot tr:last-child td:last-child {
+    border-bottom-right-radius: 0.475rem;
+}
+.table .table th, .table .table td { /*Nested Tables*/
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+.d-en {
+    display: block !important;
+}
+
+.d-ar {
+    display: none !important;
+}
+/*Time flatpicker*/
+.flatpicker-container::after {
+    right: 15px;
+}

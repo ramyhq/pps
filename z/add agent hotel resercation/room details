@@ -1,0 +1,432 @@
+<div class="table-responsive" data-select2-id="select2-data-1176-bqdz">
+                                        <table id="ManualRateWeekTable" class="table table-striped table-row-bordered border mt-3 table-prices" data-select2-id="select2-data-ManualRateWeekTable">
+                                            <colgroup>
+                                                <col style="width:10%">
+                                                <col style="width:9%">
+                                                <col style="width:9%">
+                                                <col style="width:9%">
+                                                <col style="width:9%">
+                                                <col style="width:9%">
+                                                <col style="width:9%">
+                                                <col class="td-direct" style="width:9%">
+                                                <col class="td-direct" style="width:9%">
+                                                <col class="td-direct" style="width:9%">
+                                                <col class="td-direct" style="width:9%">
+                                                <col class="td-direct" style="width:9%">
+                                                <col class="td-direct" style="width:9%">
+                                            </colgroup>
+                                            <thead class="fw-bold text-primary" data-select2-id="select2-data-1164-51qv">
+                                                <tr>
+                                                    <th rowspan="2">Date</th>
+                                                    <th colspan="6" class="border-start border-start-secondary px-2 text-center">Sale</th>
+                                                        <th colspan="6" class="border-start border-start-secondary px-2 td-direct text-center">Cost</th>
+                                                </tr>
+                                                <tr class="fw-bold">
+                                                    <th class="border-start border-start-secondary px-2">
+                                                        Room
+                                                    </th>
+                                                    <th>Meal per PAX</th>
+                                                    <th>Meal price</th>
+                                                    <th>Price</th>
+                                                    <th>VAT</th>
+                                                    <th>Total</th>
+                                                    <th class="border-start border-start-secondary px-2 td-direct">
+                                                        Room
+                                                    </th>
+                                                    <th class="td-direct">Meal per PAX</th>
+                                                    <th class="td-direct">Meal price</th>
+                                                    <th class="td-direct">Price</th>
+                                                    <th class="td-direct">VAT</th>
+                                                    <th class="td-direct">Total</th>
+                                                </tr>
+                                                <tr class="bg-secondary" data-select2-id="select2-data-1163-4lu6">
+
+                                                    <td data-select2-id="select2-data-1162-ynan">
+                                                      <div class="row" data-select2-id="select2-data-1161-3nub">
+                                                                    <div class="col-12 form-select2 rms-select-check" data-select2-id="select2-data-1160-n2pj">
+                                                                          <select id="roomsMultiSelect" class="w-100 selectedDays js-days-multiple js-states select2-hidden-accessible" multiple="" data-select2-id="select2-data-roomsMultiSelect" tabindex="-1" aria-hidden="true"> 
+                                                                            <option value="0" data-select2-id="select2-data-1168-lplw">SUN</option>
+                                                                            <option value="1" data-select2-id="select2-data-1169-l6fz">MON</option>
+                                                                            <option value="2" data-select2-id="select2-data-1170-7sle">TUE</option>
+                                                                            <option value="3" data-select2-id="select2-data-1171-q9ku">WED</option>
+                                                                            <option value="4" data-select2-id="select2-data-1172-9j6m">THU</option>
+                                                                            <option value="5" data-select2-id="select2-data-1173-e909">FRI</option>
+                                                                            <option value="6" data-select2-id="select2-data-1174-z5da">SAT</option>
+                                                                        </select><span class="select2 select2-container select2-container--default select2-container--below" dir="ltr" data-select2-id="select2-data-1-sauq" style="width: 104.653px;"><span class="selection"><span class="select2-selection select2-selection--multiple" role="combobox" aria-haspopup="true" aria-expanded="false" tabindex="-1" aria-disabled="false"><ul class="select2-selection__rendered" id="select2-roomsMultiSelect-container"></ul><span class="select2-search select2-search--inline"><textarea class="select2-search__field" type="search" tabindex="0" autocorrect="off" autocapitalize="none" spellcheck="false" role="searchbox" aria-autocomplete="list" autocomplete="off" aria-label="Search" aria-describedby="select2-roomsMultiSelect-container" placeholder="Select days" style="width: 100%;"></textarea></span></span></span><span class="dropdown-wrapper" aria-hidden="true"></span></span>
+                                                                    </div>
+                                                                    <div class="d-grid">
+                                                                        <button type="button" onclick="SubmitPrice()" class="btn btn-sm btn-primary d-block  p-2 btn-cell">Apply</button>
+                                                                    </div>
+                                                                </div> 
+                                                    </td>
+                                                    <td class="border-start border-start-secondary px-2"><input type="number" min="0" class="form-control input-sm enablerate" id="sellRoomval" disabled=""></td>
+                                                    <td class="text-nowrap">
+                                                        <input type="number" min="0" class="form-control input-sm enablerate d-inline-block" id="sellMealval" disabled="">
+                                                    </td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td class="border-start border-start-secondary px-2 td-direct"><input type="number" min="0" class="form-control input-sm enablerate" id="buyRoomval" disabled=""></td>
+                                                    <td class="td-direct text-nowrap">
+                                                        <input type="number" min="0" class="form-control input-sm enablerate d-inline-block" id="buyMealval" disabled="">
+                                                    </td>
+                                                    <td class="td-direct"></td>
+                                                    <td class="td-direct"></td>
+                                                    <td class="td-direct"></td>
+                                                    <td class="td-direct"></td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+            <tr id="DayNum_71" class="">
+                <td class="d-none">4</td>
+                <td class="d-none">1</td>
+                <td class="d-none">2026/3/12</td>
+
+                <td class="text-nowrap">Thursday 12/03/2026</td>
+
+                
+            <td class="border-start border-secondary px-2">
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate RoomSellCal RoomSellVal_day_4" id="RoomSell_71" aria-describedby="RoomSell_71-error" aria-invalid="false" disabled="">
+            </td>
+
+            <td>
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate MealSellPaxCal MealSellPaxVal_day_4" id="MealSellPax_71" disabled="">
+            </td>
+
+            <td><p class="m-0 p-0 SaleMealPrice" id="SaleMealPrice_71">0.00</p></td>
+            <td><p class="m-0 p-0 PriceSellCal" id="PriceSell_71">0.00</p></td>
+            <td><p class="m-0 p-0 VatSellCal" id="VatSell_71">0.00</p></td>
+            <td><p class="m-0 p-0 TotalSellCal" id="TotalSell_71">0.00</p></td>
+        
+                
+            <td class="border-start border-secondary px-2">
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate RoomBuyCal RoomBuyVal_day_4" id="RoomBuy_71" disabled="">
+            </td>
+
+            <td>
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate MealBuyPaxCal MealBuyPaxVal_day_4" id="MealBuyPax_71" disabled="">
+            </td>
+
+            <td><p class="m-0 p-0 BuyMealPrice" id="BuyMealPrice_71">0.00</p></td>
+            <td><p class="m-0 p-0 PriceBuyCal" id="PriceBuy_71">0.00</p></td>
+            <td><p class="m-0 p-0 VatBuyCal" id="VatBuy_71">0.00</p></td>
+            <td><p class="m-0 p-0 TotalBuyCal" id="TotalBuy_71">0.00</p></td>
+        
+            </tr>
+        
+            <tr id="DayNum_72" class="">
+                <td class="d-none">5</td>
+                <td class="d-none">2</td>
+                <td class="d-none">2026/3/13</td>
+
+                <td class="text-nowrap">Friday 13/03/2026</td>
+
+                
+            <td class="border-start border-secondary px-2">
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate RoomSellCal RoomSellVal_day_5" id="RoomSell_72" aria-describedby="RoomSell_72-error" aria-invalid="false" disabled="">
+            </td>
+
+            <td>
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate MealSellPaxCal MealSellPaxVal_day_5" id="MealSellPax_72" disabled="">
+            </td>
+
+            <td><p class="m-0 p-0 SaleMealPrice" id="SaleMealPrice_72">0.00</p></td>
+            <td><p class="m-0 p-0 PriceSellCal" id="PriceSell_72">0.00</p></td>
+            <td><p class="m-0 p-0 VatSellCal" id="VatSell_72">0.00</p></td>
+            <td><p class="m-0 p-0 TotalSellCal" id="TotalSell_72">0.00</p></td>
+        
+                
+            <td class="border-start border-secondary px-2">
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate RoomBuyCal RoomBuyVal_day_5" id="RoomBuy_72" disabled="">
+            </td>
+
+            <td>
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate MealBuyPaxCal MealBuyPaxVal_day_5" id="MealBuyPax_72" disabled="">
+            </td>
+
+            <td><p class="m-0 p-0 BuyMealPrice" id="BuyMealPrice_72">0.00</p></td>
+            <td><p class="m-0 p-0 PriceBuyCal" id="PriceBuy_72">0.00</p></td>
+            <td><p class="m-0 p-0 VatBuyCal" id="VatBuy_72">0.00</p></td>
+            <td><p class="m-0 p-0 TotalBuyCal" id="TotalBuy_72">0.00</p></td>
+        
+            </tr>
+        
+            <tr id="DayNum_73">
+                <td class="d-none">6</td>
+                <td class="d-none">3</td>
+                <td class="d-none">2026/3/14</td>
+
+                <td class="text-nowrap">Saturday 14/03/2026</td>
+
+                
+            <td class="border-start border-secondary px-2">
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate RoomSellCal RoomSellVal_day_6" id="RoomSell_73" disabled="">
+            </td>
+
+            <td>
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate MealSellPaxCal MealSellPaxVal_day_6" id="MealSellPax_73" disabled="">
+            </td>
+
+            <td><p class="m-0 p-0 SaleMealPrice" id="SaleMealPrice_73">0.00</p></td>
+            <td><p class="m-0 p-0 PriceSellCal" id="PriceSell_73">0.00</p></td>
+            <td><p class="m-0 p-0 VatSellCal" id="VatSell_73">0.00</p></td>
+            <td><p class="m-0 p-0 TotalSellCal" id="TotalSell_73">0.00</p></td>
+        
+                
+            <td class="border-start border-secondary px-2">
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate RoomBuyCal RoomBuyVal_day_6" id="RoomBuy_73" disabled="">
+            </td>
+
+            <td>
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate MealBuyPaxCal MealBuyPaxVal_day_6" id="MealBuyPax_73" disabled="">
+            </td>
+
+            <td><p class="m-0 p-0 BuyMealPrice" id="BuyMealPrice_73">0.00</p></td>
+            <td><p class="m-0 p-0 PriceBuyCal" id="PriceBuy_73">0.00</p></td>
+            <td><p class="m-0 p-0 VatBuyCal" id="VatBuy_73">0.00</p></td>
+            <td><p class="m-0 p-0 TotalBuyCal" id="TotalBuy_73">0.00</p></td>
+        
+            </tr>
+        
+            <tr id="DayNum_74">
+                <td class="d-none">0</td>
+                <td class="d-none">4</td>
+                <td class="d-none">2026/3/15</td>
+
+                <td class="text-nowrap">Sunday 15/03/2026</td>
+
+                
+            <td class="border-start border-secondary px-2">
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate RoomSellCal RoomSellVal_day_0" id="RoomSell_74" disabled="">
+            </td>
+
+            <td>
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate MealSellPaxCal MealSellPaxVal_day_0" id="MealSellPax_74" disabled="">
+            </td>
+
+            <td><p class="m-0 p-0 SaleMealPrice" id="SaleMealPrice_74">0.00</p></td>
+            <td><p class="m-0 p-0 PriceSellCal" id="PriceSell_74">0.00</p></td>
+            <td><p class="m-0 p-0 VatSellCal" id="VatSell_74">0.00</p></td>
+            <td><p class="m-0 p-0 TotalSellCal" id="TotalSell_74">0.00</p></td>
+        
+                
+            <td class="border-start border-secondary px-2">
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate RoomBuyCal RoomBuyVal_day_0" id="RoomBuy_74" disabled="">
+            </td>
+
+            <td>
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate MealBuyPaxCal MealBuyPaxVal_day_0" id="MealBuyPax_74" disabled="">
+            </td>
+
+            <td><p class="m-0 p-0 BuyMealPrice" id="BuyMealPrice_74">0.00</p></td>
+            <td><p class="m-0 p-0 PriceBuyCal" id="PriceBuy_74">0.00</p></td>
+            <td><p class="m-0 p-0 VatBuyCal" id="VatBuy_74">0.00</p></td>
+            <td><p class="m-0 p-0 TotalBuyCal" id="TotalBuy_74">0.00</p></td>
+        
+            </tr>
+        
+            <tr id="DayNum_75">
+                <td class="d-none">1</td>
+                <td class="d-none">5</td>
+                <td class="d-none">2026/3/16</td>
+
+                <td class="text-nowrap">Monday 16/03/2026</td>
+
+                
+            <td class="border-start border-secondary px-2">
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate RoomSellCal RoomSellVal_day_1" id="RoomSell_75" disabled="">
+            </td>
+
+            <td>
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate MealSellPaxCal MealSellPaxVal_day_1" id="MealSellPax_75" disabled="">
+            </td>
+
+            <td><p class="m-0 p-0 SaleMealPrice" id="SaleMealPrice_75">0.00</p></td>
+            <td><p class="m-0 p-0 PriceSellCal" id="PriceSell_75">0.00</p></td>
+            <td><p class="m-0 p-0 VatSellCal" id="VatSell_75">0.00</p></td>
+            <td><p class="m-0 p-0 TotalSellCal" id="TotalSell_75">0.00</p></td>
+        
+                
+            <td class="border-start border-secondary px-2">
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate RoomBuyCal RoomBuyVal_day_1" id="RoomBuy_75" disabled="">
+            </td>
+
+            <td>
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate MealBuyPaxCal MealBuyPaxVal_day_1" id="MealBuyPax_75" disabled="">
+            </td>
+
+            <td><p class="m-0 p-0 BuyMealPrice" id="BuyMealPrice_75">0.00</p></td>
+            <td><p class="m-0 p-0 PriceBuyCal" id="PriceBuy_75">0.00</p></td>
+            <td><p class="m-0 p-0 VatBuyCal" id="VatBuy_75">0.00</p></td>
+            <td><p class="m-0 p-0 TotalBuyCal" id="TotalBuy_75">0.00</p></td>
+        
+            </tr>
+        
+            <tr id="DayNum_76">
+                <td class="d-none">2</td>
+                <td class="d-none">6</td>
+                <td class="d-none">2026/3/17</td>
+
+                <td class="text-nowrap">Tuesday 17/03/2026</td>
+
+                
+            <td class="border-start border-secondary px-2">
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate RoomSellCal RoomSellVal_day_2" id="RoomSell_76" disabled="">
+            </td>
+
+            <td>
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate MealSellPaxCal MealSellPaxVal_day_2" id="MealSellPax_76" disabled="">
+            </td>
+
+            <td><p class="m-0 p-0 SaleMealPrice" id="SaleMealPrice_76">0.00</p></td>
+            <td><p class="m-0 p-0 PriceSellCal" id="PriceSell_76">0.00</p></td>
+            <td><p class="m-0 p-0 VatSellCal" id="VatSell_76">0.00</p></td>
+            <td><p class="m-0 p-0 TotalSellCal" id="TotalSell_76">0.00</p></td>
+        
+                
+            <td class="border-start border-secondary px-2">
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate RoomBuyCal RoomBuyVal_day_2" id="RoomBuy_76" disabled="">
+            </td>
+
+            <td>
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate MealBuyPaxCal MealBuyPaxVal_day_2" id="MealBuyPax_76" disabled="">
+            </td>
+
+            <td><p class="m-0 p-0 BuyMealPrice" id="BuyMealPrice_76">0.00</p></td>
+            <td><p class="m-0 p-0 PriceBuyCal" id="PriceBuy_76">0.00</p></td>
+            <td><p class="m-0 p-0 VatBuyCal" id="VatBuy_76">0.00</p></td>
+            <td><p class="m-0 p-0 TotalBuyCal" id="TotalBuy_76">0.00</p></td>
+        
+            </tr>
+        
+            <tr id="DayNum_77">
+                <td class="d-none">3</td>
+                <td class="d-none">7</td>
+                <td class="d-none">2026/3/18</td>
+
+                <td class="text-nowrap">Wednesday 18/03/2026</td>
+
+                
+            <td class="border-start border-secondary px-2">
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate RoomSellCal RoomSellVal_day_3" id="RoomSell_77" disabled="">
+            </td>
+
+            <td>
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate MealSellPaxCal MealSellPaxVal_day_3" id="MealSellPax_77" disabled="">
+            </td>
+
+            <td><p class="m-0 p-0 SaleMealPrice" id="SaleMealPrice_77">0.00</p></td>
+            <td><p class="m-0 p-0 PriceSellCal" id="PriceSell_77">0.00</p></td>
+            <td><p class="m-0 p-0 VatSellCal" id="VatSell_77">0.00</p></td>
+            <td><p class="m-0 p-0 TotalSellCal" id="TotalSell_77">0.00</p></td>
+        
+                
+            <td class="border-start border-secondary px-2">
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate RoomBuyCal RoomBuyVal_day_3" id="RoomBuy_77" disabled="">
+            </td>
+
+            <td>
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate MealBuyPaxCal MealBuyPaxVal_day_3" id="MealBuyPax_77" disabled="">
+            </td>
+
+            <td><p class="m-0 p-0 BuyMealPrice" id="BuyMealPrice_77">0.00</p></td>
+            <td><p class="m-0 p-0 PriceBuyCal" id="PriceBuy_77">0.00</p></td>
+            <td><p class="m-0 p-0 VatBuyCal" id="VatBuy_77">0.00</p></td>
+            <td><p class="m-0 p-0 TotalBuyCal" id="TotalBuy_77">0.00</p></td>
+        
+            </tr>
+        
+            <tr id="DayNum_78">
+                <td class="d-none">4</td>
+                <td class="d-none">8</td>
+                <td class="d-none">2026/3/19</td>
+
+                <td class="text-nowrap">Thursday 19/03/2026</td>
+
+                
+            <td class="border-start border-secondary px-2">
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate RoomSellCal RoomSellVal_day_4" id="RoomSell_78" disabled="">
+            </td>
+
+            <td>
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate MealSellPaxCal MealSellPaxVal_day_4" id="MealSellPax_78" disabled="">
+            </td>
+
+            <td><p class="m-0 p-0 SaleMealPrice" id="SaleMealPrice_78">0.00</p></td>
+            <td><p class="m-0 p-0 PriceSellCal" id="PriceSell_78">0.00</p></td>
+            <td><p class="m-0 p-0 VatSellCal" id="VatSell_78">0.00</p></td>
+            <td><p class="m-0 p-0 TotalSellCal" id="TotalSell_78">0.00</p></td>
+        
+                
+            <td class="border-start border-secondary px-2">
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate RoomBuyCal RoomBuyVal_day_4" id="RoomBuy_78" disabled="">
+            </td>
+
+            <td>
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate MealBuyPaxCal MealBuyPaxVal_day_4" id="MealBuyPax_78" disabled="">
+            </td>
+
+            <td><p class="m-0 p-0 BuyMealPrice" id="BuyMealPrice_78">0.00</p></td>
+            <td><p class="m-0 p-0 PriceBuyCal" id="PriceBuy_78">0.00</p></td>
+            <td><p class="m-0 p-0 VatBuyCal" id="VatBuy_78">0.00</p></td>
+            <td><p class="m-0 p-0 TotalBuyCal" id="TotalBuy_78">0.00</p></td>
+        
+            </tr>
+        
+            <tr id="DayNum_79">
+                <td class="d-none">5</td>
+                <td class="d-none">9</td>
+                <td class="d-none">2026/3/20</td>
+
+                <td class="text-nowrap">Friday 20/03/2026</td>
+
+                
+            <td class="border-start border-secondary px-2">
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate RoomSellCal RoomSellVal_day_5" id="RoomSell_79" disabled="">
+            </td>
+
+            <td>
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate MealSellPaxCal MealSellPaxVal_day_5" id="MealSellPax_79" disabled="">
+            </td>
+
+            <td><p class="m-0 p-0 SaleMealPrice" id="SaleMealPrice_79">0.00</p></td>
+            <td><p class="m-0 p-0 PriceSellCal" id="PriceSell_79">0.00</p></td>
+            <td><p class="m-0 p-0 VatSellCal" id="VatSell_79">0.00</p></td>
+            <td><p class="m-0 p-0 TotalSellCal" id="TotalSell_79">0.00</p></td>
+        
+                
+            <td class="border-start border-secondary px-2">
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate RoomBuyCal RoomBuyVal_day_5" id="RoomBuy_79" disabled="">
+            </td>
+
+            <td>
+                <input type="number" min="0" value="0" class="form-control input-sm enablerate MealBuyPaxCal MealBuyPaxVal_day_5" id="MealBuyPax_79" disabled="">
+            </td>
+
+            <td><p class="m-0 p-0 BuyMealPrice" id="BuyMealPrice_79">0.00</p></td>
+            <td><p class="m-0 p-0 PriceBuyCal" id="PriceBuy_79">0.00</p></td>
+            <td><p class="m-0 p-0 VatBuyCal" id="VatBuy_79">0.00</p></td>
+            <td><p class="m-0 p-0 TotalBuyCal" id="TotalBuy_79">0.00</p></td>
+        
+            </tr>
+        </tbody>
+                                            <tfoot>
+                                                <tr class="bg-secondary fw-bold">
+                                                    <td>All nights total</td>
+                                                        <td class="border-start border-start-secondary px-2"><p class="mt-2"><span id="total_RoomSell_sum_value"></span></p></td>
+                                                    <td><p class="mt-2"><span id="total_MealSellPax_sum_value"></span></p></td>
+                                                    <td><p class="mt-2"><span id="total_MealSell_sum_value"></span></p></td>
+                                                    <td><p class="mt-2"><span id="total_PriceSell_sum_value"></span></p></td>
+                                                    <td><p class="mt-2"><span id="total_VatSell_sum_value"></span></p></td>
+                                                    <td><p class="mt-2"><span id="total_TotalSell_sum_value"></span></p></td>
+                                                    <td class="td-direct"><p class="mt-2"><span id="total_RoomBuy_sum_value"></span></p></td>
+                                                    <td class="td-direct"><p class="mt-2"><span id="total_MealBuyPax_sum_value"></span></p></td>
+                                                    <td class="td-direct"><p class="mt-2"><span id="total_MealBuy_sum_value"></span></p></td>
+                                                    <td class="td-direct"><p class="mt-2"><span id="total_PriceBuy_sum_value"></span></p></td>
+                                                    <td class="td-direct"><p class="mt-2"><span id="total_VatBuy_sum_value"></span></p></td>
+                                                    <td class="td-direct"><p class="mt-2"><span id="total_TotalBuy_sum_value"></span></p></td>
+                                                </tr>
+
+                                        </tfoot></table>
+                                    </div>

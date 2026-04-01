@@ -1,0 +1,1807 @@
+<div id="DIV_1"><button type="button" id="BUTTON_2"><i id="I_3"></i>Actions </button><ul id="UL_4"><li id="LI_5"><button type="button" id="BUTTON_6"><i id="I_7"></i>Lock </button></li><li id="LI_8"><button type="button" id="BUTTON_9"><i id="I_10"></i>Post </button></li><li id="LI_11"><button type="button" id="BUTTON_12"><i id="I_13"></i>Post to date </button></li><li id="LI_14"><button type="button" id="BUTTON_15"><i id="I_16"></i>Unlock </button></li><li id="LI_17"><button type="button" id="BUTTON_18"><i id="I_19"></i>Unpost </button></li><li id="LI_20"><button type="button" id="BUTTON_21"><i id="I_22"></i>Confirm </button></li><li id="LI_23"><button type="button" id="BUTTON_24"><i id="I_25"></i>Cancel </button></li><li id="LI_26"><hr id="HR_27" /></li><li id="LI_28"><button type="button" id="BUTTON_29"><i id="I_30"></i>Print </button></li><li id="LI_31"><button type="button" id="BUTTON_32"><i id="I_33"></i>Send email </button></li><li id="LI_34"><hr id="HR_35" /></li><li id="LI_36"><button type="button" id="BUTTON_37"><i id="I_38"></i>Transactions details </button></li><li id="LI_39"><hr id="HR_40" /></li><li id="LI_41"><button type="button" id="BUTTON_42"><i id="I_43"></i>Audit log </button></li></ul></div>#DIV_1 {
+    block-size: 34.3281px;
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-start-color: rgb(24, 28, 50);
+    border-end-end-radius: 6.175px;
+    border-end-start-radius: 6.175px;
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-start-color: rgb(24, 28, 50);
+    border-start-end-radius: 6.175px;
+    border-start-start-radius: 6.175px;
+    bottom: 0px;
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    display: flex;
+    height: 34.3281px;
+    inline-size: 100.844px;
+    inset-block-end: 0px;
+    inset-block-start: 0px;
+    inset-inline-end: 0px;
+    inset-inline-start: 0px;
+    left: 0px;
+    margin-inline-end: 6.5px;
+    min-block-size: auto;
+    min-height: auto;
+    min-inline-size: auto;
+    min-width: auto;
+    perspective-origin: 50.4219px 17.1641px;
+    position: relative;
+    right: 0px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    scrollbar-width: thin;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    top: 0px;
+    transform-origin: 50.4219px 17.1641px;
+    vertical-align: middle;
+    width: 100.844px;
+    border: 0px none rgb(24, 28, 50);
+    border-radius: 6.175px;
+    font: 14px / 21px Poppins, "Droid Arabic Kufi";
+    margin: 0px 6.5px 0px 0px;
+    outline: rgb(24, 28, 50) none 0px;
+}
+
+/*#DIV_1*/
+
+#DIV_1:after {
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-start-color: rgb(24, 28, 50);
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-start-color: rgb(24, 28, 50);
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    display: block;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    border: 0px none rgb(24, 28, 50);
+    font: 14px / 21px Poppins, "Droid Arabic Kufi";
+    outline: rgb(24, 28, 50) none 0px;
+}
+
+/*#DIV_1:after*/
+
+#DIV_1:before {
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-start-color: rgb(24, 28, 50);
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-start-color: rgb(24, 28, 50);
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    display: block;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    border: 0px none rgb(24, 28, 50);
+    font: 14px / 21px Poppins, "Droid Arabic Kufi";
+    outline: rgb(24, 28, 50) none 0px;
+}
+
+/*#DIV_1:before*/
+
+#BUTTON_2 {
+    appearance: button;
+    block-size: 34.3281px;
+    border-block-end-color: rgb(255, 255, 255);
+    border-block-end-style: none;
+    border-block-end-width: 0px;
+    border-block-start-color: rgb(255, 255, 255);
+    border-block-start-style: none;
+    border-block-start-width: 0px;
+    border-end-end-radius: 5.525px;
+    border-end-start-radius: 5.525px;
+    border-inline-end-color: rgb(255, 255, 255);
+    border-inline-end-style: none;
+    border-inline-end-width: 0px;
+    border-inline-start-color: rgb(255, 255, 255);
+    border-inline-start-style: none;
+    border-inline-start-width: 0px;
+    border-start-end-radius: 5.525px;
+    border-start-start-radius: 5.525px;
+    bottom: 0px;
+    caret-color: rgb(255, 255, 255);
+    color: rgb(255, 255, 255);
+    column-rule-color: rgb(255, 255, 255);
+    cursor: pointer;
+    display: block;
+    height: 34.3281px;
+    inline-size: 100.844px;
+    inset-block-end: 0px;
+    inset-block-start: 0px;
+    inset-inline-end: 0px;
+    inset-inline-start: 0px;
+    left: 0px;
+    min-block-size: auto;
+    min-height: auto;
+    min-inline-size: auto;
+    min-width: auto;
+    padding-block-end: 8.15px;
+    padding-block-start: 8.15px;
+    padding-inline-end: 17.25px;
+    padding-inline-start: 17.25px;
+    perspective-origin: 50.4219px 17.1641px;
+    position: relative;
+    right: 0px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-decoration-color: rgb(255, 255, 255);
+    text-emphasis-color: rgb(255, 255, 255);
+    text-size-adjust: 100%;
+    text-transform: capitalize;
+    text-wrap-mode: nowrap;
+    top: 0px;
+    transform-origin: 50.4219px 17.1641px;
+    transition-behavior: normal, normal, normal, normal;
+    user-select: none;
+    vertical-align: middle;
+    width: 100.844px;
+    background: rgb(0, 85, 204) none repeat scroll 0% 0% / auto padding-box border-box;
+    border: 0px none rgb(255, 255, 255);
+    border-radius: 5.525px;
+    flex: 1 1 auto;
+    font: 500 12.025px / 18.0375px Poppins, "Droid Arabic Kufi";
+    outline: rgb(255, 255, 255) none 0px;
+    padding: 8.15px 17.25px;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+/*#BUTTON_2*/
+
+#BUTTON_2:after {
+    block-size: 3.5px;
+    border-block-end-color: rgb(255, 255, 255);
+    border-block-start-color: rgb(255, 255, 255);
+    border-block-start-style: solid;
+    border-block-start-width: 3.5px;
+    border-inline-end-color: rgba(0, 0, 0, 0);
+    border-inline-end-style: solid;
+    border-inline-end-width: 3.5px;
+    border-inline-start-color: rgba(0, 0, 0, 0);
+    border-inline-start-style: solid;
+    border-inline-start-width: 3.5px;
+    box-sizing: border-box;
+    caret-color: rgb(255, 255, 255);
+    color: rgb(255, 255, 255);
+    column-rule-color: rgb(255, 255, 255);
+    content: '""';
+    cursor: pointer;
+    display: inline-block;
+    height: 3.5px;
+    inline-size: 7px;
+    margin-inline-start: 3.06638px;
+    perspective-origin: 3.5px 1.75px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-decoration-color: rgb(255, 255, 255);
+    text-emphasis-color: rgb(255, 255, 255);
+    text-size-adjust: 100%;
+    text-transform: capitalize;
+    text-wrap-mode: nowrap;
+    transform-origin: 3.5px 1.75px;
+    user-select: none;
+    vertical-align: 3.06638px;
+    width: 7px;
+    border-top: 3.5px solid rgb(255, 255, 255);
+    border-right: 3.5px solid rgba(0, 0, 0, 0);
+    border-bottom: 0px none rgb(255, 255, 255);
+    border-left: 3.5px solid rgba(0, 0, 0, 0);
+    font: 500 12.025px / 18.0375px Poppins, "Droid Arabic Kufi";
+    margin: 0px 0px 0px 3.06638px;
+    outline: rgb(255, 255, 255) none 0px;
+}
+
+/*#BUTTON_2:after*/
+
+#BUTTON_2:before {
+    border-block-end-color: rgb(255, 255, 255);
+    border-block-start-color: rgb(255, 255, 255);
+    border-inline-end-color: rgb(255, 255, 255);
+    border-inline-start-color: rgb(255, 255, 255);
+    box-sizing: border-box;
+    caret-color: rgb(255, 255, 255);
+    color: rgb(255, 255, 255);
+    column-rule-color: rgb(255, 255, 255);
+    cursor: pointer;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-decoration-color: rgb(255, 255, 255);
+    text-emphasis-color: rgb(255, 255, 255);
+    text-size-adjust: 100%;
+    text-transform: capitalize;
+    text-wrap-mode: nowrap;
+    user-select: none;
+    border: 0px none rgb(255, 255, 255);
+    font: 500 12.025px / 18.0375px Poppins, "Droid Arabic Kufi";
+    outline: rgb(255, 255, 255) none 0px;
+}
+
+/*#BUTTON_2:before*/
+
+#I_3 {
+    block-size: 0px;
+    border-block-end-color: rgb(255, 255, 255);
+    border-block-start-color: rgb(255, 255, 255);
+    border-inline-end-color: rgb(255, 255, 255);
+    border-inline-start-color: rgb(255, 255, 255);
+    box-sizing: border-box;
+    caret-color: rgb(255, 255, 255);
+    color: rgb(255, 255, 255);
+    column-rule-color: rgb(255, 255, 255);
+    cursor: pointer;
+    display: inline-flex;
+    height: 0px;
+    inline-size: 3.25px;
+    margin-inline-end: 5px;
+    perspective-origin: 1.625px 0px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: center;
+    text-decoration-color: rgb(255, 255, 255);
+    text-emphasis-color: rgb(255, 255, 255);
+    text-size-adjust: 100%;
+    text-transform: capitalize;
+    text-wrap-mode: nowrap;
+    transform-origin: 1.625px 0px;
+    user-select: none;
+    vertical-align: middle;
+    width: 3.25px;
+    border: 0px none rgb(255, 255, 255);
+    font: 900 13px / 0px "Font Awesome 6 Free";
+    margin: 0px 5px 0px 0px;
+    outline: rgb(255, 255, 255) none 0px;
+}
+
+/*#I_3*/
+
+#I_3:after {
+    border-block-end-color: rgb(255, 255, 255);
+    border-block-start-color: rgb(255, 255, 255);
+    border-inline-end-color: rgb(255, 255, 255);
+    border-inline-start-color: rgb(255, 255, 255);
+    box-sizing: border-box;
+    caret-color: rgb(255, 255, 255);
+    color: rgb(255, 255, 255);
+    column-rule-color: rgb(255, 255, 255);
+    cursor: pointer;
+    display: block;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: center;
+    text-decoration-color: rgb(255, 255, 255);
+    text-emphasis-color: rgb(255, 255, 255);
+    text-size-adjust: 100%;
+    text-transform: capitalize;
+    text-wrap-mode: nowrap;
+    user-select: none;
+    border: 0px none rgb(255, 255, 255);
+    font: 900 13px / 0px "Font Awesome 6 Free";
+    outline: rgb(255, 255, 255) none 0px;
+}
+
+/*#I_3:after*/
+
+#I_3:before {
+    block-size: 0px;
+    border-block-end-color: rgb(255, 255, 255);
+    border-block-start-color: rgb(255, 255, 255);
+    border-inline-end-color: rgb(255, 255, 255);
+    border-inline-start-color: rgb(255, 255, 255);
+    box-sizing: border-box;
+    caret-color: rgb(255, 255, 255);
+    color: rgb(255, 255, 255);
+    column-rule-color: rgb(255, 255, 255);
+    content: '""';
+    cursor: pointer;
+    display: block;
+    height: 0px;
+    inline-size: 3.25px;
+    min-block-size: auto;
+    min-height: auto;
+    min-inline-size: auto;
+    min-width: auto;
+    perspective-origin: 1.625px 0px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: center;
+    text-decoration-color: rgb(255, 255, 255);
+    text-emphasis-color: rgb(255, 255, 255);
+    text-size-adjust: 100%;
+    text-transform: capitalize;
+    text-wrap-mode: nowrap;
+    transform-origin: 1.625px 0px;
+    user-select: none;
+    width: 3.25px;
+    border: 0px none rgb(255, 255, 255);
+    font: 900 13px / 0px "Font Awesome 6 Free";
+    outline: rgb(255, 255, 255) none 0px;
+}
+
+/*#I_3:before*/
+
+#UL_4 {
+    block-size: 279.844px;
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-start-color: rgb(24, 28, 50);
+    border-end-end-radius: 6.175px;
+    border-end-start-radius: 6.175px;
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-start-color: rgb(24, 28, 50);
+    border-start-end-radius: 6.175px;
+    border-start-start-radius: 6.175px;
+    bottom: -245.516px;
+    box-shadow: rgba(82, 63, 105, 0.15) 0px 0px 50px 0px;
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    height: 279.844px;
+    inline-size: 184.031px;
+    inset-block-end: -245.516px;
+    inset-block-start: 0px;
+    inset-inline-end: -83.1875px;
+    inset-inline-start: 0px;
+    left: 0px;
+    margin-block-end: 0px;
+    margin-block-start: 0px;
+    min-inline-size: 130px;
+    min-width: 130px;
+    padding-block-end: 9.75px;
+    padding-block-start: 9.75px;
+    padding-inline-start: 0px;
+    perspective-origin: 92.0156px 139.922px;
+    position: absolute;
+    right: -83.1875px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    scrollbar-width: thin;
+    text-align: left;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    top: 0px;
+    transform: matrix(1, 0, 0, 1, 0, 36);
+    transform-origin: 92.0156px 139.922px;
+    width: 184.031px;
+    z-index: 1000;
+    background: rgb(255, 255, 255) none repeat scroll 0% 0% / auto padding-box padding-box;
+    border: 0px none rgb(24, 28, 50);
+    border-radius: 6.175px;
+    font: 13px / 19.5px Poppins, "Droid Arabic Kufi";
+    list-style: outside none none;
+    margin: 0px;
+    outline: rgb(24, 28, 50) none 0px;
+    padding: 9.75px 0px;
+}
+
+/*#UL_4*/
+
+#UL_4:after {
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-start-color: rgb(24, 28, 50);
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-start-color: rgb(24, 28, 50);
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    border: 0px none rgb(24, 28, 50);
+    font: 13px / 19.5px Poppins, "Droid Arabic Kufi";
+    list-style: outside none none;
+    outline: rgb(24, 28, 50) none 0px;
+}
+
+/*#UL_4:after*/
+
+#UL_4:before {
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-start-color: rgb(24, 28, 50);
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-start-color: rgb(24, 28, 50);
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    border: 0px none rgb(24, 28, 50);
+    font: 13px / 19.5px Poppins, "Droid Arabic Kufi";
+    list-style: outside none none;
+    outline: rgb(24, 28, 50) none 0px;
+}
+
+/*#UL_4:before*/
+
+#LI_5,
+#LI_8,
+#LI_11,
+#LI_14,
+#LI_20 {
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-start-color: rgb(24, 28, 50);
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-start-color: rgb(24, 28, 50);
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    display: none;
+    padding-block-end: 1.3px;
+    padding-block-start: 1.3px;
+    padding-inline-end: 9.75px;
+    padding-inline-start: 9.75px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    border: 0px none rgb(24, 28, 50);
+    font: 13px / 19.5px Poppins, "Droid Arabic Kufi";
+    list-style: outside none none;
+    outline: rgb(24, 28, 50) none 0px;
+    padding: 1.3px 9.75px;
+}
+
+/*#LI_5, #LI_8, #LI_11, #LI_14, #LI_20*/
+
+#LI_5:after,
+#LI_8:after,
+#LI_11:after,
+#LI_14:after,
+#LI_20:after {
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-start-color: rgb(24, 28, 50);
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-start-color: rgb(24, 28, 50);
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    border: 0px none rgb(24, 28, 50);
+    font: 13px / 19.5px Poppins, "Droid Arabic Kufi";
+    list-style: outside none none;
+    outline: rgb(24, 28, 50) none 0px;
+}
+
+/*#LI_5:after, #LI_8:after, #LI_11:after, #LI_14:after, #LI_20:after*/
+
+#LI_5:before,
+#LI_8:before,
+#LI_11:before,
+#LI_14:before,
+#LI_20:before {
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-start-color: rgb(24, 28, 50);
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-start-color: rgb(24, 28, 50);
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    border: 0px none rgb(24, 28, 50);
+    font: 13px / 19.5px Poppins, "Droid Arabic Kufi";
+    list-style: outside none none;
+    outline: rgb(24, 28, 50) none 0px;
+}
+
+/*#LI_5:before, #LI_8:before, #LI_11:before, #LI_14:before, #LI_20:before*/
+
+#BUTTON_6,
+#BUTTON_9,
+#BUTTON_12,
+#BUTTON_15,
+#BUTTON_21 {
+    appearance: button;
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-end-style: none;
+    border-block-end-width: 0px;
+    border-block-start-color: rgb(24, 28, 50);
+    border-block-start-style: none;
+    border-block-start-width: 0px;
+    border-end-end-radius: 5px;
+    border-end-start-radius: 5px;
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-end-style: none;
+    border-inline-end-width: 0px;
+    border-inline-start-color: rgb(24, 28, 50);
+    border-inline-start-style: none;
+    border-inline-start-width: 0px;
+    border-start-end-radius: 5px;
+    border-start-start-radius: 5px;
+    caret-color: rgb(24, 28, 50);
+    clear: both;
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    cursor: pointer;
+    display: block;
+    inline-size: 100%;
+    padding-block-end: 6.5px;
+    padding-block-start: 6.5px;
+    padding-inline-end: 6.5px;
+    padding-inline-start: 6.5px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    width: 100%;
+    background: rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box;
+    border: 0px none rgb(24, 28, 50);
+    border-radius: 5px;
+    font: 13px / 19.5px Poppins, "Droid Arabic Kufi";
+    list-style: outside none none;
+    outline: rgb(24, 28, 50) none 0px;
+    padding: 6.5px;
+}
+
+/*#BUTTON_6, #BUTTON_9, #BUTTON_12, #BUTTON_15, #BUTTON_21*/
+
+#BUTTON_6:after,
+#BUTTON_9:after,
+#BUTTON_12:after,
+#BUTTON_15:after,
+#BUTTON_21:after {
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-start-color: rgb(24, 28, 50);
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-start-color: rgb(24, 28, 50);
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    cursor: pointer;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(24, 28, 50);
+    font: 13px / 19.5px Poppins, "Droid Arabic Kufi";
+    list-style: outside none none;
+    outline: rgb(24, 28, 50) none 0px;
+}
+
+/*#BUTTON_6:after, #BUTTON_9:after, #BUTTON_12:after, #BUTTON_15:after, #BUTTON_21:after*/
+
+#BUTTON_6:before,
+#BUTTON_9:before,
+#BUTTON_12:before,
+#BUTTON_15:before,
+#BUTTON_21:before {
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-start-color: rgb(24, 28, 50);
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-start-color: rgb(24, 28, 50);
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    cursor: pointer;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(24, 28, 50);
+    font: 13px / 19.5px Poppins, "Droid Arabic Kufi";
+    list-style: outside none none;
+    outline: rgb(24, 28, 50) none 0px;
+}
+
+/*#BUTTON_6:before, #BUTTON_9:before, #BUTTON_12:before, #BUTTON_15:before, #BUTTON_21:before*/
+
+#I_7 {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    cursor: pointer;
+    display: inline-block;
+    margin-inline-end: 6.5px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    margin: 0px 6.5px 0px 0px;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_7*/
+
+#I_7:after {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    cursor: pointer;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_7:after*/
+
+#I_7:before {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    content: '""';
+    cursor: pointer;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_7:before*/
+
+#I_10,
+#I_13 {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    cursor: pointer;
+    display: inline-block;
+    margin-inline-end: 6.5px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    margin: 0px 6.5px 0px 0px;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_10, #I_13*/
+
+#I_10:after,
+#I_13:after {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    cursor: pointer;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_10:after, #I_13:after*/
+
+#I_10:before,
+#I_13:before {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    content: '""';
+    cursor: pointer;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_10:before, #I_13:before*/
+
+#I_16 {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    cursor: pointer;
+    display: inline-block;
+    margin-inline-end: 6.5px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    margin: 0px 6.5px 0px 0px;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_16*/
+
+#I_16:after {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    cursor: pointer;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_16:after*/
+
+#I_16:before {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    content: '""';
+    cursor: pointer;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_16:before*/
+
+#LI_17,
+#LI_23,
+#LI_28,
+#LI_31,
+#LI_36,
+#LI_41 {
+    block-size: 35.0938px;
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-start-color: rgb(24, 28, 50);
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-start-color: rgb(24, 28, 50);
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    height: 35.0938px;
+    inline-size: 184.031px;
+    padding-block-end: 1.3px;
+    padding-block-start: 1.3px;
+    padding-inline-end: 9.75px;
+    padding-inline-start: 9.75px;
+    perspective-origin: 92.0156px 17.5469px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    transform-origin: 92.0156px 17.5469px;
+    width: 184.031px;
+    border: 0px none rgb(24, 28, 50);
+    font: 13px / 19.5px Poppins, "Droid Arabic Kufi";
+    list-style: outside none none;
+    outline: rgb(24, 28, 50) none 0px;
+    padding: 1.3px 9.75px;
+}
+
+/*#LI_17, #LI_23, #LI_28, #LI_31, #LI_36, #LI_41*/
+
+#LI_17:after,
+#LI_23:after,
+#LI_28:after,
+#LI_31:after,
+#LI_36:after,
+#LI_41:after {
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-start-color: rgb(24, 28, 50);
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-start-color: rgb(24, 28, 50);
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    border: 0px none rgb(24, 28, 50);
+    font: 13px / 19.5px Poppins, "Droid Arabic Kufi";
+    list-style: outside none none;
+    outline: rgb(24, 28, 50) none 0px;
+}
+
+/*#LI_17:after, #LI_23:after, #LI_28:after, #LI_31:after, #LI_36:after, #LI_41:after*/
+
+#LI_17:before,
+#LI_23:before,
+#LI_28:before,
+#LI_31:before,
+#LI_36:before,
+#LI_41:before {
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-start-color: rgb(24, 28, 50);
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-start-color: rgb(24, 28, 50);
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    border: 0px none rgb(24, 28, 50);
+    font: 13px / 19.5px Poppins, "Droid Arabic Kufi";
+    list-style: outside none none;
+    outline: rgb(24, 28, 50) none 0px;
+}
+
+/*#LI_17:before, #LI_23:before, #LI_28:before, #LI_31:before, #LI_36:before, #LI_41:before*/
+
+#BUTTON_18,
+#BUTTON_24,
+#BUTTON_29,
+#BUTTON_32,
+#BUTTON_37,
+#BUTTON_42 {
+    appearance: button;
+    block-size: 32.5px;
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-end-style: none;
+    border-block-end-width: 0px;
+    border-block-start-color: rgb(24, 28, 50);
+    border-block-start-style: none;
+    border-block-start-width: 0px;
+    border-end-end-radius: 5px;
+    border-end-start-radius: 5px;
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-end-style: none;
+    border-inline-end-width: 0px;
+    border-inline-start-color: rgb(24, 28, 50);
+    border-inline-start-style: none;
+    border-inline-start-width: 0px;
+    border-start-end-radius: 5px;
+    border-start-start-radius: 5px;
+    caret-color: rgb(24, 28, 50);
+    clear: both;
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    cursor: pointer;
+    display: block;
+    height: 32.5px;
+    inline-size: 164.531px;
+    padding-block-end: 6.5px;
+    padding-block-start: 6.5px;
+    padding-inline-end: 6.5px;
+    padding-inline-start: 6.5px;
+    perspective-origin: 82.2656px 16.25px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    transform-origin: 82.2656px 16.25px;
+    width: 164.531px;
+    background: rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box;
+    border: 0px none rgb(24, 28, 50);
+    border-radius: 5px;
+    font: 13px / 19.5px Poppins, "Droid Arabic Kufi";
+    list-style: outside none none;
+    outline: rgb(24, 28, 50) none 0px;
+    padding: 6.5px;
+}
+
+/*#BUTTON_18, #BUTTON_24, #BUTTON_29, #BUTTON_32, #BUTTON_37, #BUTTON_42*/
+
+#BUTTON_18:after,
+#BUTTON_24:after,
+#BUTTON_29:after,
+#BUTTON_32:after,
+#BUTTON_37:after,
+#BUTTON_42:after {
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-start-color: rgb(24, 28, 50);
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-start-color: rgb(24, 28, 50);
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    cursor: pointer;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(24, 28, 50);
+    font: 13px / 19.5px Poppins, "Droid Arabic Kufi";
+    list-style: outside none none;
+    outline: rgb(24, 28, 50) none 0px;
+}
+
+/*#BUTTON_18:after, #BUTTON_24:after, #BUTTON_29:after, #BUTTON_32:after, #BUTTON_37:after, #BUTTON_42:after*/
+
+#BUTTON_18:before,
+#BUTTON_24:before,
+#BUTTON_29:before,
+#BUTTON_32:before,
+#BUTTON_37:before,
+#BUTTON_42:before {
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-start-color: rgb(24, 28, 50);
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-start-color: rgb(24, 28, 50);
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    cursor: pointer;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(24, 28, 50);
+    font: 13px / 19.5px Poppins, "Droid Arabic Kufi";
+    list-style: outside none none;
+    outline: rgb(24, 28, 50) none 0px;
+}
+
+/*#BUTTON_18:before, #BUTTON_24:before, #BUTTON_29:before, #BUTTON_32:before, #BUTTON_37:before, #BUTTON_42:before*/
+
+#I_19 {
+    block-size: 13px;
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    cursor: pointer;
+    display: inline-block;
+    height: 13px;
+    inline-size: 13px;
+    margin-inline-end: 6.5px;
+    perspective-origin: 6.5px 6.5px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    transform-origin: 6.5px 6.5px;
+    width: 13px;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    margin: 0px 6.5px 0px 0px;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_19*/
+
+#I_19:after {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    cursor: pointer;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_19:after*/
+
+#I_19:before {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    content: '""';
+    cursor: pointer;
+    perspective-origin: 0px 0px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    transform-origin: 0px 0px;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_19:before*/
+
+#I_22 {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    cursor: pointer;
+    display: inline-block;
+    margin-inline-end: 6.5px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    margin: 0px 6.5px 0px 0px;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_22*/
+
+#I_22:after {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    cursor: pointer;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_22:after*/
+
+#I_22:before {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    content: '""';
+    cursor: pointer;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_22:before*/
+
+#I_25 {
+    block-size: 13px;
+    border-block-end-color: rgb(198, 37, 26);
+    border-block-start-color: rgb(198, 37, 26);
+    border-inline-end-color: rgb(198, 37, 26);
+    border-inline-start-color: rgb(198, 37, 26);
+    box-sizing: border-box;
+    caret-color: rgb(198, 37, 26);
+    color: rgb(198, 37, 26);
+    column-rule-color: rgb(198, 37, 26);
+    cursor: pointer;
+    display: inline-block;
+    height: 13px;
+    inline-size: 13px;
+    margin-inline-end: 6.5px;
+    perspective-origin: 6.5px 6.5px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(198, 37, 26);
+    text-emphasis-color: rgb(198, 37, 26);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    transform-origin: 6.5px 6.5px;
+    width: 13px;
+    border: 0px none rgb(198, 37, 26);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    margin: 0px 6.5px 0px 0px;
+    outline: rgb(198, 37, 26) none 0px;
+}
+
+/*#I_25*/
+
+#I_25:after {
+    border-block-end-color: rgb(198, 37, 26);
+    border-block-start-color: rgb(198, 37, 26);
+    border-inline-end-color: rgb(198, 37, 26);
+    border-inline-start-color: rgb(198, 37, 26);
+    box-sizing: border-box;
+    caret-color: rgb(198, 37, 26);
+    color: rgb(198, 37, 26);
+    column-rule-color: rgb(198, 37, 26);
+    cursor: pointer;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(198, 37, 26);
+    text-emphasis-color: rgb(198, 37, 26);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(198, 37, 26);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    outline: rgb(198, 37, 26) none 0px;
+}
+
+/*#I_25:after*/
+
+#I_25:before {
+    border-block-end-color: rgb(198, 37, 26);
+    border-block-start-color: rgb(198, 37, 26);
+    border-inline-end-color: rgb(198, 37, 26);
+    border-inline-start-color: rgb(198, 37, 26);
+    box-sizing: border-box;
+    caret-color: rgb(198, 37, 26);
+    color: rgb(198, 37, 26);
+    column-rule-color: rgb(198, 37, 26);
+    content: '""';
+    cursor: pointer;
+    perspective-origin: 0px 0px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(198, 37, 26);
+    text-emphasis-color: rgb(198, 37, 26);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    transform-origin: 0px 0px;
+    border: 0px none rgb(198, 37, 26);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    outline: rgb(198, 37, 26) none 0px;
+}
+
+/*#I_25:before*/
+
+#LI_26,
+#LI_34,
+#LI_39 {
+    block-size: 16.5938px;
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-start-color: rgb(24, 28, 50);
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-start-color: rgb(24, 28, 50);
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    height: 16.5938px;
+    inline-size: 184.031px;
+    padding-block-end: 1.3px;
+    padding-block-start: 1.3px;
+    padding-inline-end: 9.75px;
+    padding-inline-start: 9.75px;
+    perspective-origin: 92.0156px 8.29688px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    transform-origin: 92.0156px 8.29688px;
+    width: 184.031px;
+    border: 0px none rgb(24, 28, 50);
+    font: 13px / 19.5px Poppins, "Droid Arabic Kufi";
+    list-style: outside none none;
+    outline: rgb(24, 28, 50) none 0px;
+    padding: 1.3px 9.75px;
+}
+
+/*#LI_26, #LI_34, #LI_39*/
+
+#LI_26:after,
+#LI_34:after,
+#LI_39:after {
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-start-color: rgb(24, 28, 50);
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-start-color: rgb(24, 28, 50);
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    border: 0px none rgb(24, 28, 50);
+    font: 13px / 19.5px Poppins, "Droid Arabic Kufi";
+    list-style: outside none none;
+    outline: rgb(24, 28, 50) none 0px;
+}
+
+/*#LI_26:after, #LI_34:after, #LI_39:after*/
+
+#LI_26:before,
+#LI_34:before,
+#LI_39:before {
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-start-color: rgb(24, 28, 50);
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-start-color: rgb(24, 28, 50);
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    border: 0px none rgb(24, 28, 50);
+    font: 13px / 19.5px Poppins, "Droid Arabic Kufi";
+    list-style: outside none none;
+    outline: rgb(24, 28, 50) none 0px;
+}
+
+/*#LI_26:before, #LI_34:before, #LI_39:before*/
+
+#HR_27,
+#HR_35,
+#HR_40 {
+    block-size: 1px;
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-end-style: none;
+    border-block-end-width: 0px;
+    border-block-start-color: rgb(245, 248, 250);
+    border-block-start-style: solid;
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-end-style: none;
+    border-inline-end-width: 0px;
+    border-inline-start-color: rgb(24, 28, 50);
+    border-inline-start-style: none;
+    border-inline-start-width: 0px;
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    height: 1px;
+    inline-size: 164.531px;
+    margin-block-end: 6.5px;
+    margin-block-start: 6.5px;
+    margin-inline-end: 0px;
+    margin-inline-start: 0px;
+    perspective-origin: 82.2656px 0.5px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    transform-origin: 82.2656px 0.5px;
+    width: 164.531px;
+    border-top: 1px solid rgb(245, 248, 250);
+    border-right: 0px none rgb(24, 28, 50);
+    border-bottom: 0px none rgb(24, 28, 50);
+    border-left: 0px none rgb(24, 28, 50);
+    font: 13px / 19.5px Poppins, "Droid Arabic Kufi";
+    list-style: outside none none;
+    margin: 6.5px 0px;
+    outline: rgb(24, 28, 50) none 0px;
+}
+
+/*#HR_27, #HR_35, #HR_40*/
+
+#HR_27:after,
+#HR_35:after,
+#HR_40:after {
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-start-color: rgb(24, 28, 50);
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-start-color: rgb(24, 28, 50);
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    border: 0px none rgb(24, 28, 50);
+    font: 13px / 19.5px Poppins, "Droid Arabic Kufi";
+    list-style: outside none none;
+    outline: rgb(24, 28, 50) none 0px;
+}
+
+/*#HR_27:after, #HR_35:after, #HR_40:after*/
+
+#HR_27:before,
+#HR_35:before,
+#HR_40:before {
+    border-block-end-color: rgb(24, 28, 50);
+    border-block-start-color: rgb(24, 28, 50);
+    border-inline-end-color: rgb(24, 28, 50);
+    border-inline-start-color: rgb(24, 28, 50);
+    box-sizing: border-box;
+    caret-color: rgb(24, 28, 50);
+    color: rgb(24, 28, 50);
+    column-rule-color: rgb(24, 28, 50);
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(24, 28, 50);
+    text-emphasis-color: rgb(24, 28, 50);
+    text-size-adjust: 100%;
+    border: 0px none rgb(24, 28, 50);
+    font: 13px / 19.5px Poppins, "Droid Arabic Kufi";
+    list-style: outside none none;
+    outline: rgb(24, 28, 50) none 0px;
+}
+
+/*#HR_27:before, #HR_35:before, #HR_40:before*/
+
+#I_30 {
+    block-size: 13px;
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    cursor: pointer;
+    display: inline-block;
+    height: 13px;
+    inline-size: 13px;
+    margin-inline-end: 6.5px;
+    perspective-origin: 6.5px 6.5px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    transform-origin: 6.5px 6.5px;
+    width: 13px;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    margin: 0px 6.5px 0px 0px;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_30*/
+
+#I_30:after {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    cursor: pointer;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_30:after*/
+
+#I_30:before {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    content: '""';
+    cursor: pointer;
+    perspective-origin: 0px 0px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    transform-origin: 0px 0px;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_30:before*/
+
+#I_33 {
+    block-size: 13px;
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    cursor: pointer;
+    display: inline-block;
+    height: 13px;
+    inline-size: 13px;
+    margin-inline-end: 6.5px;
+    perspective-origin: 6.5px 6.5px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    transform-origin: 6.5px 6.5px;
+    width: 13px;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    margin: 0px 6.5px 0px 0px;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_33*/
+
+#I_33:after {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    cursor: pointer;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_33:after*/
+
+#I_33:before {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    content: '""';
+    cursor: pointer;
+    perspective-origin: 0px 0px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    transform-origin: 0px 0px;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_33:before*/
+
+#I_38 {
+    block-size: 13px;
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    cursor: pointer;
+    display: inline-block;
+    height: 13px;
+    inline-size: 14.625px;
+    margin-inline-end: 6.5px;
+    perspective-origin: 7.3125px 6.5px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    transform-origin: 7.3125px 6.5px;
+    width: 14.625px;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    margin: 0px 6.5px 0px 0px;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_38*/
+
+#I_38:after {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    cursor: pointer;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_38:after*/
+
+#I_38:before {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    content: '""';
+    cursor: pointer;
+    perspective-origin: 0px 0px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    transform-origin: 0px 0px;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_38:before*/
+
+#I_43 {
+    block-size: 13px;
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    cursor: pointer;
+    display: inline-block;
+    height: 13px;
+    inline-size: 13px;
+    margin-inline-end: 6.5px;
+    perspective-origin: 6.5px 6.5px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    transform-origin: 6.5px 6.5px;
+    width: 13px;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    margin: 0px 6.5px 0px 0px;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_43*/
+
+#I_43:after {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    cursor: pointer;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_43:after*/
+
+#I_43:before {
+    border-block-end-color: rgb(12, 102, 228);
+    border-block-start-color: rgb(12, 102, 228);
+    border-inline-end-color: rgb(12, 102, 228);
+    border-inline-start-color: rgb(12, 102, 228);
+    box-sizing: border-box;
+    caret-color: rgb(12, 102, 228);
+    color: rgb(12, 102, 228);
+    column-rule-color: rgb(12, 102, 228);
+    content: '""';
+    cursor: pointer;
+    perspective-origin: 0px 0px;
+    scrollbar-color: rgb(239, 242, 245) rgba(0, 0, 0, 0);
+    text-align: left;
+    text-decoration-color: rgb(12, 102, 228);
+    text-emphasis-color: rgb(12, 102, 228);
+    text-size-adjust: 100%;
+    text-wrap-mode: nowrap;
+    transform-origin: 0px 0px;
+    border: 0px none rgb(12, 102, 228);
+    font: 900 13px / 13px "Font Awesome 6 Free";
+    list-style: outside none none;
+    outline: rgb(12, 102, 228) none 0px;
+}
+
+/*#I_43:before*/
