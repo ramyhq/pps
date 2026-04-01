@@ -1,13 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rms_clone/core/supabase/supabase_client_provider.dart';
-import 'package:rms_clone/features/reservations/data/data_sources/reservations_remote_data_source.dart';
-import 'package:rms_clone/features/reservations/data/models/client.dart';
-import 'package:rms_clone/features/reservations/data/models/hotel.dart';
-import 'package:rms_clone/features/reservations/data/models/reservation_details.dart';
-import 'package:rms_clone/features/reservations/data/models/reservation_order.dart';
-import 'package:rms_clone/features/reservations/data/models/supplier.dart';
-import 'package:rms_clone/features/reservations/data/repositories/reservations_repository.dart';
-import 'package:rms_clone/features/reservations/data/repositories/reservations_repository_impl.dart';
+import 'package:pps/core/supabase/supabase_client_provider.dart';
+import 'package:pps/features/reservations/data/data_sources/reservations_remote_data_source.dart';
+import 'package:pps/features/reservations/data/models/client.dart';
+import 'package:pps/features/reservations/data/models/hotel.dart';
+import 'package:pps/features/reservations/data/models/reservation_details.dart';
+import 'package:pps/features/reservations/data/models/reservation_order.dart';
+import 'package:pps/features/reservations/data/models/supplier.dart';
+import 'package:pps/features/reservations/data/repositories/reservations_repository.dart';
+import 'package:pps/features/reservations/data/repositories/reservations_repository_impl.dart';
 
 final reservationsRemoteDataSourceProvider =
     Provider<ReservationsRemoteDataSource>((ref) {

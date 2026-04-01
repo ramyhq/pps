@@ -5,13 +5,13 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:decimal/decimal.dart';
 
-import 'package:rms_clone/core/constants/app_colors.dart';
-import 'package:rms_clone/core/widgets/app_drop_menu_button.dart';
-import 'package:rms_clone/core/widgets/custom_form_fields.dart';
-import 'package:rms_clone/features/reservations/data/models/reservation_details.dart';
-import 'package:rms_clone/features/reservations/data/models/reservation_order.dart';
-import 'package:rms_clone/features/reservations/data/models/reservation_service.dart';
-import 'package:rms_clone/features/reservations/provider/reservations_data_providers.dart';
+import 'package:pps/core/constants/app_colors.dart';
+import 'package:pps/core/widgets/app_drop_menu_button.dart';
+import 'package:pps/core/widgets/custom_form_fields.dart';
+import 'package:pps/features/reservations/data/models/reservation_details.dart';
+import 'package:pps/features/reservations/data/models/reservation_order.dart';
+import 'package:pps/features/reservations/data/models/reservation_service.dart';
+import 'package:pps/features/reservations/provider/reservations_data_providers.dart';
 
 class ReservationListScreen extends ConsumerStatefulWidget {
   const ReservationListScreen({super.key});

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rms_clone/core/widgets/custom_form_fields.dart';
-import 'package:rms_clone/features/reservations/ui/screens/create_agent_reservation_screen.dart';
+import 'package:pps/core/widgets/custom_form_fields.dart';
+import 'package:pps/features/reservations/ui/screens/create_agent_reservation_screen.dart';
 
 void main() {
   testWidgets('Add button adds room row and updates pax summary', (

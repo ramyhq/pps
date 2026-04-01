@@ -1,12 +1,12 @@
-import 'package:rms_clone/features/reservations/data/models/agent_reservation_draft.dart';
-import 'package:rms_clone/features/reservations/data/models/client.dart';
-import 'package:rms_clone/features/reservations/data/models/general_service_draft.dart';
-import 'package:rms_clone/features/reservations/data/models/hotel.dart';
-import 'package:rms_clone/features/reservations/data/models/reservation_details.dart';
-import 'package:rms_clone/features/reservations/data/models/reservation_order.dart';
-import 'package:rms_clone/features/reservations/data/models/reservation_service.dart';
-import 'package:rms_clone/features/reservations/data/models/supplier.dart';
-import 'package:rms_clone/features/reservations/data/models/transportation_service_draft.dart';
+import 'package:pps/features/reservations/data/models/agent_reservation_draft.dart';
+import 'package:pps/features/reservations/data/models/client.dart';
+import 'package:pps/features/reservations/data/models/general_service_draft.dart';
+import 'package:pps/features/reservations/data/models/hotel.dart';
+import 'package:pps/features/reservations/data/models/reservation_details.dart';
+import 'package:pps/features/reservations/data/models/reservation_order.dart';
+import 'package:pps/features/reservations/data/models/reservation_service.dart';
+import 'package:pps/features/reservations/data/models/supplier.dart';
+import 'package:pps/features/reservations/data/models/transportation_service_draft.dart';
 
 abstract class ReservationsRepository {
   Future<List<Client>> listClients();

@@ -1,6 +1,7 @@
 {
     "name": "Package Pricing System PPS",
     "short_name": "PPS",
+    "id": "net.ifeps.pps",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

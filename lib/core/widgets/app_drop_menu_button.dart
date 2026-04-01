@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rms_clone/core/constants/app_colors.dart';
+import 'package:pps/core/constants/app_colors.dart';
 
 enum AppDropMenuEntryType { action, divider }
 

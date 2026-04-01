@@ -1,3 +1,3 @@
-# rms_clone
+# Package Pricing System PPS
 
-A new Flutter project.
+نظام تسعير الباقات السياحية.

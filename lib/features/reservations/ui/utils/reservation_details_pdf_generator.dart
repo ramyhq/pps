@@ -4,15 +4,14 @@ import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-import 'package:rms_clone/core/constants/app_strings.dart';
-import 'package:rms_clone/features/reservations/data/models/reservation_details.dart';
-import 'package:rms_clone/features/reservations/data/models/reservation_order.dart';
-import 'package:rms_clone/features/reservations/data/models/reservation_service.dart';
+import 'package:pps/core/constants/app_strings.dart';
+import 'package:pps/features/reservations/data/models/reservation_details.dart';
+import 'package:pps/features/reservations/data/models/reservation_order.dart';
+import 'package:pps/features/reservations/data/models/reservation_service.dart';
 
 class ReservationDetailsPdfGenerator {
-  static const String _companyNameEn =
-      'SAHL Saudi Accommodation & Handling Labor';
-  static const String _companyNameAr = 'شركة سهل الفندقية';
+  static const String _companyNameEn = AppStrings.appTitle;
+  static const String _companyNameAr = AppStrings.appTitleArabic;
 
   static const String _logoAssetPath = 'assets/images/sahl_logo.jpg';
 

@@ -1,5 +1,5 @@
 import 'package:decimal/decimal.dart';
-import 'package:rms_clone/features/reservations/data/models/reservation_service.dart';
+import 'package:pps/features/reservations/data/models/reservation_service.dart';
 
 class ReservationDetailsTotals {
   const ReservationDetailsTotals({

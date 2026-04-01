@@ -1,7 +1,7 @@
-# RMS Clone — Project Context (Quick Overview)
+# Package Pricing System PPS — Project Context (Quick Overview)
 
 ## هدف المشروع
-تطبيق Flutter لإدارة الحجوزات (Reservation Management System - RMS) لشركة SAHL Group، يدعم الويب والموبايل، مع واجهة موحدة وقابلة للتوسع.
+تطبيق Flutter لنظام تسعير الباقات السياحية (Package Pricing System - PPS)، يدعم الويب والموبايل، مع واجهة موحدة وقابلة للتوسع.
 
 ## نظرة سريعة
 - **State Management**: Riverpod

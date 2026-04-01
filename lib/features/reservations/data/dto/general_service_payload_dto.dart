@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:rms_clone/features/reservations/data/models/general_service_draft.dart';
+import 'package:pps/features/reservations/data/models/general_service_draft.dart';
 
 part 'general_service_payload_dto.g.dart';
 

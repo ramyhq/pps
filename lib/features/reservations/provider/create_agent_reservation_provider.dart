@@ -1,8 +1,8 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rms_clone/features/reservations/data/models/agent_reservation_draft.dart';
-import 'package:rms_clone/features/reservations/data/models/reservation_order.dart';
-import 'package:rms_clone/features/reservations/provider/reservations_data_providers.dart';
+import 'package:pps/features/reservations/data/models/agent_reservation_draft.dart';
+import 'package:pps/features/reservations/data/models/reservation_order.dart';
+import 'package:pps/features/reservations/provider/reservations_data_providers.dart';
 
 final createAgentReservationProvider =
     NotifierProvider<

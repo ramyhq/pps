@@ -1,6 +1,6 @@
-import 'package:rms_clone/features/reservations/data/dto/create_agent_reservation_payload_dto.dart';
-import 'package:rms_clone/features/reservations/data/dto/general_service_payload_dto.dart';
-import 'package:rms_clone/features/reservations/data/dto/transportation_service_payload_dto.dart';
+import 'package:pps/features/reservations/data/dto/create_agent_reservation_payload_dto.dart';
+import 'package:pps/features/reservations/data/dto/general_service_payload_dto.dart';
+import 'package:pps/features/reservations/data/dto/transportation_service_payload_dto.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ReservationsRemoteDataSource {

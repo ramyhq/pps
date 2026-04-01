@@ -1,8 +1,8 @@
 import 'package:decimal/decimal.dart';
 import 'package:equatable/equatable.dart';
-import 'package:rms_clone/features/reservations/data/models/agent_reservation_draft.dart';
-import 'package:rms_clone/features/reservations/data/models/general_service_draft.dart';
-import 'package:rms_clone/features/reservations/data/models/transportation_service_draft.dart';
+import 'package:pps/features/reservations/data/models/agent_reservation_draft.dart';
+import 'package:pps/features/reservations/data/models/general_service_draft.dart';
+import 'package:pps/features/reservations/data/models/transportation_service_draft.dart';
 
 enum ReservationServiceType { agent, general, transportation }
 
