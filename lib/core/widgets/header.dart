@@ -204,39 +204,6 @@ class _HeaderState extends ConsumerState<Header> {
             onPressed: () {},
             icon: const Icon(Icons.menu, color: AppColors.textSecondary),
           ),
-          const SizedBox(width: AppSpacing.s8),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 360),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  AppStrings.appTitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
-                    height: 1.0,
-                  ),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  AppStrings.appTitleArabic,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary,
-                    height: 1.0,
-                  ),
-                ),
-              ],
-            ),
-          ),
           const Spacer(),
           // Favorites
           TextButton.icon(

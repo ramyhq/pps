@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'core/constants/app_strings.dart';
 import 'core/supabase/supabase_client_provider.dart';
 import 'core/theme/theme_provider.dart';
 import 'core/router/app_router.dart';
@@ -23,7 +22,7 @@ class MyApp extends ConsumerWidget {
     final locale = ref.watch(localeProvider);
 
     return MaterialApp.router(
-      title: AppStrings.appTitleFull,
+      title: 'RMS Clone',
       debugShowCheckedModeBanner: false,
       theme: theme,
       locale: locale,
@@ -32,10 +31,7 @@ class MyApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('en'),
-        Locale('ar'),
-      ],
+      supportedLocales: const [Locale('en'), Locale('ar')],
       routerConfig: router,
     );
   }

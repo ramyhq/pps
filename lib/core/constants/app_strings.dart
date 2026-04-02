@@ -1,8 +1,4 @@
 class AppStrings {
-  static const appTitle = 'Package Pricing System PPS';
-  static const appTitleArabic = 'نظام تسعير الباقات السياحية';
-  static const appTitleFull = 'Package Pricing System PPS | نظام تسعير الباقات السياحية';
-
   static const detailsTitle = 'Details';
   static const reservationsTitle = 'Reservations';
   static const back = 'Back';

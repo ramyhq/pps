@@ -10,8 +10,9 @@ import 'package:pps/features/reservations/data/models/reservation_order.dart';
 import 'package:pps/features/reservations/data/models/reservation_service.dart';
 
 class ReservationDetailsPdfGenerator {
-  static const String _companyNameEn = AppStrings.appTitle;
-  static const String _companyNameAr = AppStrings.appTitleArabic;
+  static const String _companyNameEn =
+      'SAHL Saudi Accommodation & Handling Labor';
+  static const String _companyNameAr = 'شركة سهل الفندقية';
 
   static const String _logoAssetPath = 'assets/images/sahl_logo.jpg';
 
@@ -1120,4 +1121,4 @@ const String _cancellationText =
     '• When cancelling after confirmation, 50% of the total amount including meals will be charged.\n'
     '• Less than 21 days before arrival, 25% of the total amount including meals will be charged.\n'
     '• Less than 14 days before arrival, 25% of the total amount including meals will be charged.\n'
-    '• High season cancellation is subject to 100% cancellation fee.';
+    '• High season cancellation is subject to 100 % cancellation fee.';
