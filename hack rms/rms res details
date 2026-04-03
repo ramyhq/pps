@@ -1,0 +1,136 @@
+this is the consloe: 
+
+VM131 attachment.js: 2 Uncaught ReferenceError: $ is not defined
+    at VM131 attachment.js: 2: 5
+    at VM131 attachment.js: 479: 3
+    (anonymous) @VM131 attachment.js: 2
+        (anonymous) @VM131 attachment.js: 479
+VM160 attachment.js: 2 Uncaught ReferenceError: $ is not defined
+    at VM160 attachment.js: 2: 5
+    at VM160 attachment.js: 479: 3
+    (anonymous) @VM160 attachment.js: 2
+        (anonymous) @VM160 attachment.js: 479
+VM162 attachment.js: 2 Uncaught ReferenceError: $ is not defined
+    at VM162 attachment.js: 2: 5
+    at VM162 attachment.js: 479: 3
+    (anonymous) @VM162 attachment.js: 2
+        (anonymous) @VM162 attachment.js: 479
+VM164 attachment.js: 2 Uncaught ReferenceError: $ is not defined
+    at VM164 attachment.js: 2: 5
+    at VM164 attachment.js: 479: 3
+    (anonymous) @VM164 attachment.js: 2
+        (anonymous) @VM164 attachment.js: 479
+VM166 attachment.js: 2 Uncaught ReferenceError: $ is not defined
+    at VM166 attachment.js: 2: 5
+    at VM166 attachment.js: 479: 3
+    (anonymous) @VM166 attachment.js: 2
+        (anonymous) @VM166 attachment.js: 479
+VM168 attachment.js: 2 Uncaught ReferenceError: $ is not defined
+    at VM168 attachment.js: 2: 5
+    at VM168 attachment.js: 479: 3
+    (anonymous) @VM168 attachment.js: 2
+        (anonymous) @VM168 attachment.js: 479
+VM170 attachment.js: 2 Uncaught ReferenceError: $ is not defined
+    at VM170 attachment.js: 2: 5
+    at VM170 attachment.js: 479: 3
+    (anonymous) @VM170 attachment.js: 2
+        (anonymous) @VM170 attachment.js: 479
+VM172 attachment.js: 2 Uncaught ReferenceError: $ is not defined
+    at VM172 attachment.js: 2: 5
+    at VM172 attachment.js: 479: 3
+    (anonymous) @VM172 attachment.js: 2
+        (anonymous) @VM172 attachment.js: 479
+VM175 attachment.js: 2 Uncaught ReferenceError: $ is not defined
+    at VM175 attachment.js: 2: 5
+    at VM175 attachment.js: 479: 3
+    (anonymous) @VM175 attachment.js: 2
+        (anonymous) @VM175 attachment.js: 479
+attachment.js: 2 Uncaught ReferenceError: $ is not defined
+    at attachment.js: 2: 5
+    at attachment.js: 479: 3
+    (anonymous) @attachment.js: 2
+        (anonymous) @attachment.js: 479
+app - layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 574 DEBUG:
+app - layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 574 Starting connection using WebSockets transport
+signalr.bundle.min.js ? v = Y0ZP86KlzYssCPhGoDoCDgZIl4jQdDpprAGhqUyBOJQ : 8[2026-04-03T08: 29: 55.114Z]Information: Normalizing '/signalr' to 'https://rms.armtech.online/signalr'.
+    app - layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 574 DEBUG:
+app - layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 574 Starting connection using WebSockets transport
+signalr.bundle.min.js ? v = Y0ZP86KlzYssCPhGoDoCDgZIl4jQdDpprAGhqUyBOJQ : 8[2026-04-03T08: 29: 55.288Z]Information: Normalizing '/signalr-chat' to 'https://rms.armtech.online/signalr-chat'.
+    app - layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 245 Deprecation warning: value provided is not in a recognized RFC2822 or ISO format.moment construction falls back to js Date(), which is not reliable across all browsers and versions.Non RFC2822 / ISO date formats are discouraged.Please refer to http://momentjs.com/guides/#/warnings/js-date/ for more info.
+Arguments:
+[0] _isAMomentObject: true, _isUTC: false, _useUTC: false, _l: undefined, _i: 2025 - 12-06 02: 45 PM +03:00, _f: undefined, _strict: undefined, _locale: [object Object]
+Error
+    at t.createFromInputFallback(app - layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 245: 3288)
+    at app - layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 245: 23508
+    at app - layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 245: 23559
+    at Da(app - layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 245: 23871)
+    at Ta(app - layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 245: 24132)
+    at ga(app - layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 245: 24214)
+    at t(app - layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 245: 210)
+    at makeMoment(moment - hijri.js ? v = jiyptgJksbMz4ZevPPEx3tZwv4kYek3uGjT5q4pB2_M : 598: 8)
+    at hMoment(moment - hijri.js ? v = jiyptgJksbMz4ZevPPEx3tZwv4kYek3uGjT5q4pB2_M : 608: 10)
+    at moment.tz.abp.timing.convertToUserTimezone(app - layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 580: 115)
+k @app-layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 245
+    (anonymous) @app-layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 245
+        (anonymous) @app-layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 245
+            (anonymous) @app-layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 245
+Da @app-layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 245
+Ta @app-layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 245
+ga @app-layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 245
+t @app-layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 245
+makeMoment @moment-hijri.js ? v = jiyptgJksbMz4ZevPPEx3tZwv4kYek3uGjT5q4pB2_M : 598
+hMoment @moment-hijri.js ? v = jiyptgJksbMz4ZevPPEx3tZwv4kYek3uGjT5q4pB2_M : 608
+moment.tz.abp.timing.convertToUserTimezone @app-layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 580
+    (anonymous) @DateRangePicker.min.js?v = SowHPjtIF3NchMOdrIax9VM8ZDrnmL_0698jqXGyXtg: 1
+each @app-layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 15
+each @app-layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 15
+setUserTimeZone @DateRangePicker.min.js?v = SowHPjtIF3NchMOdrIax9VM8ZDrnmL_0698jqXGyXtg: 1
+    (anonymous) @DateRangePicker.min.js?v = SowHPjtIF3NchMOdrIax9VM8ZDrnmL_0698jqXGyXtg: 1
+l @app-layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 26
+c @app-layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 26
+setTimeout
+    (anonymous) @app-layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 26
+u @app-layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 26
+fireWith @app-layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 26
+fire @app-layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 26
+u @app-layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 26
+fireWith @app-layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 26
+ready @app-layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 26
+B @app-layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 26
+ViewReservation.min.js ? v = wT9Vev8o_ZyTkNwjqIXPE3Md1qw9Y_CliCApFbdfOYw : 1 Document ready - checking for test buttons...
+ViewReservation.min.js ? v = wT9Vev8o_ZyTkNwjqIXPE3Md1qw9Y_CliCApFbdfOYw : 1 Found test buttons: 0
+signalr.bundle.min.js ? v = Y0ZP86KlzYssCPhGoDoCDgZIl4jQdDpprAGhqUyBOJQ : 8[2026-04-03T08: 29: 55.446Z]Information: WebSocket connected to wss://rms.armtech.online/signalr.
+content.js: 812 CSS Inspector content script initialized
+content.js: 1640 CSS Inspector: Starting color palette preload...
+app - layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 574 DEBUG:
+app - layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 574 Connected to SignalR server!
+signalr.bundle.min.js ? v = Y0ZP86KlzYssCPhGoDoCDgZIl4jQdDpprAGhqUyBOJQ : 8[2026-04-03T08: 29: 56.063Z]Information: WebSocket connected to wss://rms.armtech.online/signalr-chat.
+app - layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 574 DEBUG:
+app - layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 574 Registered to the SignalR server!
+app - layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 574 DEBUG:
+app - layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 574 Connected to SignalR CHAT server!
+app - layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 574 DEBUG:
+app - layout - libs.min.js ? v = mWmGwfcgnOeNxhK1401xzQVVxRdsI__RdzOxJhI0dEc : 574 Registered to the SignalR CHAT server!
+content.js: 1733 CSS Inspector: Styles ready, test color: rgb(24, 28, 50)
+content.js: 61 ColorScanner: Starting scan of 4214 elements
+content.js: 73 ColorScanner: Using chunk size 50 for 4214 elements
+content.js: 190 ColorScanner: Element 1(HTML) found 9 colors: (9)['#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000']
+content.js: 190 ColorScanner: Element 2(BODY) found 10 colors: (10)['#181c32', '#f5f8fa', '#181c32', '#181c32', '#181c32', '#181c32', '#181c32', '#181c32', '#181c32', '#181c32']
+content.js: 190 ColorScanner: Element 3(DIV) found 9 colors: (9)['#181c32', '#181c32', '#181c32', '#181c32', '#181c32', '#181c32', '#181c32', '#181c32', '#181c32']
+content.js: 190 ColorScanner: Element 4(DIV) found 9 colors: (9)['#181c32', '#181c32', '#181c32', '#181c32', '#181c32', '#181c32', '#181c32', '#181c32', '#181c32']
+content.js: 190 ColorScanner: Element 5(DIV) found 15 colors: (15)['#181c32', '#ffffff', '#181c32', '#181c32', '#181c32', '#181c32', '#181c32', '#181c32', '#181c32', '#181c32', '#523f690d', 'px', 'px', 'px', 'px']
+content.js: 115 ColorScanner: Progress 0 % (0 / 4214 elements)
+content.js: 115 ColorScanner: Progress 12 % (500 / 4214 elements)
+content.js: 115 ColorScanner: Progress 24 % (1000 / 4214 elements)
+content.js: 115 ColorScanner: Progress 36 % (1500 / 4214 elements)
+content.js: 115 ColorScanner: Progress 47 % (2000 / 4214 elements)
+content.js: 115 ColorScanner: Progress 59 % (2500 / 4214 elements)
+content.js: 115 ColorScanner: Progress 71 % (3000 / 4214 elements)
+content.js: 115 ColorScanner: Progress 83 % (3500 / 4214 elements)
+content.js: 115 ColorScanner: Progress 95 % (4000 / 4214 elements)
+content.js: 128 ColorScanner: Scan completed.ColorMap size: 34, Final colors: 31
+content.js: 690 ColorScanner: Scan completed with stats: { duration: '564.50ms', totalElements: 4214, scannedElements: 1368, uniqueColors: 31, elementsPerSecond: 2423, … }
+content.js: 1676 CSS Inspector: Color palette preloaded successfully - 31 colors found
+
+
+

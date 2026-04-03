@@ -63,6 +63,9 @@
   - ولازم يتحدث ملف `system_design.md` بما يتوافق.
 
 ## سجل التغييرات (Changelog)
+### 2026-04-03
+- إضافة ميزة `rms_auth` لاستهلاك Auth الخاص بـRMS عبر Dio (CSRF token + Session cookies) + شاشة `/login` وربط Redirect بسيط في GoRouter.
+
 ### 2026-03-25
 - إضافة ملف توثيق شامل للحسابات داخل الحجوزات باسم `reservations_calculations.md` يشرح معادلات Agent/General/Transportation ومكان تنفيذها ومكان حفظها وإعادة تجميعها.
 - إضافة تعليقات inline تبدأ بـ `//CALCULATIONS` داخل ملفات الحسابات الأساسية لتوضيح كل سطر مسؤول عن احتساب الليالي، PAX، RN، totals، وتجميعات القائمة/التفاصيل.

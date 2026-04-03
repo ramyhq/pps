@@ -30,8 +30,13 @@ GoRouter هو المصدر الوحيد للمسارات.
   - `MaterialApp.router`
   - `supportedLocales`: `en`, `ar`
 
+### 3.1.1 Auth (RMS)
+- Route: `/login`
+- GoRouter redirect: أي مسار غير `/login` يتطلب session ناجحة (حد أدنى: `rmsSessionProvider.isAuthenticated`).
+
 ### 3.2 Router Map
 - Root:
+  - `/login`
   - `/reservations`
     - `/reservations/details`
     - `/reservations/create-general`

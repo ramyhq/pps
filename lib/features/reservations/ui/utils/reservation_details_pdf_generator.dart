@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:decimal/decimal.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -58,7 +60,9 @@ class ReservationDetailsPdfGenerator {
       generalServices: generalServices,
     );
     final roomLines = _roomLines(agentServices, additionalPerPax);
-    final totalSale = _sumMoney(details.services.map((s) => s.totalSale));
+    final totalSale = roomLines.isEmpty
+        ? _sumMoney(details.services.map((s) => s.totalSale))
+        : _sumMoney(roomLines.map((l) => l.total));
 
     doc.addPage(
       pw.MultiPage(
@@ -911,32 +915,10 @@ class ReservationDetailsPdfGenerator {
     );
   }
 
-  static int _partyPax(List<ReservationServiceSummary> agentServices) {
-    final segmentPax = <String, int>{};
-    for (final s in agentServices) {
-      final a = s.agentDetails;
-      if (a == null) {
-        continue;
-      }
-      final hotelKey = (a.hotelId ?? a.hotelName ?? '').toString().trim();
-      final key =
-          '${hotelKey}__${a.arrivalDate.millisecondsSinceEpoch}__${a.departureDate.millisecondsSinceEpoch}';
-      segmentPax[key] = (segmentPax[key] ?? 0) + a.totalPax;
-    }
-    var maxPax = 0;
-    for (final pax in segmentPax.values) {
-      if (pax > maxPax) {
-        maxPax = pax;
-      }
-    }
-    return maxPax;
-  }
-
   static List<_RoomLine> _roomLines(
     List<ReservationServiceSummary> agentServices,
     Decimal additionalPerPax,
   ) {
-    final partyPax = _partyPax(agentServices);
     final Map<String, _RoomLineAccumulator> acc = {};
     for (final s in agentServices) {
       final a = s.agentDetails;
@@ -952,29 +934,38 @@ class ReservationDetailsPdfGenerator {
             mealPlan: room.mealPlan,
           ),
         );
-        if (room.numberOfRooms > current.qty) {
-          current.qty = room.numberOfRooms;
-        }
+        current.qty += room.numberOfRooms;
         current.rn += room.totalRn;
         current.total += room.totalSale;
       }
     }
 
     final lines = acc.values.map((a) {
-      final paxValue = partyPax <= 0 ? 1 : partyPax;
-      final paxDecimal = Decimal.fromInt(paxValue);
-      final rateDouble = (a.total / paxDecimal).toDouble();
-      final rate = Decimal.parse(rateDouble.toStringAsFixed(2));
-      final rateWithAddOns = rate + additionalPerPax;
+      final paxPerRoom = _paxPerRoomForRoomType(a.roomType);
+      final paxDisplay = max(1, a.qty * paxPerRoom);
+
+      final qtyDecimal = Decimal.fromInt(max(1, a.qty));
+      final paxPerRoomDecimal = Decimal.fromInt(max(1, paxPerRoom));
+
+      final salePerRoom = (a.total / qtyDecimal).toDecimal(
+        scaleOnInfinitePrecision: 6,
+      );
+      final baseRatePerPax = (salePerRoom / paxPerRoomDecimal).toDecimal(
+        scaleOnInfinitePrecision: 6,
+      );
+      final rateWithAddOns = (baseRatePerPax + additionalPerPax).round(
+        scale: 2,
+      );
+      final totalWithAddOns = (rateWithAddOns * qtyDecimal).round(scale: 2);
       final nights = a.qty > 0 ? (a.rn / a.qty).round() : 0;
       return _RoomLine(
         roomType: a.roomType,
         mealPlan: a.mealPlan,
         qty: a.qty,
         nights: nights,
-        pax: paxValue,
+        pax: paxDisplay,
         ratePerPax: rateWithAddOns,
-        total: a.total,
+        total: totalWithAddOns,
       );
     }).toList()..sort((a, b) => a.roomType.compareTo(b.roomType));
 
@@ -985,7 +976,7 @@ class ReservationDetailsPdfGenerator {
     required List<ReservationServiceSummary> transportationServices,
     required List<ReservationServiceSummary> generalServices,
   }) {
-    var sum = Decimal.parse('0');
+    var sum = Decimal.zero;
 
     for (final s in generalServices) {
       final g = s.generalDetails;
@@ -1006,6 +997,20 @@ class ReservationDetailsPdfGenerator {
 
   static Decimal _sumMoney(Iterable<Decimal> amounts) {
     return amounts.fold<Decimal>(Decimal.parse('0'), (sum, a) => sum + a);
+  }
+
+  static int _paxPerRoomForRoomType(String roomType) {
+    final normalized = roomType.trim().toLowerCase();
+    if (normalized == 'triple' || normalized == 'trip') {
+      return 3;
+    }
+    if (normalized == 'quad') {
+      return 4;
+    }
+    if (normalized == 'quent' || normalized == 'quint') {
+      return 5;
+    }
+    return 2;
   }
 
   static String _formatDate(DateTime? date) {

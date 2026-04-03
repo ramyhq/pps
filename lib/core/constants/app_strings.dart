@@ -1,6 +1,22 @@
 class AppStrings {
+  static const dashboardTitle = 'Dashboard';
   static const detailsTitle = 'Details';
   static const reservationsTitle = 'Reservations';
+  static const clientsTitle = 'Clients';
+  static const suppliersTitle = 'Suppliers';
+  static const hotelsTitle = 'Hotels';
+  static const servicesCatalogTitle = 'Services Catalog';
+  static const templatesTitle = 'Templates';
+  static const reportsTitle = 'Reports';
+  static const settingsTitle = 'Settings';
+
+  static const sidebarSearchHint = 'Search…';
+  static const sidebarNoResults = 'No results';
+  static const sidebarSectionOperations = 'Operations';
+  static const sidebarSectionMasterData = 'Master Data';
+  static const sidebarSectionReports = 'Reports';
+  static const sidebarSectionSettings = 'Settings';
+  static const sidebarSectionResults = 'Results';
   static const back = 'Back';
   static const missingReservationId = 'Missing reservationId';
 
@@ -108,4 +124,38 @@ class AppStrings {
   static const transportationService = 'Transportation service';
   static const generalServicePrefix = 'General service - ';
   static const transportationPrefix = 'Transportation - ';
+
+  static const placeholderHeading = 'Coming soon';
+  static const placeholderHint =
+      'This page is a placeholder until the full implementation is completed.';
+
+  static const dashboardPlaceholderDescription =
+      'Quick overview: today/week reservations, total sales/cost, and latest orders.';
+  static const dashboardKpiToday = 'Today';
+  static const dashboardKpiThisWeek = 'This week';
+  static const dashboardKpiSalesCost = 'Sales / Cost';
+  static const dashboardKpiReservations = 'Reservations';
+  static const dashboardKpiTotals = 'Totals';
+  static const dashboardLatestOrders = 'Latest orders';
+  static const clientsPlaceholderDescription =
+      'Clients list and client details. Bulk import will be added later.';
+  static const suppliersPlaceholderDescription =
+      'Suppliers list and supplier details. Bulk import will be added later.';
+  static const hotelsPlaceholderDescription =
+      'Hotels list and hotel details. Bulk import will be added later.';
+  static const servicesCatalogPlaceholderDescription =
+      'Services catalog powered by Supabase tables (service types, labels, codes).';
+  static const templatesPlaceholderDescription =
+      'Terms & conditions templates available in the app today.';
+  static const reportsPlaceholderDescription =
+      'Sales/cost/margin insights and printable summaries.';
+  static const settingsPlaceholderDescription =
+      'Users/Roles, app settings, and integrations will be added later.';
+
+  static const loginTitle = 'Log in';
+  static const loginUsernameHint = 'User name or email';
+  static const loginPasswordHint = 'Password';
+  static const loginRememberMe = 'Remember me';
+  static const loginForgotPassword = 'Forgot password?';
+  static const loginButton = 'Log in';
 }

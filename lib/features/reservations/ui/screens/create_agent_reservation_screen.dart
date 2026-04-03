@@ -569,7 +569,18 @@ class _CreateAgentReservationScreenState
   }
 
   Future<void> _onSaveAndNewHotelPressed() async {
-    await _saveReservationAndGetId(clearForNewEntry: true);
+    final reservationId = await _saveReservationAndGetId(
+      clearForNewEntry: true,
+    );
+    if (!mounted) {
+      return;
+    }
+    if (reservationId == null) {
+      return;
+    }
+    ref.invalidate(reservationDetailsProvider(reservationId));
+    ref.invalidate(reservationOrdersProvider);
+    context.go('/reservations/details?reservationId=$reservationId');
   }
 
   Future<void> _onSaveAndNewPressed() async {

@@ -1,105 +1,261 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pps/features/reservations/provider/reservations_data_providers.dart';
 import '../constants/app_colors.dart';
+import '../constants/app_strings.dart';
+import 'custom_form_fields.dart';
 
-class Sidebar extends StatefulWidget {
+class Sidebar extends ConsumerStatefulWidget {
   const Sidebar({super.key});
 
   @override
-  State<Sidebar> createState() => _SidebarState();
+  ConsumerState<Sidebar> createState() => _SidebarState();
 }
 
-class _SidebarState extends State<Sidebar> {
+class _SidebarState extends ConsumerState<Sidebar> {
   static const double _collapsedWidth = 64;
   static const double _expandedWidth = AppWidths.sidebar;
-  static const double _navItemHeight = 44;
+  static const double _navItemHeight = 40;
 
   static const String _logoAssetPath = 'assets/images/sahl_logo.jpg';
 
   bool _isExpanded = true;
+  final TextEditingController _searchController = TextEditingController();
+  String _menuQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final String location = GoRouterState.of(context).uri.path;
+    final query = _menuQuery.trim().toLowerCase();
 
-    final reservationItems =
-        <({IconData icon, String title, String routePath})>[
+    final sections =
+        <
+          ({
+            String title,
+            List<({IconData icon, String title, String routePath})> items,
+          })
+        >[
+          // TODO(permissions): Filter sections/items based on user roles/permissions once RBAC is implemented.
           (
-            icon: FontAwesomeIcons.calendarDays,
-            title: 'Reservations',
-            routePath: '/reservations',
+            title: AppStrings.sidebarSectionOperations,
+            items: [
+              (
+                icon: FontAwesomeIcons.chartLine,
+                title: AppStrings.dashboardTitle,
+                routePath: '/dashboard',
+              ),
+              (
+                icon: FontAwesomeIcons.calendarDays,
+                title: AppStrings.reservationsTitle,
+                routePath: '/reservations',
+              ),
+            ],
           ),
           (
-            icon: FontAwesomeIcons.plus,
-            title: 'Create General Service',
-            routePath: '/reservations/create-general',
+            title: AppStrings.sidebarSectionMasterData,
+            items: [
+              (
+                icon: FontAwesomeIcons.users,
+                title: AppStrings.clientsTitle,
+                routePath: '/clients',
+              ),
+              (
+                icon: FontAwesomeIcons.handshake,
+                title: AppStrings.suppliersTitle,
+                routePath: '/suppliers',
+              ),
+              (
+                icon: FontAwesomeIcons.hotel,
+                title: AppStrings.hotelsTitle,
+                routePath: '/hotels',
+              ),
+              (
+                icon: FontAwesomeIcons.listCheck,
+                title: AppStrings.servicesCatalogTitle,
+                routePath: '/services',
+              ),
+              (
+                icon: FontAwesomeIcons.fileLines,
+                title: AppStrings.templatesTitle,
+                routePath: '/templates',
+              ),
+            ],
           ),
           (
-            icon: FontAwesomeIcons.plus,
-            title: 'Agent Direct Reservation',
-            routePath: '/reservations/create-agent',
+            title: AppStrings.sidebarSectionReports,
+            items: [
+              (
+                icon: FontAwesomeIcons.chartPie,
+                title: AppStrings.reportsTitle,
+                routePath: '/reports',
+              ),
+            ],
           ),
           (
-            icon: FontAwesomeIcons.plus,
-            title: 'Create Transportation Service',
-            routePath: '/reservations/create-transportation',
+            title: AppStrings.sidebarSectionSettings,
+            items: [
+              (
+                icon: FontAwesomeIcons.gear,
+                title: AppStrings.settingsTitle,
+                routePath: '/settings',
+              ),
+            ],
           ),
         ];
+
+    final allItems = <({IconData icon, String title, String routePath})>[
+      for (final section in sections) ...section.items,
+    ];
+
+    final filteredItems = query.isEmpty
+        ? allItems
+        : allItems
+              .where((item) => item.title.toLowerCase().contains(query))
+              .toList(growable: false);
+
+    final outerInsets = EdgeInsets.only(
+      top: AppSpacing.s8,
+      bottom: AppSpacing.s8,
+      right: _isExpanded ? AppSpacing.s8 : AppSpacing.s0,
+    );
 
     return AnimatedContainer(
       duration: AppDurations.accordion,
       curve: Curves.easeOut,
       width: _isExpanded ? _expandedWidth : _collapsedWidth,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(right: BorderSide(color: AppColors.border)),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            _SidebarHeader(
-              isExpanded: _isExpanded,
-              logoAssetPath: _logoAssetPath,
-              onToggle: () {
-                setState(() {
-                  _isExpanded = !_isExpanded;
-                });
-              },
+      decoration: const BoxDecoration(color: AppColors.light),
+      child: Padding(
+        padding: outerInsets,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.only(
+              topRight: Radius.circular(AppRadii.r12),
+              bottomRight: Radius.circular(AppRadii.r12),
             ),
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: AppDurations.accordion,
-                switchInCurve: Curves.easeOut,
-                switchOutCurve: Curves.easeOut,
-                child: !_isExpanded
-                    ? const SizedBox.shrink()
-                    : ListView(
-                        key: const ValueKey('sidebar-items-expanded'),
-                        padding: const EdgeInsets.fromLTRB(
-                          AppSpacing.s0,
-                          AppSpacing.s12,
-                          AppSpacing.s0,
-                          AppSpacing.s12,
-                        ),
-                        children: [
-                          for (final item in reservationItems)
-                            _buildNavItem(
-                              context: context,
-                              icon: item.icon,
-                              label: item.title,
-                              routePath: item.routePath,
-                              isActive:
-                                  location == item.routePath ||
-                                  (item.routePath == '/reservations' &&
-                                      location.startsWith('/reservations')),
-                            ),
-                        ],
-                      ),
-              ),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: SafeArea(
+            bottom: false,
+            child: Column(
+              children: [
+                _SidebarHeader(
+                  isExpanded: _isExpanded,
+                  logoAssetPath: _logoAssetPath,
+                  onToggle: () {
+                    setState(() {
+                      _isExpanded = !_isExpanded;
+                    });
+                  },
+                ),
+                Expanded(
+                  child: AnimatedSwitcher(
+                    duration: AppDurations.accordion,
+                    switchInCurve: Curves.easeOut,
+                    switchOutCurve: Curves.easeOut,
+                    child: !_isExpanded
+                        ? const SizedBox.shrink()
+                        : Column(
+                            key: const ValueKey('sidebar-expanded-content'),
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  AppSpacing.s12,
+                                  AppSpacing.s12,
+                                  AppSpacing.s12,
+                                  AppSpacing.s10,
+                                ),
+                                child: _SidebarSearchField(
+                                  controller: _searchController,
+                                  value: _menuQuery,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _menuQuery = value;
+                                    });
+                                  },
+                                  onClear: () {
+                                    setState(() {
+                                      _menuQuery = '';
+                                    });
+                                    _searchController.clear();
+                                  },
+                                ),
+                              ),
+                              Expanded(
+                                child: ListView(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    AppSpacing.s0,
+                                    AppSpacing.s4,
+                                    AppSpacing.s0,
+                                    AppSpacing.s12,
+                                  ),
+                                  children: [
+                                    if (filteredItems.isEmpty)
+                                      const Padding(
+                                        padding: EdgeInsets.fromLTRB(
+                                          AppSpacing.s12,
+                                          AppSpacing.s10,
+                                          AppSpacing.s12,
+                                          AppSpacing.s0,
+                                        ),
+                                        child: Text(
+                                          AppStrings.sidebarNoResults,
+                                          style: TextStyle(
+                                            fontSize: AppFontSizes.label11,
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      )
+                                    else if (query.isNotEmpty) ...[
+                                      _buildSectionHeader(
+                                        AppStrings.sidebarSectionResults,
+                                      ),
+                                      for (final item in filteredItems)
+                                        _buildNavItem(
+                                          context: context,
+                                          icon: item.icon,
+                                          label: item.title,
+                                          routePath: item.routePath,
+                                          isActive: _isRouteActive(
+                                            location: location,
+                                            routePath: item.routePath,
+                                          ),
+                                        ),
+                                    ] else ...[
+                                      for (final section in sections) ...[
+                                        _buildSectionHeader(section.title),
+                                        for (final item in section.items)
+                                          _buildNavItem(
+                                            context: context,
+                                            icon: item.icon,
+                                            label: item.title,
+                                            routePath: item.routePath,
+                                            isActive: _isRouteActive(
+                                              location: location,
+                                              routePath: item.routePath,
+                                            ),
+                                          ),
+                                        const SizedBox(height: AppSpacing.s6),
+                                      ],
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -112,22 +268,28 @@ class _SidebarState extends State<Sidebar> {
     required String routePath,
     bool isActive = false,
   }) {
-    const activeBg = AppColors.primarySurfaceAlt;
+    final activeBg = AppColors.primary.withValues(alpha: 0.06);
+    final hoverBg = AppColors.primary.withValues(alpha: 0.04);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.s12,
-        AppSpacing.s4,
-        AppSpacing.s12,
-        AppSpacing.s4,
+        AppSpacing.s8,
+        AppSpacing.s2,
+        AppSpacing.s8,
+        AppSpacing.s2,
       ),
       child: Material(
         color: isActive ? activeBg : Colors.transparent,
-        borderRadius: BorderRadius.circular(AppRadii.r12),
+        borderRadius: BorderRadius.circular(AppRadii.r6),
         child: InkWell(
-          borderRadius: BorderRadius.circular(AppRadii.r12),
-          hoverColor: AppColors.light,
-          onTap: () => context.go(routePath),
+          borderRadius: BorderRadius.circular(AppRadii.r6),
+          hoverColor: hoverBg,
+          onTap: () {
+            if (routePath == '/reservations') {
+              ref.invalidate(reservationOrdersProvider);
+            }
+            context.go(routePath);
+          },
           child: SizedBox(
             height: _navItemHeight,
             child: Row(
@@ -135,20 +297,25 @@ class _SidebarState extends State<Sidebar> {
                 AnimatedContainer(
                   duration: AppDurations.accordion,
                   curve: Curves.easeOut,
-                  width: 3,
-                  height: isActive ? 18 : 0,
+                  width: 2,
+                  height: 16,
                   decoration: BoxDecoration(
                     color: isActive ? AppColors.primary : Colors.transparent,
                     borderRadius: BorderRadius.circular(99),
                   ),
                 ),
-                const SizedBox(width: AppSpacing.s10),
-                Icon(
-                  icon,
-                  size: AppIconSizes.s16,
-                  color: isActive ? AppColors.primary : AppColors.textSecondary,
+                const SizedBox(width: AppSpacing.s12),
+                SizedBox(
+                  width: 28,
+                  child: Icon(
+                    icon,
+                    size: AppIconSizes.s16,
+                    color: isActive
+                        ? AppColors.primary
+                        : AppColors.textSecondary,
+                  ),
                 ),
-                const SizedBox(width: AppSpacing.s10),
+                const SizedBox(width: AppSpacing.s8),
                 Expanded(
                   child: Text(
                     label,
@@ -163,9 +330,37 @@ class _SidebarState extends State<Sidebar> {
                     ),
                   ),
                 ),
+                const SizedBox(width: AppSpacing.s8),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  bool _isRouteActive({required String location, required String routePath}) {
+    if (routePath == '/reservations') {
+      return location == routePath || location.startsWith('/reservations');
+    }
+    return location == routePath;
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.s12,
+        AppSpacing.s10,
+        AppSpacing.s12,
+        AppSpacing.s6,
+      ),
+      child: Text(
+        title.toUpperCase(),
+        style: const TextStyle(
+          fontSize: AppFontSizes.badge10,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textSecondary,
+          letterSpacing: 0.8,
         ),
       ),
     );
@@ -188,9 +383,7 @@ class _SidebarHeader extends StatelessWidget {
     return DecoratedBox(
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(
-          bottom: BorderSide(color: AppColors.border),
-        ),
+        border: Border(bottom: BorderSide(color: AppColors.border)),
       ),
       child: Padding(
         padding: EdgeInsets.fromLTRB(
@@ -209,10 +402,7 @@ class _SidebarHeader extends StatelessWidget {
                     alignment: Alignment.centerLeft,
                     child: SizedBox(
                       height: 28,
-                      child: Image.asset(
-                        logoAssetPath,
-                        fit: BoxFit.contain,
-                      ),
+                      child: Image.asset(logoAssetPath, fit: BoxFit.contain),
                     ),
                   ),
                 )
@@ -222,10 +412,7 @@ class _SidebarHeader extends StatelessWidget {
                     alignment: Alignment.center,
                     child: SizedBox(
                       height: 22,
-                      child: Image.asset(
-                        logoAssetPath,
-                        fit: BoxFit.contain,
-                      ),
+                      child: Image.asset(logoAssetPath, fit: BoxFit.contain),
                     ),
                   ),
                 ),
@@ -235,7 +422,7 @@ class _SidebarHeader extends StatelessWidget {
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: AppColors.light,
-                    borderRadius: BorderRadius.circular(AppRadii.r12),
+                    borderRadius: BorderRadius.circular(AppRadii.r6),
                     border: Border.all(color: AppColors.border),
                   ),
                   child: IconButton(
@@ -254,6 +441,81 @@ class _SidebarHeader extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _SidebarSearchField extends StatelessWidget {
+  final TextEditingController controller;
+  final String value;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onClear;
+
+  const _SidebarSearchField({
+    required this.controller,
+    required this.value,
+    required this.onChanged,
+    required this.onClear,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: AppHeights.field34,
+      decoration: BoxDecoration(
+        color: AppColors.light,
+        borderRadius: BorderRadius.circular(AppRadii.r6),
+        border: Border.all(color: AppColors.border),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s8),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.search,
+            size: AppIconSizes.s16,
+            color: AppColors.textSecondary,
+          ),
+          const SizedBox(width: AppSpacing.s8),
+          Expanded(
+            child: TextField(
+              controller: controller,
+              inputFormatters: [ArabicDigitsToEnglishInputFormatter()],
+              onChanged: onChanged,
+              decoration: const InputDecoration(
+                hintText: AppStrings.sidebarSearchHint,
+                hintStyle: TextStyle(
+                  fontSize: AppFontSizes.label11,
+                  color: AppColors.textSecondary,
+                ),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(vertical: AppSpacing.s10),
+              ),
+              style: const TextStyle(
+                fontSize: AppFontSizes.label11,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ),
+          if (value.trim().isNotEmpty)
+            SizedBox(
+              width: 28,
+              height: 28,
+              child: IconButton(
+                onPressed: onClear,
+                padding: EdgeInsets.zero,
+                splashRadius: 18,
+                icon: const Icon(
+                  Icons.close,
+                  size: AppIconSizes.s16,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            )
+          else
+            const SizedBox(width: 28, height: 28),
+        ],
       ),
     );
   }
