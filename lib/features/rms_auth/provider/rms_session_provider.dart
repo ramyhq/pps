@@ -5,8 +5,8 @@ import 'rms_auth_providers.dart';
 
 final rmsSessionProvider =
     NotifierProvider<RmsSessionNotifier, RmsSessionState>(
-  RmsSessionNotifier.new,
-);
+      RmsSessionNotifier.new,
+    );
 
 class RmsSessionState {
   const RmsSessionState({
@@ -84,4 +84,3 @@ class RmsSessionNotifier extends Notifier<RmsSessionState> {
     state = RmsSessionState.initial;
   }
 }
-

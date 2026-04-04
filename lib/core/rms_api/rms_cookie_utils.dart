@@ -50,4 +50,3 @@ String mergeCookieHeader({
   }
   return cookiePairsToHeader(currentPairs);
 }
-

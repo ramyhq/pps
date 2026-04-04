@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/rms_api/rms_local_storage.dart';
@@ -21,6 +22,22 @@ class RmsAuthRepositoryImpl implements RmsAuthRepository {
     required String password,
     required bool rememberMe,
   }) async {
+    if (kIsWeb) {
+      final sessionId = await remoteDataSource.proxyLogin(
+        usernameOrEmailAddress: usernameOrEmailAddress,
+        password: password,
+        rememberMe: rememberMe,
+      );
+      ref.read(rmsRuntimeStateProvider.notifier).setSessionId(sessionId);
+      await RmsLocalStorage.writeSessionId(sessionId);
+
+      final user = await getCurrentUser();
+      if (user == null) {
+        throw Exception('Login succeeded but user info is not available.');
+      }
+      return user;
+    }
+
     final token = await remoteDataSource.fetchRequestVerificationToken();
     if (token == null || token.isEmpty) {
       throw Exception('Failed to fetch verification token.');
@@ -77,6 +94,6 @@ class RmsAuthRepositoryImpl implements RmsAuthRepository {
     ref.read(rmsRuntimeStateProvider.notifier).clear();
     await RmsLocalStorage.writeCookieHeader(null);
     await RmsLocalStorage.writeXsrfToken(null);
+    await RmsLocalStorage.writeSessionId(null);
   }
 }
-

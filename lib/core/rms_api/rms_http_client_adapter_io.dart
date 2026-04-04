@@ -4,4 +4,3 @@ import 'package:dio/io.dart';
 HttpClientAdapter createRmsHttpClientAdapter() {
   return IOHttpClientAdapter();
 }
-

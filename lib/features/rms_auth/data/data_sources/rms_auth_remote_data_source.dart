@@ -3,11 +3,31 @@ import 'package:dio/dio.dart';
 import '../../../../core/rms_api/rms_api_config.dart';
 
 class RmsAuthRemoteDataSource {
-  const RmsAuthRemoteDataSource({
-    required this.dio,
-  });
+  const RmsAuthRemoteDataSource({required this.dio});
 
   final Dio dio;
+
+  Future<String> proxyLogin({
+    required String usernameOrEmailAddress,
+    required String password,
+    required bool rememberMe,
+  }) async {
+    final response = await dio.post<Map<String, Object?>>(
+      RmsApiPaths.proxyLogin,
+      data: <String, Object?>{
+        'username': usernameOrEmailAddress,
+        'password': password,
+        'rememberMe': rememberMe,
+      },
+    );
+
+    final data = response.data;
+    final sessionId = data?['sessionId'];
+    if (sessionId is! String || sessionId.trim().isEmpty) {
+      throw Exception('Proxy login failed (missing sessionId).');
+    }
+    return sessionId.trim();
+  }
 
   Future<String?> fetchRequestVerificationToken() async {
     final response = await dio.get<String>(
@@ -45,9 +65,7 @@ class RmsAuthRemoteDataSource {
     await dio.post<void>(
       RmsApiPaths.loginPost,
       data: form,
-      options: Options(
-        contentType: Headers.formUrlEncodedContentType,
-      ),
+      options: Options(contentType: Headers.formUrlEncodedContentType),
     );
   }
 

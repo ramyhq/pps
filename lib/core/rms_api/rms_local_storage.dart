@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class RmsLocalStorage {
   static const _cookieHeaderKey = 'rms.cookie_header';
   static const _xsrfTokenKey = 'rms.xsrf_token';
+  static const _sessionIdKey = 'rms.session_id';
 
   static Future<String?> readCookieHeader() async {
     final prefs = await SharedPreferences.getInstance();
@@ -31,5 +32,18 @@ class RmsLocalStorage {
     }
     await prefs.setString(_xsrfTokenKey, token);
   }
-}
 
+  static Future<String?> readSessionId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_sessionIdKey);
+  }
+
+  static Future<void> writeSessionId(String? sessionId) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (sessionId == null || sessionId.trim().isEmpty) {
+      await prefs.remove(_sessionIdKey);
+      return;
+    }
+    await prefs.setString(_sessionIdKey, sessionId);
+  }
+}

@@ -11,4 +11,3 @@ abstract class RmsAuthRepository {
 
   Future<void> logout();
 }
-

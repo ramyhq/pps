@@ -9,30 +9,19 @@ import '../../features/reservations/ui/screens/reservation_details_screen.dart';
 import '../../features/reservations/ui/screens/create_general_service_screen.dart';
 import '../../features/reservations/ui/screens/create_agent_reservation_screen.dart';
 import '../../features/reservations/ui/screens/create_transportation_service_screen.dart';
-import '../../features/rms_auth/provider/rms_session_provider.dart';
 import '../../features/rms_auth/ui/screens/rms_login_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final session = ref.watch(rmsSessionProvider);
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: '/login',
-    redirect: (context, state) {
-      final isOnLogin = state.matchedLocation == '/login';
-      if (!session.isAuthenticated && !isOnLogin) {
-        return '/login';
-      }
-      if (session.isAuthenticated && isOnLogin) {
-        return '/dashboard';
-      }
-      return null;
-    },
+    initialLocation: '/dashboard',
     routes: [
+      GoRoute(path: '/login', redirect: (context, state) => '/dashboard'),
       GoRoute(
-        path: '/login',
+        path: '/rms-login',
         builder: (context, state) => const RmsLoginScreen(),
       ),
       GoRoute(
