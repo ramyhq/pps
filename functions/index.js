@@ -26,7 +26,7 @@ function applyCors(req, res) {
   res.set("access-control-allow-methods", "GET,POST,OPTIONS");
   res.set(
     "access-control-allow-headers",
-    "content-type, x-rms-proxy-key, x-rms-session",
+    "content-type, x-rms-proxy-key, x-rms-session, x-requested-with",
   );
   res.set("access-control-max-age", "3600");
 }

@@ -8,10 +8,16 @@ const String rmsProxyOrigin = String.fromEnvironment(
   defaultValue: 'https://package-pricing-system-pps.web.app',
 );
 
-const String rmsProxyKey = String.fromEnvironment(
+const String _rmsProxyKeyHardcoded = '';
+
+const String _rmsProxyKeyFromEnv = String.fromEnvironment(
   'RMS_PROXY_KEY',
   defaultValue: '',
 );
+
+const String rmsProxyKey = _rmsProxyKeyFromEnv != ''
+    ? _rmsProxyKeyFromEnv
+    : _rmsProxyKeyHardcoded;
 
 class RmsApiPaths {
   static const loginPage = '/Account/Login';
