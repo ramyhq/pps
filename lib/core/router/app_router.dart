@@ -10,9 +10,16 @@ import '../../features/reservations/ui/screens/create_general_service_screen.dar
 import '../../features/reservations/ui/screens/create_agent_reservation_screen.dart';
 import '../../features/reservations/ui/screens/create_transportation_service_screen.dart';
 import '../../features/rms_auth/ui/screens/rms_login_screen.dart';
+import '../../features/rms_bridge/ui/screens/rms_bridge_home_screen.dart';
+import '../../features/rms_bridge/ui/screens/rms_bridge_import_reservation_screen.dart';
+import '../../features/rms_bridge/ui/screens/rms_bridge_reservation_details_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
+
+Page<void> _noTransitionPage(GoRouterState state, Widget child) {
+  return NoTransitionPage<void>(key: state.pageKey, child: child);
+}
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -22,7 +29,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/login', redirect: (context, state) => '/dashboard'),
       GoRoute(
         path: '/rms-login',
-        builder: (context, state) => const RmsLoginScreen(),
+        pageBuilder: (context, state) =>
+            _noTransitionPage(state, const RmsLoginScreen()),
       ),
       GoRoute(
         path: '/create-agent',
@@ -52,7 +60,8 @@ final routerProvider = Provider<GoRouter>((ref) {
               // TODO(permissions): Enforce RBAC for dashboard access (roles/permissions).
               return null;
             },
-            builder: (context, state) => const DashboardPlaceholderScreen(),
+            pageBuilder: (context, state) =>
+                _noTransitionPage(state, const DashboardPlaceholderScreen()),
           ),
           GoRoute(
             path: '/reservations',
@@ -60,59 +69,75 @@ final routerProvider = Provider<GoRouter>((ref) {
               // TODO(permissions): Enforce RBAC for reservations access (view/list/details/create/edit).
               return null;
             },
-            builder: (context, state) => const ReservationListScreen(),
+            pageBuilder: (context, state) =>
+                _noTransitionPage(state, const ReservationListScreen()),
             routes: [
               GoRoute(
                 path: 'details',
-                builder: (context, state) {
+                pageBuilder: (context, state) {
                   final reservationId =
                       state.uri.queryParameters['reservationId'];
-                  return ReservationDetailsScreen(reservationId: reservationId);
+                  return _noTransitionPage(
+                    state,
+                    ReservationDetailsScreen(reservationId: reservationId),
+                  );
                 },
               ),
               GoRoute(
                 path: 'pdf-preview',
-                builder: (context, state) {
+                pageBuilder: (context, state) {
                   final reservationId =
                       state.uri.queryParameters['reservationId'];
-                  return ReservationDetailsPdfPreviewScreen(
-                    reservationId: reservationId,
+                  return _noTransitionPage(
+                    state,
+                    ReservationDetailsPdfPreviewScreen(
+                      reservationId: reservationId,
+                    ),
                   );
                 },
               ),
               GoRoute(
                 path: 'create-general',
-                builder: (context, state) {
+                pageBuilder: (context, state) {
                   final reservationId =
                       state.uri.queryParameters['reservationId'];
                   final serviceId = state.uri.queryParameters['serviceId'];
-                  return CreateGeneralServiceScreen(
-                    reservationId: reservationId,
-                    serviceId: serviceId,
+                  return _noTransitionPage(
+                    state,
+                    CreateGeneralServiceScreen(
+                      reservationId: reservationId,
+                      serviceId: serviceId,
+                    ),
                   );
                 },
               ),
               GoRoute(
                 path: 'create-agent',
-                builder: (context, state) {
+                pageBuilder: (context, state) {
                   final reservationId =
                       state.uri.queryParameters['reservationId'];
                   final serviceId = state.uri.queryParameters['serviceId'];
-                  return CreateAgentReservationScreen(
-                    reservationId: reservationId,
-                    serviceId: serviceId,
+                  return _noTransitionPage(
+                    state,
+                    CreateAgentReservationScreen(
+                      reservationId: reservationId,
+                      serviceId: serviceId,
+                    ),
                   );
                 },
               ),
               GoRoute(
                 path: 'create-transportation',
-                builder: (context, state) {
+                pageBuilder: (context, state) {
                   final reservationId =
                       state.uri.queryParameters['reservationId'];
                   final serviceId = state.uri.queryParameters['serviceId'];
-                  return CreateTransportationServiceScreen(
-                    reservationId: reservationId,
-                    serviceId: serviceId,
+                  return _noTransitionPage(
+                    state,
+                    CreateTransportationServiceScreen(
+                      reservationId: reservationId,
+                      serviceId: serviceId,
+                    ),
                   );
                 },
               ),
@@ -124,14 +149,17 @@ final routerProvider = Provider<GoRouter>((ref) {
               // TODO(permissions): Enforce RBAC for clients access (list/details/bulk import).
               return null;
             },
-            builder: (context, state) => const SimplePlaceholderScreen(
-              title: AppStrings.clientsTitle,
-              description: AppStrings.clientsPlaceholderDescription,
-              bullets: [
-                'List clients with search, filters, and quick actions.',
-                'Client details: contact info, history, and attachments.',
-                'Bulk import will be added later.',
-              ],
+            pageBuilder: (context, state) => _noTransitionPage(
+              state,
+              const SimplePlaceholderScreen(
+                title: AppStrings.clientsTitle,
+                description: AppStrings.clientsPlaceholderDescription,
+                bullets: [
+                  'List clients with search, filters, and quick actions.',
+                  'Client details: contact info, history, and attachments.',
+                  'Bulk import will be added later.',
+                ],
+              ),
             ),
           ),
           GoRoute(
@@ -140,14 +168,17 @@ final routerProvider = Provider<GoRouter>((ref) {
               // TODO(permissions): Enforce RBAC for suppliers access (list/details/bulk import).
               return null;
             },
-            builder: (context, state) => const SimplePlaceholderScreen(
-              title: AppStrings.suppliersTitle,
-              description: AppStrings.suppliersPlaceholderDescription,
-              bullets: [
-                'List suppliers with filters by type and availability.',
-                'Supplier details: contracts, rates, and notes.',
-                'Bulk import will be added later.',
-              ],
+            pageBuilder: (context, state) => _noTransitionPage(
+              state,
+              const SimplePlaceholderScreen(
+                title: AppStrings.suppliersTitle,
+                description: AppStrings.suppliersPlaceholderDescription,
+                bullets: [
+                  'List suppliers with filters by type and availability.',
+                  'Supplier details: contracts, rates, and notes.',
+                  'Bulk import will be added later.',
+                ],
+              ),
             ),
           ),
           GoRoute(
@@ -156,14 +187,17 @@ final routerProvider = Provider<GoRouter>((ref) {
               // TODO(permissions): Enforce RBAC for hotels access (list/details/bulk import).
               return null;
             },
-            builder: (context, state) => const SimplePlaceholderScreen(
-              title: AppStrings.hotelsTitle,
-              description: AppStrings.hotelsPlaceholderDescription,
-              bullets: [
-                'Hotels list with city/category filters.',
-                'Hotel details: room types, meal plans, and rates.',
-                'Bulk import will be added later.',
-              ],
+            pageBuilder: (context, state) => _noTransitionPage(
+              state,
+              const SimplePlaceholderScreen(
+                title: AppStrings.hotelsTitle,
+                description: AppStrings.hotelsPlaceholderDescription,
+                bullets: [
+                  'Hotels list with city/category filters.',
+                  'Hotel details: room types, meal plans, and rates.',
+                  'Bulk import will be added later.',
+                ],
+              ),
             ),
           ),
           GoRoute(
@@ -172,14 +206,17 @@ final routerProvider = Provider<GoRouter>((ref) {
               // TODO(permissions): Enforce RBAC for services catalog access.
               return null;
             },
-            builder: (context, state) => const SimplePlaceholderScreen(
-              title: AppStrings.servicesCatalogTitle,
-              description: AppStrings.servicesCatalogPlaceholderDescription,
-              bullets: [
-                'Browse service types and pricing rules.',
-                'Backed by Supabase tables (e.g., reservation_service_types).',
-                'CRUD and permissions will be added later.',
-              ],
+            pageBuilder: (context, state) => _noTransitionPage(
+              state,
+              const SimplePlaceholderScreen(
+                title: AppStrings.servicesCatalogTitle,
+                description: AppStrings.servicesCatalogPlaceholderDescription,
+                bullets: [
+                  'Browse service types and pricing rules.',
+                  'Backed by Supabase tables (e.g., reservation_service_types).',
+                  'CRUD and permissions will be added later.',
+                ],
+              ),
             ),
           ),
           GoRoute(
@@ -188,7 +225,8 @@ final routerProvider = Provider<GoRouter>((ref) {
               // TODO(permissions): Enforce RBAC for templates access (view/edit).
               return null;
             },
-            builder: (context, state) => const TemplatesPlaceholderScreen(),
+            pageBuilder: (context, state) =>
+                _noTransitionPage(state, const TemplatesPlaceholderScreen()),
           ),
           GoRoute(
             path: '/reports',
@@ -196,14 +234,17 @@ final routerProvider = Provider<GoRouter>((ref) {
               // TODO(permissions): Enforce RBAC for reports access (view/export/print).
               return null;
             },
-            builder: (context, state) => const SimplePlaceholderScreen(
-              title: AppStrings.reportsTitle,
-              description: AppStrings.reportsPlaceholderDescription,
-              bullets: [
-                'Sales, cost, and margin summaries.',
-                'Filters by date range, client, supplier, and service type.',
-                'Export (PDF/Excel) and print will be added later.',
-              ],
+            pageBuilder: (context, state) => _noTransitionPage(
+              state,
+              const SimplePlaceholderScreen(
+                title: AppStrings.reportsTitle,
+                description: AppStrings.reportsPlaceholderDescription,
+                bullets: [
+                  'Sales, cost, and margin summaries.',
+                  'Filters by date range, client, supplier, and service type.',
+                  'Export (PDF/Excel) and print will be added later.',
+                ],
+              ),
             ),
           ),
           GoRoute(
@@ -212,15 +253,45 @@ final routerProvider = Provider<GoRouter>((ref) {
               // TODO(permissions): Enforce RBAC for settings access (users/roles/app settings/integrations).
               return null;
             },
-            builder: (context, state) => const SimplePlaceholderScreen(
-              title: AppStrings.settingsTitle,
-              description: AppStrings.settingsPlaceholderDescription,
-              bullets: [
-                'User management and roles/permissions (RBAC).',
-                'Application settings: themes, localization, defaults.',
-                'Integrations: Supabase, notifications, and audit logs.',
-              ],
+            pageBuilder: (context, state) => _noTransitionPage(
+              state,
+              const SimplePlaceholderScreen(
+                title: AppStrings.settingsTitle,
+                description: AppStrings.settingsPlaceholderDescription,
+                bullets: [
+                  'User management and roles/permissions (RBAC).',
+                  'Application settings: themes, localization, defaults.',
+                  'Integrations: Supabase, notifications, and audit logs.',
+                ],
+              ),
             ),
+          ),
+          GoRoute(
+            path: '/rms-bridge',
+            pageBuilder: (context, state) =>
+                _noTransitionPage(state, const RmsBridgeHomeScreen()),
+            routes: [
+              GoRoute(
+                path: 'import',
+                pageBuilder: (context, state) => _noTransitionPage(
+                  state,
+                  const RmsBridgeImportReservationScreen(),
+                ),
+              ),
+              GoRoute(
+                path: 'reservation-details',
+                pageBuilder: (context, state) {
+                  final reservationId =
+                      state.uri.queryParameters['reservationId'] ?? '';
+                  return _noTransitionPage(
+                    state,
+                    RmsBridgeReservationDetailsScreen(
+                      reservationId: reservationId,
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
         ],
       ),

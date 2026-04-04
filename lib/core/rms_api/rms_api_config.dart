@@ -5,7 +5,7 @@ const String rmsBaseUrl = String.fromEnvironment(
 
 const String rmsProxyOrigin = String.fromEnvironment(
   'RMS_PROXY_ORIGIN',
-  defaultValue: '',
+  defaultValue: 'https://package-pricing-system-pps.web.app',
 );
 
 const String rmsProxyKey = String.fromEnvironment(

@@ -9,7 +9,9 @@ import '../../features/reservations/provider/reservations_data_providers.dart';
 import 'custom_form_fields.dart';
 
 class Header extends ConsumerStatefulWidget {
-  const Header({super.key});
+  const Header({super.key, this.onMenuPressed});
+
+  final VoidCallback? onMenuPressed;
 
   @override
   ConsumerState<Header> createState() => _HeaderState();
@@ -201,7 +203,7 @@ class _HeaderState extends ConsumerState<Header> {
       child: Row(
         children: [
           IconButton(
-            onPressed: () {},
+            onPressed: widget.onMenuPressed ?? () {},
             icon: const Icon(Icons.menu, color: AppColors.textSecondary),
           ),
           const Spacer(),

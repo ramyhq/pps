@@ -2,6 +2,7 @@ class AppStrings {
   static const dashboardTitle = 'Dashboard';
   static const detailsTitle = 'Details';
   static const reservationsTitle = 'Reservations';
+  static const rmsBridgeTitle = 'RMS Bridge';
   static const clientsTitle = 'Clients';
   static const suppliersTitle = 'Suppliers';
   static const hotelsTitle = 'Hotels';
@@ -15,10 +16,36 @@ class AppStrings {
   static const sidebarSectionOperations = 'Operations';
   static const sidebarSectionMasterData = 'Master Data';
   static const sidebarSectionReports = 'Reports';
+  static const sidebarSectionIntegrations = 'Integrations';
   static const sidebarSectionSettings = 'Settings';
   static const sidebarSectionResults = 'Results';
   static const back = 'Back';
   static const missingReservationId = 'Missing reservationId';
+
+  static const rmsBridgeSubtitle = 'Bridge RMS reservations into PPS workflow.';
+  static const rmsBridgeImportReservationTitle = 'Import Reservation';
+  static const rmsBridgeImportReservationSubtitle =
+      'Extract reservation preview from RMS.';
+  static const rmsBridgeRmsLoginTitle = 'RMS Login';
+  static const rmsBridgeRmsLoginSubtitle = 'Create/refresh RMS session.';
+  static const rmsBridgeImportReservationHint =
+      'Enter reservationId, then preview hotels, totals, dates, and clientId.';
+  static const rmsBridgeReservationDetailsTitle = 'RMS Reservation Details';
+
+  static const rmsBridgeReservationIdInputLabel = 'Reservation ID';
+  static const rmsBridgeReservationIdInputHint = 'e.g. 1364033';
+  static const rmsBridgeImportButton = 'Import';
+  static const rmsBridgeOpenRmsLoginButton = 'Open RMS Login';
+  static const rmsBridgeMissingSessionHint =
+      'RMS session is missing. Open RMS Login first.';
+
+  static const rmsBridgeReservationIdLabel = 'Reservation ID:';
+  static const rmsBridgeReservationNoLabel = 'Reservation No:';
+  static const rmsBridgeClientIdLabel = 'Client ID:';
+  static const rmsBridgeOpenDetailsButton = 'Open details';
+  static const rmsBridgeHotelsPreviewTitle = 'Hotels';
+  static const rmsBridgeNoHotelsFound = 'No hotels found in this reservation.';
+  static const rmsBridgeUnnamedHotel = 'Hotel';
 
   static const reservationMainInfoTitle = 'Reservation main info';
   static const reservationDetailsTitle = 'Reservation details';

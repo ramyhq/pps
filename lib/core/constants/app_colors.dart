@@ -268,6 +268,9 @@ class AppBreakpoints {
   /// Reservation details desktop layout threshold (4-column grid).
   static const double detailsDesktop = 980;
 
+  /// Shell layout: below this width we hide the sidebar and use a drawer.
+  static const double shellMobile = 900;
+
   /// Dialog layout thresholds used in details edit dialogs.
   static const double dialogMd = 520;
   static const double dialogLg = 760;

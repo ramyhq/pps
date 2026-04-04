@@ -8,7 +8,18 @@ import '../constants/app_strings.dart';
 import 'custom_form_fields.dart';
 
 class Sidebar extends ConsumerStatefulWidget {
-  const Sidebar({super.key});
+  const Sidebar({
+    super.key,
+    required this.isExpanded,
+    this.onToggleExpanded,
+    this.onItemSelected,
+    this.showToggleButton = true,
+  });
+
+  final bool isExpanded;
+  final VoidCallback? onToggleExpanded;
+  final VoidCallback? onItemSelected;
+  final bool showToggleButton;
 
   @override
   ConsumerState<Sidebar> createState() => _SidebarState();
@@ -21,7 +32,6 @@ class _SidebarState extends ConsumerState<Sidebar> {
 
   static const String _logoAssetPath = 'assets/images/sahl_logo.jpg';
 
-  bool _isExpanded = true;
   final TextEditingController _searchController = TextEditingController();
   String _menuQuery = '';
 
@@ -100,6 +110,16 @@ class _SidebarState extends ConsumerState<Sidebar> {
             ],
           ),
           (
+            title: AppStrings.sidebarSectionIntegrations,
+            items: [
+              (
+                icon: FontAwesomeIcons.bridge,
+                title: AppStrings.rmsBridgeTitle,
+                routePath: '/rms-bridge',
+              ),
+            ],
+          ),
+          (
             title: AppStrings.sidebarSectionSettings,
             items: [
               (
@@ -122,15 +142,15 @@ class _SidebarState extends ConsumerState<Sidebar> {
               .toList(growable: false);
 
     final outerInsets = EdgeInsets.only(
-      top: AppSpacing.s8,
+      top: AppSpacing.s0,
       bottom: AppSpacing.s8,
-      right: _isExpanded ? AppSpacing.s8 : AppSpacing.s0,
+      right: widget.isExpanded ? AppSpacing.s8 : AppSpacing.s0,
     );
 
     return AnimatedContainer(
       duration: AppDurations.accordion,
       curve: Curves.easeOut,
-      width: _isExpanded ? _expandedWidth : _collapsedWidth,
+      width: widget.isExpanded ? _expandedWidth : _collapsedWidth,
       decoration: const BoxDecoration(color: AppColors.light),
       child: Padding(
         padding: outerInsets,
@@ -144,24 +164,22 @@ class _SidebarState extends ConsumerState<Sidebar> {
             border: Border.all(color: AppColors.border),
           ),
           child: SafeArea(
+            top: false,
             bottom: false,
             child: Column(
               children: [
                 _SidebarHeader(
-                  isExpanded: _isExpanded,
+                  isExpanded: widget.isExpanded,
                   logoAssetPath: _logoAssetPath,
-                  onToggle: () {
-                    setState(() {
-                      _isExpanded = !_isExpanded;
-                    });
-                  },
+                  onToggle: widget.onToggleExpanded,
+                  showToggleButton: widget.showToggleButton,
                 ),
                 Expanded(
                   child: AnimatedSwitcher(
                     duration: AppDurations.accordion,
                     switchInCurve: Curves.easeOut,
                     switchOutCurve: Curves.easeOut,
-                    child: !_isExpanded
+                    child: !widget.isExpanded
                         ? const SizedBox.shrink()
                         : Column(
                             key: const ValueKey('sidebar-expanded-content'),
@@ -288,6 +306,12 @@ class _SidebarState extends ConsumerState<Sidebar> {
             if (routePath == '/reservations') {
               ref.invalidate(reservationOrdersProvider);
             }
+            if (widget.onItemSelected != null) {
+              final router = GoRouter.of(context);
+              widget.onItemSelected!.call();
+              router.go(routePath);
+              return;
+            }
             context.go(routePath);
           },
           child: SizedBox(
@@ -343,6 +367,9 @@ class _SidebarState extends ConsumerState<Sidebar> {
     if (routePath == '/reservations') {
       return location == routePath || location.startsWith('/reservations');
     }
+    if (routePath == '/rms-bridge') {
+      return location == routePath || location.startsWith('/rms-bridge');
+    }
     return location == routePath;
   }
 
@@ -370,12 +397,14 @@ class _SidebarState extends ConsumerState<Sidebar> {
 class _SidebarHeader extends StatelessWidget {
   final bool isExpanded;
   final String logoAssetPath;
-  final VoidCallback onToggle;
+  final VoidCallback? onToggle;
+  final bool showToggleButton;
 
   const _SidebarHeader({
     required this.isExpanded,
     required this.logoAssetPath,
     required this.onToggle,
+    required this.showToggleButton,
   });
 
   @override
@@ -416,28 +445,29 @@ class _SidebarHeader extends StatelessWidget {
                     ),
                   ),
                 ),
-              SizedBox(
-                width: AppHeights.field34,
-                height: AppHeights.field34,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: AppColors.light,
-                    borderRadius: BorderRadius.circular(AppRadii.r6),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: IconButton(
-                    onPressed: onToggle,
-                    icon: Icon(
-                      isExpanded ? Icons.chevron_left : Icons.chevron_right,
-                      size: AppIconSizes.s18,
-                      color: AppColors.textSecondary,
+              if (showToggleButton)
+                SizedBox(
+                  width: AppHeights.field34,
+                  height: AppHeights.field34,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: AppColors.light,
+                      borderRadius: BorderRadius.circular(AppRadii.r6),
+                      border: Border.all(color: AppColors.border),
                     ),
-                    padding: EdgeInsets.zero,
-                    splashRadius: AppIconSizes.s18,
-                    tooltip: isExpanded ? 'Collapse' : 'Expand',
+                    child: IconButton(
+                      onPressed: onToggle,
+                      icon: Icon(
+                        isExpanded ? Icons.chevron_left : Icons.chevron_right,
+                        size: AppIconSizes.s18,
+                        color: AppColors.textSecondary,
+                      ),
+                      padding: EdgeInsets.zero,
+                      splashRadius: AppIconSizes.s18,
+                      tooltip: isExpanded ? 'Collapse' : 'Expand',
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
