@@ -60,8 +60,7 @@ grep -n "serviceWorkerSettings" build/web/flutter_bootstrap.js | head
 
     echo -e "${GREEN}🎉 Build successful! Ready for deployment.${NC}"
     # firebase deploy --only hosting
-    firebase deploy --only functions
-else
+ else
     echo -e "${RED}❌ Build failed!${NC}"
     exit 1
 fi
