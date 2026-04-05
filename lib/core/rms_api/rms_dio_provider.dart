@@ -45,11 +45,6 @@ final rmsDioProvider = Provider<Dio>((ref) {
         }
 
         if (kIsWeb) {
-          final proxyKey = rmsProxyKey.trim();
-          if (proxyKey.isNotEmpty) {
-            options.headers['x-rms-proxy-key'] = proxyKey;
-          }
-
           final path = options.path;
           if (!path.startsWith('/rms/')) {
             final isAllowedPath =

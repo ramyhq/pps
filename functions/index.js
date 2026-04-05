@@ -1,6 +1,5 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { setGlobalOptions } = require("firebase-functions/v2");
-const { defineSecret } = require("firebase-functions/params");
 const { initializeApp } = require("firebase-admin/app");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const crypto = require("crypto");
@@ -11,7 +10,6 @@ initializeApp();
 const db = getFirestore();
 
 const RMS_BASE_URL = "https://rms.armtech.online";
-const RMS_PROXY_KEY = defineSecret("RMS_PROXY_KEY");
 
 function sendJson(res, status, data) {
   res.status(status);
@@ -26,8 +24,11 @@ function applyCors(req, res) {
   res.set("access-control-allow-methods", "GET,POST,OPTIONS");
   res.set(
     "access-control-allow-headers",
-    "content-type, x-rms-proxy-key, x-rms-session, x-requested-with",
+    "content-type, x-rms-session, x-requested-with",
   );
+  if (origin) {
+    res.set("access-control-allow-credentials", "true");
+  }
   res.set("access-control-max-age", "3600");
 }
 
@@ -330,18 +331,6 @@ async function updateSessionCookieHeader(sessionId, cookieHeader, respHeaders) {
   return merged;
 }
 
-function ensureProxyKey(req) {
-  const expected = RMS_PROXY_KEY.value();
-  if (!expected) {
-    return { ok: true };
-  }
-  const received = req.get("x-rms-proxy-key");
-  if (!received || received !== expected) {
-    return { ok: false };
-  }
-  return { ok: true };
-}
-
 function buildRmsUrl(path, query) {
   const url = new URL(RMS_BASE_URL);
   url.pathname = path;
@@ -363,17 +352,11 @@ function isAllowedPath(path) {
   return false;
 }
 
-exports.rmsLogin = onRequest({ secrets: [RMS_PROXY_KEY] }, async (req, res) => {
+exports.rmsLogin = onRequest(async (req, res) => {
   try {
     applyCors(req, res);
     if (req.method === "OPTIONS") {
       res.status(204).send("");
-      return;
-    }
-
-    const keyCheck = ensureProxyKey(req);
-    if (!keyCheck.ok) {
-      sendJson(res, 401, { error: "Unauthorized" });
       return;
     }
 
@@ -494,17 +477,11 @@ exports.rmsLogin = onRequest({ secrets: [RMS_PROXY_KEY] }, async (req, res) => {
   }
 });
 
-exports.rmsProxy = onRequest({ secrets: [RMS_PROXY_KEY] }, async (req, res) => {
+exports.rmsProxy = onRequest(async (req, res) => {
   try {
     applyCors(req, res);
     if (req.method === "OPTIONS") {
       res.status(204).send("");
-      return;
-    }
-
-    const keyCheck = ensureProxyKey(req);
-    if (!keyCheck.ok) {
-      sendJson(res, 401, { error: "Unauthorized" });
       return;
     }
 

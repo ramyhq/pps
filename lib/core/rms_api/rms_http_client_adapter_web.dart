@@ -2,5 +2,5 @@ import 'package:dio/browser.dart';
 import 'package:dio/dio.dart';
 
 HttpClientAdapter createRmsHttpClientAdapter() {
-  return BrowserHttpClientAdapter()..withCredentials = true;
+  return BrowserHttpClientAdapter()..withCredentials = false;
 }
