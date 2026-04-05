@@ -60,6 +60,11 @@ grep -n "serviceWorkerSettings" build/web/flutter_bootstrap.js | head
 
     echo -e "${GREEN}🎉 Build successful! Ready for deployment.${NC}"
     # firebase deploy --only hosting
+    if ! command -v firebase >/dev/null 2>&1; then
+        echo -e "${RED}❌ Firebase CLI is not installed. Install firebase-tools before running deploy.${NC}"
+        exit 1
+    fi
+    firebase deploy --only functions
 else
     echo -e "${RED}❌ Build failed!${NC}"
     exit 1

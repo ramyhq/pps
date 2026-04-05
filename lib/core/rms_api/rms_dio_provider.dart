@@ -65,6 +65,8 @@ final rmsDioProvider = Provider<Dio>((ref) {
               options.method = 'POST';
               options.path = RmsApiPaths.proxy;
               options.queryParameters = <String, dynamic>{};
+              options.headers[Headers.contentTypeHeader] =
+                  Headers.jsonContentType;
               options.data = <String, Object?>{
                 'path': originalPath,
                 'method': originalMethod,

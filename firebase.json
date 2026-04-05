@@ -27,6 +27,10 @@
         "function": "rmsLogin"
       },
       {
+        "source": "/rms/logout",
+        "function": "rmsLogout"
+      },
+      {
         "source": "/rms/proxy",
         "function": "rmsProxy"
       },

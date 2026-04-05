@@ -36,6 +36,7 @@ class AppStrings {
   static const rmsBridgeReservationIdInputHint = 'e.g. 1364033';
   static const rmsBridgeImportButton = 'Import';
   static const rmsBridgeOpenRmsLoginButton = 'Open RMS Login';
+  static const rmsBridgeLogoutButton = 'Logout RMS';
   static const rmsBridgeMissingSessionHint =
       'RMS session is missing. Open RMS Login first.';
 

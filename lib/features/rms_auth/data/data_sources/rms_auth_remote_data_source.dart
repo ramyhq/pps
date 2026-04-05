@@ -29,6 +29,13 @@ class RmsAuthRemoteDataSource {
     return sessionId.trim();
   }
 
+  Future<void> proxyLogout({required String sessionId}) async {
+    await dio.post<void>(
+      RmsApiPaths.proxyLogout,
+      options: Options(headers: <String, Object?>{'x-rms-session': sessionId}),
+    );
+  }
+
   Future<String?> fetchRequestVerificationToken() async {
     final response = await dio.get<String>(
       RmsApiPaths.loginPage,

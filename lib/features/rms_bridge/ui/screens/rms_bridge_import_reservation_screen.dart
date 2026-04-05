@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/rms_api/rms_runtime_state_providers.dart';
+import '../../../rms_auth/provider/rms_session_provider.dart';
 import '../../provider/rms_bridge_data_providers.dart';
 import '../widgets/rms_bridge_reservation_preview.dart';
 
@@ -108,6 +109,20 @@ class _RmsBridgeImportReservationScreenState
                         icon: const Icon(Icons.search),
                         label: const Text(AppStrings.rmsBridgeImportButton),
                       ),
+                      if (sessionId != null)
+                        OutlinedButton.icon(
+                          onPressed: () async {
+                            await ref
+                                .read(rmsSessionProvider.notifier)
+                                .logout();
+                            if (!mounted) {
+                              return;
+                            }
+                            setState(() => _submittedReservationId = null);
+                          },
+                          icon: const Icon(Icons.logout),
+                          label: const Text(AppStrings.rmsBridgeLogoutButton),
+                        ),
                       if (sessionId == null)
                         OutlinedButton.icon(
                           onPressed: () => context.go('/rms-login'),

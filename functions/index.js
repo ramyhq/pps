@@ -107,6 +107,47 @@ function getSetCookieList(headers) {
   return [raw];
 }
 
+function normalizeRequestBody(req) {
+  const raw = req?.body;
+  if (!raw) return {};
+  if (typeof raw === "object") return raw;
+  if (typeof raw !== "string") return {};
+
+  const trimmed = raw.trim();
+  if (!trimmed) return {};
+
+  try {
+    const json = JSON.parse(trimmed);
+    if (json && typeof json === "object") {
+      return json;
+    }
+  } catch (e) {
+  }
+
+  try {
+    const params = new URLSearchParams(trimmed);
+    const obj = {};
+    for (const [k, v] of params.entries()) {
+      obj[k] = v;
+    }
+    if (typeof obj.query === "string" && obj.query.trim().startsWith("{")) {
+      try {
+        obj.query = JSON.parse(obj.query);
+      } catch (e) {
+      }
+    }
+    if (typeof obj.body === "string" && obj.body.trim().startsWith("{")) {
+      try {
+        obj.body = JSON.parse(obj.body);
+      } catch (e) {
+      }
+    }
+    return obj;
+  } catch (e) {
+    return {};
+  }
+}
+
 function decodeHtmlEntities(input) {
   if (!input) return "";
   return String(input)
@@ -477,6 +518,56 @@ exports.rmsLogin = onRequest(async (req, res) => {
   }
 });
 
+exports.rmsLogout = onRequest(async (req, res) => {
+  try {
+    applyCors(req, res);
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
+      return;
+    }
+
+    if (req.method !== "POST") {
+      sendJson(res, 405, { error: "Method not allowed" });
+      return;
+    }
+
+    const bodyObj = normalizeRequestBody(req);
+    const sessionId = req.get("x-rms-session") || bodyObj.sessionId;
+    if (!sessionId) {
+      sendJson(res, 401, { error: "Missing sessionId" });
+      return;
+    }
+
+    const sessionRef = db.collection("rms_sessions").doc(String(sessionId));
+    const sessionSnap = await sessionRef.get();
+    if (sessionSnap.exists) {
+      const session = sessionSnap.data();
+      const cookieHeader = session?.cookieHeader;
+      const xsrfToken = session?.xsrfToken;
+      if (cookieHeader && xsrfToken) {
+        try {
+          await fetch(buildRmsUrl("/Account/Logout"), {
+            method: "GET",
+            redirect: "manual",
+            headers: {
+              accept: "application/json, text/javascript, */*; q=0.01",
+              "x-requested-with": "XMLHttpRequest",
+              "x-xsrf-token": xsrfToken,
+              cookie: cookieHeader,
+            },
+          });
+        } catch (e) { }
+      }
+    }
+
+    await sessionRef.delete();
+    sendJson(res, 200, { ok: true });
+  } catch (e) {
+    console.error("rmsLogout failed", e);
+    sendJson(res, 500, { error: "Internal Server Error" });
+  }
+});
+
 exports.rmsProxy = onRequest(async (req, res) => {
   try {
     applyCors(req, res);
@@ -485,12 +576,13 @@ exports.rmsProxy = onRequest(async (req, res) => {
       return;
     }
 
-    const sessionId = req.get("x-rms-session") || req.body?.sessionId;
-    const action = String(req.body?.action ?? "").trim();
-    const path = req.body?.path || req.query?.path;
-    const method = (req.body?.method || req.method || "GET").toUpperCase();
-    const query = req.body?.query;
-    const body = req.body?.body;
+    const bodyObj = normalizeRequestBody(req);
+    const sessionId = req.get("x-rms-session") || bodyObj.sessionId;
+    const action = String(bodyObj.action ?? "").trim();
+    const path = bodyObj.path || req.query?.path;
+    const method = (bodyObj.method || req.method || "GET").toUpperCase();
+    const query = bodyObj.query;
+    const body = bodyObj.body;
 
     if (!sessionId) {
       sendJson(res, 401, { error: "Missing sessionId" });

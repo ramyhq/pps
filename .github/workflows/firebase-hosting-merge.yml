@@ -15,10 +15,20 @@ jobs:
         with:
           flutter-version: '3.32.5'
           channel: 'stable'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
       - run: flutter clean
       - run: flutter pub get
+      - run: npm i -g firebase-tools
+      - run: node -e "require('fs').writeFileSync(process.env.GOOGLE_APPLICATION_CREDENTIALS, process.env.FIREBASE_SERVICE_ACCOUNT)"
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-service-account.json
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PACKAGE_PRICING_SYSTEM_PPS }}
       - run: chmod +x deploy_web.sh
       - run: ./deploy_web.sh
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-service-account.json
       - run: ls -la build/web
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:

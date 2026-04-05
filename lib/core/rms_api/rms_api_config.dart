@@ -19,5 +19,6 @@ class RmsApiPaths {
       '/api/services/app/Session/GetCurrentLoginInformations';
 
   static const proxyLogin = '/rms/login';
+  static const proxyLogout = '/rms/logout';
   static const proxy = '/rms/proxy';
 }

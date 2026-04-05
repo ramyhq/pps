@@ -90,7 +90,14 @@ class RmsAuthRepositoryImpl implements RmsAuthRepository {
 
   @override
   Future<void> logout() async {
-    await remoteDataSource.logout();
+    if (kIsWeb) {
+      final sessionId = ref.read(rmsRuntimeStateProvider).sessionId?.trim();
+      if (sessionId != null && sessionId.isNotEmpty) {
+        await remoteDataSource.proxyLogout(sessionId: sessionId);
+      }
+    } else {
+      await remoteDataSource.logout();
+    }
     ref.read(rmsRuntimeStateProvider.notifier).clear();
     await RmsLocalStorage.writeCookieHeader(null);
     await RmsLocalStorage.writeXsrfToken(null);

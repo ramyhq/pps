@@ -1,7 +1,6 @@
 • POST https://package-pricing-system-pps.web.app/rms/proxy 400 (Bad Request)
 
 
-
 DioException [bad response]: This exception was thrown
 because the response has a status code of 400 and
 RequestOptions.validateStatus was configured to throw
