@@ -13,6 +13,7 @@ import '../../features/rms_auth/ui/screens/rms_login_screen.dart';
 import '../../features/rms_bridge/ui/screens/rms_bridge_home_screen.dart';
 import '../../features/rms_bridge/ui/screens/rms_bridge_import_reservation_screen.dart';
 import '../../features/rms_bridge/ui/screens/rms_bridge_reservation_details_screen.dart';
+import '../../features/dashboard/ui/screens/dashboard_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -61,7 +62,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               return null;
             },
             pageBuilder: (context, state) =>
-                _noTransitionPage(state, const DashboardPlaceholderScreen()),
+                _noTransitionPage(state, const DashboardScreen()),
           ),
           GoRoute(
             path: '/reservations',
@@ -396,150 +397,6 @@ class SimplePlaceholderScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class DashboardPlaceholderScreen extends StatelessWidget {
-  const DashboardPlaceholderScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: AppInsets.pageDetails,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            AppStrings.dashboardTitle,
-            style: TextStyle(
-              fontSize: AppFontSizes.pageTitle24,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.s8),
-          const Text(
-            AppStrings.dashboardPlaceholderDescription,
-            style: TextStyle(
-              fontSize: AppFontSizes.body12,
-              color: AppColors.textSecondary,
-              height: 1.35,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.s12),
-          Wrap(
-            spacing: AppSpacing.s12,
-            runSpacing: AppSpacing.s12,
-            children: const [
-              _KpiCard(
-                title: AppStrings.dashboardKpiToday,
-                value: '—',
-                subtitle: AppStrings.dashboardKpiReservations,
-              ),
-              _KpiCard(
-                title: AppStrings.dashboardKpiThisWeek,
-                value: '—',
-                subtitle: AppStrings.dashboardKpiReservations,
-              ),
-              _KpiCard(
-                title: AppStrings.dashboardKpiSalesCost,
-                value: '—',
-                subtitle: AppStrings.dashboardKpiTotals,
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.s12),
-          Container(
-            width: double.infinity,
-            padding: AppInsets.cardBody10,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(AppRadii.r6),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  AppStrings.dashboardLatestOrders,
-                  style: TextStyle(
-                    fontSize: AppFontSizes.title14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                SizedBox(height: AppSpacing.s8),
-                Text(
-                  AppStrings.placeholderHint,
-                  style: TextStyle(
-                    fontSize: AppFontSizes.label11,
-                    color: AppColors.textSecondary,
-                    height: 1.35,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _KpiCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final String subtitle;
-
-  const _KpiCard({
-    required this.title,
-    required this.value,
-    required this.subtitle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 220,
-      child: Container(
-        padding: AppInsets.cardBody10,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(AppRadii.r6),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: AppFontSizes.label11,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.s6),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: AppFontSizes.title20,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.s4),
-            Text(
-              subtitle,
-              style: const TextStyle(
-                fontSize: AppFontSizes.label11,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
