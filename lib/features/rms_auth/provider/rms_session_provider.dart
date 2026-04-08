@@ -1,5 +1,9 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/constants/app_strings.dart';
+import '../../../core/rms_api/rms_dio_provider.dart';
+import '../../../core/rms_api/rms_runtime_state_providers.dart';
 import '../data/models/rms_user_info.dart';
 import 'rms_auth_providers.dart';
 
@@ -44,8 +48,86 @@ class RmsSessionState {
 }
 
 class RmsSessionNotifier extends Notifier<RmsSessionState> {
+  bool _didRestoreFromStorage = false;
+
+  String _mapAuthErrorToUserMessage(Object error) {
+    if (error is DioException) {
+      final status = error.response?.statusCode;
+      if (status == 401 || status == 403) {
+        return AppStrings.loginInvalidCredentials;
+      }
+      final data = error.response?.data;
+      if (data is Map<String, Object?>) {
+        final serverError = data['error'];
+        if (serverError is String &&
+            serverError.toLowerCase().contains('login')) {
+          return AppStrings.loginInvalidCredentials;
+        }
+      }
+    }
+
+    final raw = error.toString().toLowerCase();
+    if (raw.contains('login succeeded but user info is not available')) {
+      return AppStrings.loginInvalidCredentials;
+    }
+    if (raw.contains('proxy login failed')) {
+      return AppStrings.loginInvalidCredentials;
+    }
+
+    return error.toString();
+  }
+
   @override
   RmsSessionState build() {
+    ref.read(rmsRuntimeBootstrapProvider);
+
+    ref.listen(rmsRuntimeBootstrapProvider, (_, next) {
+      next.whenData((_) {
+        if (_didRestoreFromStorage) {
+          return;
+        }
+        _didRestoreFromStorage = true;
+        () async {
+          if (state.isAuthenticated) {
+            return;
+          }
+          final sessionId = ref.read(rmsRuntimeStateProvider).sessionId;
+          if (sessionId == null || sessionId.trim().isEmpty) {
+            return;
+          }
+          final repo = ref.read(rmsAuthRepositoryProvider);
+          try {
+            final user = await repo.getCurrentUser();
+            if (user == null) {
+              await repo.logout();
+              state = RmsSessionState.initial;
+              return;
+            }
+            state = state.copyWith(
+              isAuthenticated: true,
+              isSubmitting: false,
+              user: user,
+              errorMessage: null,
+            );
+          } catch (_) {
+            try {
+              await repo.logout();
+            } catch (_) {}
+            state = RmsSessionState.initial;
+          }
+        }();
+      });
+    });
+
+    ref.listen(rmsRuntimeStateProvider, (previous, next) {
+      final prevSessionId = previous?.sessionId;
+      final nextSessionId = next.sessionId;
+      if (prevSessionId != null &&
+          (nextSessionId == null || nextSessionId.isEmpty)) {
+        state = RmsSessionState.initial;
+      }
+    });
+
     return RmsSessionState.initial;
   }
 
@@ -73,7 +155,7 @@ class RmsSessionNotifier extends Notifier<RmsSessionState> {
         isSubmitting: false,
         isAuthenticated: false,
         user: null,
-        errorMessage: e.toString(),
+        errorMessage: _mapAuthErrorToUserMessage(e),
       );
     }
   }

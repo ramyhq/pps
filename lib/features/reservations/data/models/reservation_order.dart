@@ -10,6 +10,7 @@ class ReservationOrder extends Equatable {
     required this.guestName,
     required this.guestNationality,
     required this.clientOptionDate,
+    required this.rmsInvoiceNo,
     required this.createdAt,
   });
 
@@ -19,6 +20,7 @@ class ReservationOrder extends Equatable {
   final String? guestName;
   final String? guestNationality;
   final DateTime? clientOptionDate;
+  final String? rmsInvoiceNo;
   final DateTime createdAt;
 
   @override
@@ -29,6 +31,7 @@ class ReservationOrder extends Equatable {
     guestName,
     guestNationality,
     clientOptionDate,
+    rmsInvoiceNo,
     createdAt,
   ];
 }

@@ -9,6 +9,7 @@ import 'package:printing/printing.dart';
 import 'package:pps/core/constants/app_colors.dart';
 import 'package:pps/core/constants/app_strings.dart';
 import 'package:pps/core/widgets/app_drop_menu_button.dart';
+import 'package:pps/core/widgets/custom_form_fields.dart';
 import 'package:pps/features/reservations/data/models/agent_reservation_draft.dart';
 import 'package:pps/features/reservations/data/models/client.dart';
 import 'package:pps/features/reservations/data/models/reservation_details.dart';
@@ -172,19 +173,12 @@ class ReservationDetailsScreen extends ConsumerWidget {
                     );
                     return;
                   }
-                  try {
-                    final bytes = await ReservationDetailsPdfGenerator.buildPdf(
-                      payload,
-                    );
-                    await Printing.layoutPdf(onLayout: (format) async => bytes);
-                  } catch (e) {
-                    if (!context.mounted) {
-                      return;
-                    }
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text(e.toString())));
+                  final rmsText = (payload.order.rmsInvoiceNo ?? '').trim();
+                  if (rmsText.isNotEmpty) {
+                    await _printReservationPdf(context, payload);
+                    return;
                   }
+                  await _showRmsInvoiceBeforePrintDialog(context, ref, payload);
                   return;
                 case _ReservationToolbarAction.delete:
                   await _confirmDeleteReservationOrder(context, ref, id);
@@ -412,6 +406,9 @@ class ReservationDetailsScreen extends ConsumerWidget {
     final toDateText = dateRange.to == null
         ? '-'
         : DateFormat(_dateFormat).format(dateRange.to!);
+    final rmsInvoiceText = (order.rmsInvoiceNo ?? '').trim().isEmpty
+        ? '-'
+        : order.rmsInvoiceNo!.trim();
 
     return _DetailsAccordion(
       title: AppStrings.reservationMainInfoTitle,
@@ -500,6 +497,16 @@ class ReservationDetailsScreen extends ConsumerWidget {
                             optionDate,
                           ),
                         ),
+                        const SizedBox(width: gap),
+                        SizedBox(
+                          width: colWidth,
+                          child: _buildMainInfoItem(
+                            AppStrings.rmsInvoiceNo,
+                            rmsInvoiceText,
+                            indicatorDotColor: AppColors.primary,
+                            emphasizeValue: true,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: AppSpacing.s12),
@@ -557,6 +564,17 @@ class ReservationDetailsScreen extends ConsumerWidget {
                       optionDate,
                     ),
                   ),
+                  SizedBox(
+                    width: clampWidth(
+                      ReservationDetailsLayout.mainInfoRmsInvoiceWidth,
+                    ),
+                    child: _buildMainInfoItem(
+                      AppStrings.rmsInvoiceNo,
+                      rmsInvoiceText,
+                      indicatorDotColor: AppColors.primary,
+                      emphasizeValue: true,
+                    ),
+                  ),
                 ],
               );
             },
@@ -588,6 +606,9 @@ class ReservationDetailsScreen extends ConsumerWidget {
     }
     int selectedClientId = order.client.id;
     final guestNameController = TextEditingController(text: order.guestName);
+    final rmsInvoiceController = TextEditingController(
+      text: order.rmsInvoiceNo,
+    );
 
     final format = DateFormat(_dateFormat);
     DateTime? optionDate = order.clientOptionDate;
@@ -643,7 +664,8 @@ class ReservationDetailsScreen extends ConsumerWidget {
               if (isSaving) return;
               setState(() => isSaving = true);
               try {
-                await repository.updateReservationMainInfo(
+                final entered = rmsInvoiceController.text.trim();
+                final updated = await repository.updateReservationMainInfo(
                   reservationId: order.id,
                   clientId: selectedClientId,
                   guestName: guestNameController.text.trim().isEmpty
@@ -651,7 +673,17 @@ class ReservationDetailsScreen extends ConsumerWidget {
                       : guestNameController.text.trim(),
                   guestNationality: order.guestNationality,
                   clientOptionDate: optionDate,
+                  rmsInvoiceNo: entered.isEmpty ? null : entered,
                 );
+                if (entered.isNotEmpty &&
+                    (updated.rmsInvoiceNo ?? '').trim() != entered &&
+                    context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(AppStrings.rmsInvoiceMissingColumn),
+                    ),
+                  );
+                }
                 if (dialogContext.mounted) {
                   Navigator.of(dialogContext).pop();
                 }
@@ -757,13 +789,22 @@ class ReservationDetailsScreen extends ConsumerWidget {
                                     : maxWidth >= AppBreakpoints.dialogMd
                                     ? ReservationDetailsLayout.editDateWidthMd
                                     : maxWidth;
+                                final rmsInvoiceWidth =
+                                    maxWidth >= AppBreakpoints.dialogLg
+                                    ? ReservationDetailsLayout
+                                          .editRmsInvoiceWidthLg
+                                    : maxWidth >= AppBreakpoints.dialogMd
+                                    ? ReservationDetailsLayout
+                                          .editRmsInvoiceWidthMd
+                                    : maxWidth;
 
                                 final isRow =
                                     maxWidth >=
                                     (clientWidth +
                                         guestWidth +
                                         dateWidth +
-                                        (gap * 2));
+                                        rmsInvoiceWidth +
+                                        (gap * 3));
 
                                 final fieldClient = SizedBox(
                                   width: clientWidth,
@@ -818,6 +859,19 @@ class ReservationDetailsScreen extends ConsumerWidget {
                                   ),
                                 );
 
+                                final fieldRmsInvoice = SizedBox(
+                                  width: rmsInvoiceWidth,
+                                  child: TextField(
+                                    controller: rmsInvoiceController,
+                                    inputFormatters: [
+                                      ArabicDigitsToEnglishInputFormatter(),
+                                    ],
+                                    decoration: decoration(
+                                      AppStrings.rmsInvoiceNo,
+                                    ),
+                                  ),
+                                );
+
                                 if (isRow) {
                                   return Row(
                                     crossAxisAlignment:
@@ -828,6 +882,8 @@ class ReservationDetailsScreen extends ConsumerWidget {
                                       fieldGuest,
                                       const SizedBox(width: gap),
                                       fieldDate,
+                                      const SizedBox(width: gap),
+                                      fieldRmsInvoice,
                                     ],
                                   );
                                 }
@@ -839,6 +895,7 @@ class ReservationDetailsScreen extends ConsumerWidget {
                                     fieldClient,
                                     fieldGuest,
                                     fieldDate,
+                                    fieldRmsInvoice,
                                   ],
                                 );
                               },
@@ -936,6 +993,322 @@ class ReservationDetailsScreen extends ConsumerWidget {
 
     guestNameController.dispose();
     optionDateController.dispose();
+    rmsInvoiceController.dispose();
+  }
+
+  Future<void> _printReservationPdf(
+    BuildContext context,
+    ReservationDetails details,
+  ) async {
+    try {
+      final bytes = await ReservationDetailsPdfGenerator.buildPdf(details);
+      await Printing.layoutPdf(onLayout: (format) async => bytes);
+    } catch (e) {
+      if (!context.mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
+  }
+
+  Future<void> _showRmsInvoiceBeforePrintDialog(
+    BuildContext context,
+    WidgetRef ref,
+    ReservationDetails details,
+  ) async {
+    final order = details.order;
+    final repository = ref.read(reservationsRepositoryProvider);
+
+    final rmsInvoiceController = TextEditingController(
+      text: order.rmsInvoiceNo,
+    );
+    bool isSaving = false;
+    ReservationOrder? updatedOrder;
+
+    final result = await showDialog<_RmsInvoicePrintAction>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            InputDecoration decoration(String label) {
+              return InputDecoration(
+                labelText: label,
+                isDense: true,
+                contentPadding: AppInsets.inputContent,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadii.r4),
+                  borderSide: const BorderSide(color: AppColors.secondary),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadii.r4),
+                  borderSide: const BorderSide(color: AppColors.secondary),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadii.r4),
+                  borderSide: const BorderSide(color: AppColors.primary),
+                ),
+              );
+            }
+
+            Future<void> saveAndClose() async {
+              if (isSaving) return;
+              setState(() => isSaving = true);
+              try {
+                final entered = rmsInvoiceController.text.trim();
+                final updated = await repository.updateReservationMainInfo(
+                  reservationId: order.id,
+                  clientId: order.client.id,
+                  guestName: order.guestName,
+                  guestNationality: order.guestNationality,
+                  clientOptionDate: order.clientOptionDate,
+                  rmsInvoiceNo: entered.isEmpty ? null : entered,
+                );
+                if (entered.isNotEmpty &&
+                    (updated.rmsInvoiceNo ?? '').trim() != entered &&
+                    context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(AppStrings.rmsInvoiceMissingColumn),
+                    ),
+                  );
+                }
+
+                updatedOrder = (updated.rmsInvoiceNo ?? '').trim() == entered
+                    ? updated
+                    : ReservationOrder(
+                        id: updated.id,
+                        reservationNo: updated.reservationNo,
+                        client: updated.client,
+                        guestName: updated.guestName,
+                        guestNationality: updated.guestNationality,
+                        clientOptionDate: updated.clientOptionDate,
+                        rmsInvoiceNo: entered.isEmpty
+                            ? updated.rmsInvoiceNo
+                            : entered,
+                        createdAt: updated.createdAt,
+                      );
+                ref.invalidate(reservationDetailsProvider(order.id));
+                if (dialogContext.mounted) {
+                  Navigator.of(
+                    dialogContext,
+                  ).pop(_RmsInvoicePrintAction.saveAndPrint);
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(e.toString())));
+                }
+                setState(() => isSaving = false);
+              }
+            }
+
+            return Dialog(
+              backgroundColor: Colors.white,
+              surfaceTintColor: Colors.white,
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.s16,
+                vertical: AppSpacing.s16,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadii.r6),
+              ),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 360,
+                  maxHeight: 280,
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppRadii.r6),
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.zero,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 12, 12, 0),
+                          child: Row(
+                            children: [
+                              const Text(
+                                AppStrings.rmsInvoiceDialogTitle,
+                                style: TextStyle(
+                                  fontSize: AppFontSizes.title14,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary,
+                                  height: 1.0,
+                                ),
+                              ),
+                              const Spacer(),
+                              IconButton(
+                                onPressed: isSaving
+                                    ? null
+                                    : () => Navigator.of(
+                                        dialogContext,
+                                      ).pop(_RmsInvoicePrintAction.cancel),
+                                icon: const Icon(Icons.close, size: 18),
+                                constraints: const BoxConstraints.tightFor(
+                                  width: AppHeights.iconButton28,
+                                  height: AppHeights.iconButton28,
+                                ),
+                                padding: EdgeInsets.zero,
+                                visualDensity: VisualDensity.compact,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                AppStrings.rmsInvoiceDialogHint,
+                                style: TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: AppFontSizes.body12,
+                                  height: 1.2,
+                                ),
+                              ),
+                              const SizedBox(height: AppSpacing.s10),
+                              LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final fieldWidth = (constraints.maxWidth)
+                                      .clamp(0, 240)
+                                      .toDouble();
+                                  return Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: SizedBox(
+                                      width: fieldWidth,
+                                      child: TextField(
+                                        controller: rmsInvoiceController,
+                                        inputFormatters: [
+                                          ArabicDigitsToEnglishInputFormatter(),
+                                        ],
+                                        decoration: decoration(
+                                          AppStrings.rmsInvoiceNo,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                          child: Row(
+                            children: [
+                              const Spacer(),
+                              OutlinedButton(
+                                onPressed: isSaving
+                                    ? null
+                                    : () => Navigator.of(dialogContext).pop(
+                                        _RmsInvoicePrintAction.continueOnly,
+                                      ),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppColors.textPrimary,
+                                  side: const BorderSide(
+                                    color: AppColors.secondary,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.s16,
+                                    vertical: AppSpacing.s0,
+                                  ),
+                                  minimumSize: const Size(
+                                    0,
+                                    AppHeights.button32,
+                                  ),
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  visualDensity: VisualDensity.compact,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      AppRadii.r4,
+                                    ),
+                                  ),
+                                  textStyle: const TextStyle(
+                                    fontSize: AppFontSizes.body12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                child: const Text(AppStrings.continueWithout),
+                              ),
+                              const SizedBox(width: AppSpacing.s10),
+                              ElevatedButton(
+                                onPressed: isSaving ? null : saveAndClose,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.s18,
+                                    vertical: AppSpacing.s0,
+                                  ),
+                                  minimumSize: const Size(
+                                    0,
+                                    AppHeights.button32,
+                                  ),
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  visualDensity: VisualDensity.compact,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      AppRadii.r4,
+                                    ),
+                                  ),
+                                  textStyle: const TextStyle(
+                                    fontSize: AppFontSizes.body12,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                child: isSaving
+                                    ? const SizedBox(
+                                        width: AppIconSizes.s14,
+                                        height: AppIconSizes.s14,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : const Text(AppStrings.saveAndPrint),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    rmsInvoiceController.dispose();
+
+    if (!context.mounted) {
+      return;
+    }
+
+    switch (result ?? _RmsInvoicePrintAction.cancel) {
+      case _RmsInvoicePrintAction.cancel:
+        return;
+      case _RmsInvoicePrintAction.continueOnly:
+        await _printReservationPdf(context, details);
+        return;
+      case _RmsInvoicePrintAction.saveAndPrint:
+        final orderToPrint = updatedOrder ?? details.order;
+        await _printReservationPdf(
+          context,
+          ReservationDetails(order: orderToPrint, services: details.services),
+        );
+        return;
+    }
   }
 
   Widget _buildReservationDetailsPanel(
@@ -2081,6 +2454,8 @@ class ReservationDetailsScreen extends ConsumerWidget {
     String value, {
     IconData? icon,
     bool isIcon = false,
+    Color? indicatorDotColor,
+    bool emphasizeValue = false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2096,6 +2471,17 @@ class ReservationDetailsScreen extends ConsumerWidget {
                 height: 1.0,
               ),
             ),
+            if (indicatorDotColor != null) ...[
+              const SizedBox(width: 6),
+              Container(
+                width: 7,
+                height: 7,
+                decoration: BoxDecoration(
+                  color: indicatorDotColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ],
             if (icon != null) ...[
               const SizedBox(width: 4),
               Icon(icon, size: 12, color: AppColors.success),
@@ -2110,9 +2496,13 @@ class ReservationDetailsScreen extends ConsumerWidget {
             value,
             style: TextStyle(
               fontSize: _valueFontSize,
-              fontWeight: FontWeight.w500,
+              fontWeight: emphasizeValue && value != '-'
+                  ? FontWeight.w700
+                  : FontWeight.w500,
               color: value == '-'
                   ? AppColors.textSecondary
+                  : emphasizeValue
+                  ? AppColors.primary
                   : AppColors.textPrimary,
               height: 1.1,
             ),
@@ -2416,6 +2806,8 @@ class _TriangleDownPainter extends CustomPainter {
 enum _ReservationToolbarAction { print, delete }
 
 enum _ServiceAction { print, attachments, delete }
+
+enum _RmsInvoicePrintAction { cancel, continueOnly, saveAndPrint }
 
 class _TableCellData {
   const _TableCellData({

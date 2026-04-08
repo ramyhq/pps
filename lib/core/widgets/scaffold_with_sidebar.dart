@@ -7,10 +7,7 @@ import 'header.dart';
 class ScaffoldWithSidebar extends StatefulWidget {
   final Widget child;
 
-  const ScaffoldWithSidebar({
-    required this.child,
-    super.key,
-  });
+  const ScaffoldWithSidebar({required this.child, super.key});
 
   @override
   State<ScaffoldWithSidebar> createState() => _ScaffoldWithSidebarState();
@@ -19,6 +16,7 @@ class ScaffoldWithSidebar extends StatefulWidget {
 class _ScaffoldWithSidebarState extends State<ScaffoldWithSidebar> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isSidebarExpanded = true;
+  static const String _logoAssetPath = 'assets/images/sahl_logo.jpg';
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +49,7 @@ class _ScaffoldWithSidebarState extends State<ScaffoldWithSidebar> {
                   Header(
                     onMenuPressed: () =>
                         _scaffoldKey.currentState?.openDrawer(),
+                    showLogo: false,
                   ),
                   Expanded(child: widget.child),
                 ],
@@ -66,7 +65,11 @@ class _ScaffoldWithSidebarState extends State<ScaffoldWithSidebar> {
             child: Column(
               children: [
                 Header(
-                  onMenuPressed: () {
+                  showMenuButton: false,
+                  showLogo: true,
+                  logoAssetPath: _logoAssetPath,
+                  sidebarExpanded: _isSidebarExpanded,
+                  onSidebarToggle: () {
                     setState(() {
                       _isSidebarExpanded = !_isSidebarExpanded;
                     });
@@ -76,14 +79,12 @@ class _ScaffoldWithSidebarState extends State<ScaffoldWithSidebar> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Sidebar(
-                        isExpanded: _isSidebarExpanded,
-                        onToggleExpanded: () {
-                          setState(() {
-                            _isSidebarExpanded = !_isSidebarExpanded;
-                          });
-                        },
-                      ),
+                      if (_isSidebarExpanded)
+                        Sidebar(
+                          isExpanded: true,
+                          showToggleButton: false,
+                          showHeader: false,
+                        ),
                       Expanded(child: widget.child),
                     ],
                   ),

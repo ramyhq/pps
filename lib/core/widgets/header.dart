@@ -9,9 +9,24 @@ import '../../features/reservations/provider/reservations_data_providers.dart';
 import 'custom_form_fields.dart';
 
 class Header extends ConsumerStatefulWidget {
-  const Header({super.key, this.onMenuPressed});
+  const Header({
+    super.key,
+    this.onMenuPressed,
+    this.showMenuButton = true,
+    this.menuIcon = Icons.menu,
+    this.showLogo = false,
+    this.logoAssetPath,
+    this.sidebarExpanded = false,
+    this.onSidebarToggle,
+  });
 
   final VoidCallback? onMenuPressed;
+  final bool showMenuButton;
+  final IconData menuIcon;
+  final bool showLogo;
+  final String? logoAssetPath;
+  final bool sidebarExpanded;
+  final VoidCallback? onSidebarToggle;
 
   @override
   ConsumerState<Header> createState() => _HeaderState();
@@ -64,7 +79,7 @@ class _HeaderState extends ConsumerState<Header> {
     }
   }
 
-  Future<void> _openCreateMenu(String? reservationId) async {
+  Future<void> _openCreateMenu() async {
     if (_isCreateMenuOpen) {
       return;
     }
@@ -167,18 +182,15 @@ class _HeaderState extends ConsumerState<Header> {
         return;
       }
 
-      final query = reservationId == null || reservationId.trim().isEmpty
-          ? ''
-          : '?reservationId=$reservationId';
       switch (selected) {
         case _HeaderCreateAction.addAgentDirect:
-          context.go('/reservations/create-agent$query');
+          context.go('/reservations/create-agent');
           return;
         case _HeaderCreateAction.addGeneral:
-          context.go('/reservations/create-general$query');
+          context.go('/reservations/create-general');
           return;
         case _HeaderCreateAction.addTransport:
-          context.go('/reservations/create-transportation$query');
+          context.go('/reservations/create-transportation');
           return;
       }
     } finally {
@@ -190,186 +202,272 @@ class _HeaderState extends ConsumerState<Header> {
 
   @override
   Widget build(BuildContext context) {
-    final uri = GoRouterState.of(context).uri;
-    final reservationId = uri.queryParameters['reservationId'];
+    final logoAssetPath = widget.logoAssetPath;
+    final showDesktopLogo = widget.showLogo && logoAssetPath != null;
 
     return Container(
-      height: AppHeights.header60,
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s24),
+      height: 80.0, // Increased height for bigger logo
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(bottom: BorderSide(color: AppColors.border)),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          IconButton(
-            onPressed: widget.onMenuPressed ?? () {},
-            icon: const Icon(Icons.menu, color: AppColors.textSecondary),
-          ),
-          const Spacer(),
-          // Favorites
-          TextButton.icon(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.star,
-              color: AppColors.warning,
-              size: AppIconSizes.s16,
+          if (showDesktopLogo)
+            Container(
+              width: widget.sidebarExpanded ? AppWidths.sidebar : null,
+              padding: EdgeInsets.symmetric(
+                horizontal: widget.sidebarExpanded
+                    ? AppSpacing.s24
+                    : AppSpacing.s12,
+              ),
+              child: Row(
+                mainAxisAlignment: widget.sidebarExpanded
+                    ? MainAxisAlignment.spaceBetween
+                    : MainAxisAlignment.start,
+                children: [
+                  if (!widget.sidebarExpanded) ...[
+                    SizedBox(
+                      width: AppHeights.field34,
+                      height: AppHeights.field34,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: AppColors.light,
+                          borderRadius: BorderRadius.circular(AppRadii.r6),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: IconButton(
+                          onPressed: widget.onSidebarToggle,
+                          icon: const Icon(
+                            Icons.chevron_right_rounded,
+                            size: AppIconSizes.s18,
+                            color: AppColors.textSecondary,
+                          ),
+                          padding: EdgeInsets.zero,
+                          splashRadius: AppIconSizes.s18,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.s16),
+                  ],
+                  SizedBox(
+                    height: 50.0, // Much bigger logo
+                    child: Image.asset(logoAssetPath, fit: BoxFit.contain),
+                  ),
+                  if (widget.sidebarExpanded) ...[
+                    SizedBox(
+                      width: AppHeights.field34,
+                      height: AppHeights.field34,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: AppColors.light,
+                          borderRadius: BorderRadius.circular(AppRadii.r6),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: IconButton(
+                          onPressed: widget.onSidebarToggle,
+                          icon: const Icon(
+                            Icons.chevron_left_rounded,
+                            size: AppIconSizes.s18,
+                            color: AppColors.textSecondary,
+                          ),
+                          padding: EdgeInsets.zero,
+                          splashRadius: AppIconSizes.s18,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            )
+          else if (widget.showMenuButton)
+            Padding(
+              padding: const EdgeInsets.only(left: AppSpacing.s24),
+              child: IconButton(
+                onPressed: widget.onMenuPressed,
+                icon: Icon(widget.menuIcon, color: AppColors.textSecondary),
+              ),
             ),
-            label: const Text(
-              'Favorites',
-              style: TextStyle(color: AppColors.textPrimary),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.s16),
-          // Search
-          Container(
-            width: AppWidths.headerSearch,
-            height: AppHeights.field34,
-            decoration: BoxDecoration(
-              color: AppColors.light,
-              borderRadius: BorderRadius.circular(AppRadii.r4),
-              border: Border.all(color: AppColors.border),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s8),
+
+          Expanded(
             child: Row(
               children: [
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      ArabicDigitsToEnglishInputFormatter(),
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
-                    onSubmitted: (_) => _submitSearch(),
-                    decoration: const InputDecoration(
-                      hintText: 'Res. ID',
-                      hintStyle: TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: AppFontSizes.body12,
-                        fontWeight: FontWeight.w500,
+                if (!showDesktopLogo && !widget.showMenuButton)
+                  const SizedBox(width: AppSpacing.s24),
+                const Spacer(),
+                // Favorites
+                TextButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.star,
+                    color: AppColors.warning,
+                    size: AppIconSizes.s16,
+                  ),
+                  label: const Text(
+                    'Favorites',
+                    style: TextStyle(color: AppColors.textPrimary),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.s16),
+                // Search
+                Container(
+                  width: AppWidths.headerSearch,
+                  height: AppHeights.field34,
+                  decoration: BoxDecoration(
+                    color: AppColors.light,
+                    borderRadius: BorderRadius.circular(AppRadii.r4),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.s8,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            ArabicDigitsToEnglishInputFormatter(),
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          onSubmitted: (_) => _submitSearch(),
+                          decoration: InputDecoration(
+                            hintText: AppStrings.ppsResNumber,
+                            hintStyle: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: AppFontSizes.body12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                          style: const TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: AppFontSizes.body12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
-                      border: InputBorder.none,
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: AppFontSizes.body12,
-                      fontWeight: FontWeight.w500,
+                      // Search button
+                      IconButton(
+                        onPressed: _submitSearch,
+                        icon: const Icon(
+                          Icons.search,
+                          size: AppIconSizes.s16,
+                          color: AppColors.textSecondary,
+                        ),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: AppHeights.field34,
+                          minHeight: AppHeights.field34,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.s16),
+                // Actions
+                KeyedSubtree(
+                  key: _createMenuAnchorKey,
+                  child: SizedBox(
+                    width: AppHeights.field34,
+                    height: AppHeights.field34,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: _isCreateMenuOpen
+                            ? AppColors.primary
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(AppRadii.r12),
+                      ),
+                      child: IconButton(
+                        onPressed: _openCreateMenu,
+                        icon: Icon(
+                          FontAwesomeIcons.calendarPlus,
+                          size: AppIconSizes.s18,
+                          color: _isCreateMenuOpen
+                              ? Colors.white
+                              : AppColors.primary,
+                        ),
+                        padding: EdgeInsets.zero,
+                        splashRadius: AppIconSizes.s18,
+                      ),
                     ),
                   ),
                 ),
                 IconButton(
-                  onPressed: _submitSearch,
+                  onPressed: () {},
                   icon: const Icon(
-                    Icons.search,
-                    size: AppIconSizes.s16,
+                    FontAwesomeIcons.building,
+                    size: AppIconSizes.s18,
+                    color: AppColors.primary,
+                  ),
+                ),
+                Stack(
+                  children: [
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(
+                        FontAwesomeIcons.bell,
+                        size: AppIconSizes.s18,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    Positioned(
+                      right: AppSpacing.s8,
+                      top: AppSpacing.s8,
+                      child: Container(
+                        padding: const EdgeInsets.all(AppSpacing.s2),
+                        decoration: const BoxDecoration(
+                          color: AppColors.warning,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: AppSpacing.s12,
+                          minHeight: AppSpacing.s12,
+                        ),
+                        child: const Text(
+                          '33',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: AppFontSizes.tiny8,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.chat_bubble_outline,
+                    size: AppIconSizes.s18,
                     color: AppColors.textSecondary,
                   ),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                    minWidth: AppHeights.field34,
-                    minHeight: AppHeights.field34,
-                  ),
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(width: AppSpacing.s16),
-          // Actions
-          KeyedSubtree(
-            key: _createMenuAnchorKey,
-            child: SizedBox(
-              width: AppHeights.field34,
-              height: AppHeights.field34,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: _isCreateMenuOpen
-                      ? AppColors.primary
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(AppRadii.r12),
-                ),
-                child: IconButton(
-                  onPressed: () => _openCreateMenu(reservationId),
-                  icon: Icon(
-                    FontAwesomeIcons.calendarPlus,
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.wb_sunny_outlined,
                     size: AppIconSizes.s18,
-                    color: _isCreateMenuOpen ? Colors.white : AppColors.primary,
-                  ),
-                  padding: EdgeInsets.zero,
-                  splashRadius: AppIconSizes.s18,
-                ),
-              ),
-            ),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              FontAwesomeIcons.building,
-              size: AppIconSizes.s18,
-              color: AppColors.primary,
-            ),
-          ),
-          Stack(
-            children: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  FontAwesomeIcons.bell,
-                  size: AppIconSizes.s18,
-                  color: AppColors.primary,
-                ),
-              ),
-              Positioned(
-                right: AppSpacing.s8,
-                top: AppSpacing.s8,
-                child: Container(
-                  padding: const EdgeInsets.all(AppSpacing.s2),
-                  decoration: const BoxDecoration(
-                    color: AppColors.warning,
-                    shape: BoxShape.circle,
-                  ),
-                  constraints: const BoxConstraints(
-                    minWidth: AppSpacing.s12,
-                    minHeight: AppSpacing.s12,
-                  ),
-                  child: const Text(
-                    '33',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: AppFontSizes.tiny8,
-                    ),
-                    textAlign: TextAlign.center,
+                    color: AppColors.textSecondary,
                   ),
                 ),
-              ),
-            ],
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.chat_bubble_outline,
-              size: AppIconSizes.s18,
-              color: AppColors.textSecondary,
-            ),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.wb_sunny_outlined,
-              size: AppIconSizes.s18,
-              color: AppColors.textSecondary,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.s8),
-          const CircleAvatar(
-            radius: AppIconSizes.s16,
-            backgroundColor: AppColors.secondary,
-            child: Icon(
-              Icons.person,
-              color: AppColors.textSecondary,
-              size: AppIconSizes.s20,
+                const SizedBox(width: AppSpacing.s8),
+                const CircleAvatar(
+                  radius: AppIconSizes.s16,
+                  backgroundColor: AppColors.secondary,
+                  child: Icon(
+                    Icons.person,
+                    color: AppColors.textSecondary,
+                    size: AppIconSizes.s20,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.s24),
+              ],
             ),
           ),
         ],

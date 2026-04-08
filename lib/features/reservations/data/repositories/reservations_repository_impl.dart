@@ -477,6 +477,7 @@ class ReservationsRepositoryImpl implements ReservationsRepository {
     required String? guestName,
     required String? guestNationality,
     required DateTime? clientOptionDate,
+    String? rmsInvoiceNo,
   }) async {
     try {
       final updated = await _remoteDataSource.updateReservationMainInfo(
@@ -485,6 +486,7 @@ class ReservationsRepositoryImpl implements ReservationsRepository {
         guestName: guestName,
         guestNationality: guestNationality,
         clientOptionDateIso: clientOptionDate?.toIso8601String(),
+        rmsInvoiceNo: rmsInvoiceNo,
       );
       return _mapOrder(updated);
     } on PostgrestException catch (error) {
@@ -541,6 +543,24 @@ class ReservationsRepositoryImpl implements ReservationsRepository {
       row['client_option_date']?.toString() ?? '',
     );
 
+    String? rmsInvoiceNo;
+    const rmsKeys = <String>[
+      'rms_invoice_no',
+      'rms_invoice_number',
+      'rms_invoice_id',
+    ];
+    for (final key in rmsKeys) {
+      final raw = row[key];
+      if (raw == null) {
+        continue;
+      }
+      final text = raw.toString().trim();
+      if (text.isNotEmpty) {
+        rmsInvoiceNo = text;
+        break;
+      }
+    }
+
     return ReservationOrder(
       id: row['id']?.toString() ?? '',
       reservationNo: reservationNo,
@@ -548,6 +568,7 @@ class ReservationsRepositoryImpl implements ReservationsRepository {
       guestName: row['guest_name'] as String?,
       guestNationality: row['guest_nationality'] as String?,
       clientOptionDate: clientOptionDate,
+      rmsInvoiceNo: rmsInvoiceNo,
       createdAt: createdAt,
     );
   }

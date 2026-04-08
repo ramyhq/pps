@@ -315,6 +315,7 @@ class ReservationDetailsLayout {
   static const double mainInfoTypeWidth = 120;
   static const double mainInfoGuestWidth = 230;
   static const double mainInfoOptionDateWidth = 195;
+  static const double mainInfoRmsInvoiceWidth = 195;
 
   /// Edit dialog layout.
   static const double editDialogMaxWidth = 1100;
@@ -327,6 +328,8 @@ class ReservationDetailsLayout {
   static const double editGuestWidthMd = 220;
   static const double editDateWidthLg = 190;
   static const double editDateWidthMd = 180;
+  static const double editRmsInvoiceWidthLg = 230;
+  static const double editRmsInvoiceWidthMd = 220;
 
   /// Reservation details service info column widths.
   static const double serviceColumnWide = 260;

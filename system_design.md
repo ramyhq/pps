@@ -305,7 +305,7 @@ UI (screens/widgets) → Provider (Notifier/Controller) → Repository → Remot
 ### 2026-03-15
 - إضافة `AppColors.actionGreen` واعتمادها كلون موحد لأزرار الحفظ في شاشات الإنشاء.
 - تحديث تقويم `CustomDatePickerField` ليعرض عنوان الشهر/السنة كـ `Mar 2026` مع أسهم تنقل فقط (نمط مضغوط موحد).
-- إضافة `CustomTimePickerField` كحقل وقت موحد (Overlay spinner) واعتماده في شاشة Transportation.
+- إضافة `SegmentedTimePicker` كحقل وقت موحد (Overlay spinner) واعتماده في شاشة Transportation.
 - تحديث `CustomDropdown` لتوحيد لون العنصر المحدد بخلفية `AppColors.primary` بالكامل.
 - تصغير Typography الموحدة (Label 11 / Value 12) وتقليل خط الـ Sidebar لمطابقة التصميم.
 - تحديث شاشة `CreateTransportationServiceScreen`:
@@ -314,7 +314,7 @@ UI (screens/widgets) → Provider (Notifier/Controller) → Repository → Remot
   - إعادة بناء جدول تسعير Sale/Cost بألوان/حدود مضغوطة مثل الصور مع حساب Price/Total باستخدام `Decimal`.
   - توحيد شكل عنوان `Trip (#T-1)` ليكون بدون خلفية (شفاف) مع أيقونة زرقاء ونص أزرق.
   - اعتماد Grid مخصص لـ Desktop يطابق الصورة حرفيًا: (Type/Date), (From/Time), (Place/Vehicle), (To/Qty+Pax), (Place/Notes).
-  - استخدام `CustomTimePickerField` مع hint `22:22` و `CustomDatePickerField` مع hint `dd/MM/yyyy`.
+  - استخدام `SegmentedTimePicker` مع hint `22:22` و `CustomDatePickerField` مع hint `dd/MM/yyyy`.
   - زر `+ Add` كنص بسيط أسفل البطاقات على اليمين.
 
 ### 2026-03-14

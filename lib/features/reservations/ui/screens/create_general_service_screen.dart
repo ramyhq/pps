@@ -1407,6 +1407,7 @@ class _ServiceDetailsCard extends StatelessWidget {
                               label: 'Quantity',
                               controller: quantityController,
                               keyboardType: TextInputType.number,
+                              showStepper: true,
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
                               ],
@@ -1430,6 +1431,7 @@ class _ServiceDetailsCard extends StatelessWidget {
                               label: 'Days',
                               controller: daysController,
                               keyboardType: TextInputType.number,
+                              showStepper: true,
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
                               ],
@@ -1499,6 +1501,7 @@ class _ServiceDetailsCard extends StatelessWidget {
                               label: 'Quantity',
                               controller: quantityController,
                               keyboardType: TextInputType.number,
+                              showStepper: true,
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
                               ],
@@ -1522,6 +1525,7 @@ class _ServiceDetailsCard extends StatelessWidget {
                               label: 'Days',
                               controller: daysController,
                               keyboardType: TextInputType.number,
+                              showStepper: true,
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
                               ],
@@ -1624,6 +1628,7 @@ class _ServiceDetailsCard extends StatelessWidget {
                       label: 'Quantity',
                       controller: quantityController,
                       keyboardType: TextInputType.number,
+                      showStepper: true,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       onChanged: onQuantityChanged,
                     ),
@@ -1639,6 +1644,7 @@ class _ServiceDetailsCard extends StatelessWidget {
                       label: 'Days',
                       controller: daysController,
                       keyboardType: TextInputType.number,
+                      showStepper: true,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       onChanged: onDaysChanged,
                     ),

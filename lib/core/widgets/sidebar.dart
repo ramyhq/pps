@@ -14,12 +14,14 @@ class Sidebar extends ConsumerStatefulWidget {
     this.onToggleExpanded,
     this.onItemSelected,
     this.showToggleButton = true,
+    this.showHeader = true,
   });
 
   final bool isExpanded;
   final VoidCallback? onToggleExpanded;
   final VoidCallback? onItemSelected;
   final bool showToggleButton;
+  final bool showHeader;
 
   @override
   ConsumerState<Sidebar> createState() => _SidebarState();
@@ -157,23 +159,35 @@ class _SidebarState extends ConsumerState<Sidebar> {
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: const BorderRadius.only(
-              topRight: Radius.circular(AppRadii.r12),
-              bottomRight: Radius.circular(AppRadii.r12),
+            borderRadius: BorderRadius.only(
+              topRight: widget.showHeader
+                  ? const Radius.circular(AppRadii.r12)
+                  : Radius.zero,
+              bottomRight: const Radius.circular(AppRadii.r12),
             ),
-            border: Border.all(color: AppColors.border),
+            border: Border(
+              right: const BorderSide(color: AppColors.border),
+              bottom: const BorderSide(color: AppColors.border),
+              top: widget.showHeader
+                  ? const BorderSide(color: AppColors.border)
+                  : BorderSide.none,
+              left: widget.showHeader
+                  ? const BorderSide(color: AppColors.border)
+                  : BorderSide.none,
+            ),
           ),
           child: SafeArea(
             top: false,
             bottom: false,
             child: Column(
               children: [
-                _SidebarHeader(
-                  isExpanded: widget.isExpanded,
-                  logoAssetPath: _logoAssetPath,
-                  onToggle: widget.onToggleExpanded,
-                  showToggleButton: widget.showToggleButton,
-                ),
+                if (widget.showHeader)
+                  _SidebarHeader(
+                    isExpanded: widget.isExpanded,
+                    logoAssetPath: _logoAssetPath,
+                    onToggle: widget.onToggleExpanded,
+                    showToggleButton: widget.showToggleButton,
+                  ),
                 Expanded(
                   child: AnimatedSwitcher(
                     duration: AppDurations.accordion,

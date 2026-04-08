@@ -74,7 +74,7 @@ class ReservationDetailsPdfGenerator {
           pw.SizedBox(height: 8),
           _topInfoSection(details.order),
           pw.SizedBox(height: 8),
-          _reservationHotelsTable(agentServices),
+          _reservationHotelsTable(agentServices, details.order),
           pw.SizedBox(height: 14),
           _roomPricingTable(roomLines),
           _servicesSection(
@@ -311,21 +311,47 @@ class ReservationDetailsPdfGenerator {
           children: [
             pw.Expanded(
               flex: 1,
-              child: pw.Row(
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.SizedBox(
-                    width: 70,
-                    child: pw.Text(
-                      'Res. No:',
-                      style: pw.TextStyle(
-                        fontSize: 11,
-                        fontWeight: pw.FontWeight.bold,
+                  pw.Row(
+                    children: [
+                      pw.SizedBox(
+                        width: 110,
+                        child: pw.Text(
+                          AppStrings.ppsResNumberLabel,
+                          style: pw.TextStyle(
+                            fontSize: 11,
+                            fontWeight: pw.FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
+                      pw.Text(
+                        order.reservationNo.toString(),
+                        style: const pw.TextStyle(fontSize: 11),
+                      ),
+                    ],
                   ),
-                  pw.Text(
-                    order.reservationNo.toString(),
-                    style: const pw.TextStyle(fontSize: 11),
+                  pw.SizedBox(height: 6),
+                  pw.Row(
+                    children: [
+                      pw.SizedBox(
+                        width: 110,
+                        child: pw.Text(
+                          'RMS Inv. No:',
+                          style: pw.TextStyle(
+                            fontSize: 11,
+                            fontWeight: pw.FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      pw.Text(
+                        (order.rmsInvoiceNo ?? '').trim().isEmpty
+                            ? '-'
+                            : order.rmsInvoiceNo!.trim(),
+                        style: const pw.TextStyle(fontSize: 11),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -361,7 +387,7 @@ class ReservationDetailsPdfGenerator {
               child: pw.Row(
                 children: [
                   pw.SizedBox(
-                    width: 70,
+                    width: 110,
                     child: pw.Text(
                       'Guest name:',
                       style: pw.TextStyle(
@@ -377,6 +403,7 @@ class ReservationDetailsPdfGenerator {
                 ],
               ),
             ),
+            pw.Expanded(flex: 1, child: pw.SizedBox()),
           ],
         ),
       ],
@@ -385,6 +412,7 @@ class ReservationDetailsPdfGenerator {
 
   static pw.Widget _reservationHotelsTable(
     List<ReservationServiceSummary> agentServices,
+    ReservationOrder order,
   ) {
     final headerStyle = pw.TextStyle(
       fontSize: 10,
@@ -396,7 +424,7 @@ class ReservationDetailsPdfGenerator {
       pw.TableRow(
         decoration: pw.BoxDecoration(color: _tableHeaderColor),
         children: [
-          _cell('RSV #', headerStyle, align: pw.Alignment.centerLeft),
+          _cell('RMS Inv. No', headerStyle, align: pw.Alignment.centerLeft),
           _cell('City', headerStyle, align: pw.Alignment.centerLeft),
           _cell('Hotel Name', headerStyle, align: pw.Alignment.centerLeft),
           _cell('Arrival date', headerStyle, align: pw.Alignment.centerLeft),
@@ -406,14 +434,45 @@ class ReservationDetailsPdfGenerator {
       ),
     ];
 
-    String baseReservationNo(String raw) {
-      final trimmed = raw.trim();
-      if (trimmed.isEmpty) {
-        return '-';
+    String normalizeDigits(String text) {
+      if (text.isEmpty) {
+        return text;
       }
-      final parts = trimmed.split('-');
-      return parts.isEmpty ? trimmed : parts.first;
+      const arabicIndic = <String, String>{
+        '٠': '0',
+        '١': '1',
+        '٢': '2',
+        '٣': '3',
+        '٤': '4',
+        '٥': '5',
+        '٦': '6',
+        '٧': '7',
+        '٨': '8',
+        '٩': '9',
+      };
+      const easternArabicIndic = <String, String>{
+        '۰': '0',
+        '۱': '1',
+        '۲': '2',
+        '۳': '3',
+        '۴': '4',
+        '۵': '5',
+        '۶': '6',
+        '۷': '7',
+        '۸': '8',
+        '۹': '9',
+      };
+      final buffer = StringBuffer();
+      for (final rune in text.runes) {
+        final char = String.fromCharCode(rune);
+        final mapped = arabicIndic[char] ?? easternArabicIndic[char];
+        buffer.write(mapped ?? char);
+      }
+      return buffer.toString();
     }
+
+    final rmsInvoiceText = normalizeDigits((order.rmsInvoiceNo ?? '').trim());
+    final rmsInvoiceCellText = rmsInvoiceText.isEmpty ? '-' : rmsInvoiceText;
 
     final acc = <String, _HotelSegmentLine>{};
     for (final service in agentServices) {
@@ -427,7 +486,7 @@ class ReservationDetailsPdfGenerator {
       acc.putIfAbsent(
         key,
         () => _HotelSegmentLine(
-          reservationNo: baseReservationNo(service.displayNo),
+          reservationNo: rmsInvoiceCellText,
           city: a.hotelCity?.trim().isNotEmpty == true
               ? a.hotelCity!.trim()
               : '-',

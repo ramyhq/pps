@@ -9,6 +9,10 @@ class ReservationsRemoteDataSource {
 
   final SupabaseClient? _supabaseClient;
   Future<String?>? _hotelsCitySelectPart;
+  static const String _reservationOrdersBaseSelect =
+      'id,reservation_no,guest_name,guest_nationality,client_option_date,created_at,clients:clients(id,name,code)';
+  static const String _reservationOrdersSelectWithRmsInvoiceNo =
+      '$_reservationOrdersBaseSelect,rms_invoice_no';
 
   Future<List<Map<String, dynamic>>> listClients() async {
     final client = _requireClient();
@@ -97,19 +101,31 @@ class ReservationsRemoteDataSource {
     required String? clientOptionDateIso,
   }) async {
     final client = _requireClient();
-    final created = await client
-        .from('reservation_orders')
-        .insert(<String, dynamic>{
-          'client_id': clientId,
-          'guest_name': guestName,
-          'guest_nationality': guestNationality,
-          'client_option_date': clientOptionDateIso,
-        })
-        .select(
-          'id,reservation_no,guest_name,guest_nationality,client_option_date,created_at,clients:clients(id,name,code)',
-        )
-        .single();
-    return Map<String, dynamic>.from(created as Map);
+    try {
+      final created = await client
+          .from('reservation_orders')
+          .insert(<String, dynamic>{
+            'client_id': clientId,
+            'guest_name': guestName,
+            'guest_nationality': guestNationality,
+            'client_option_date': clientOptionDateIso,
+          })
+          .select(_reservationOrdersSelectWithRmsInvoiceNo)
+          .single();
+      return Map<String, dynamic>.from(created as Map);
+    } on PostgrestException {
+      final created = await client
+          .from('reservation_orders')
+          .insert(<String, dynamic>{
+            'client_id': clientId,
+            'guest_name': guestName,
+            'guest_nationality': guestNationality,
+            'client_option_date': clientOptionDateIso,
+          })
+          .select(_reservationOrdersBaseSelect)
+          .single();
+      return Map<String, dynamic>.from(created as Map);
+    }
   }
 
   Future<Map<String, dynamic>> updateReservationMainInfo({
@@ -118,35 +134,59 @@ class ReservationsRemoteDataSource {
     required String? guestName,
     required String? guestNationality,
     required String? clientOptionDateIso,
+    required String? rmsInvoiceNo,
   }) async {
     final client = _requireClient();
-    final updated = await client
-        .from('reservation_orders')
-        .update(<String, dynamic>{
-          'client_id': clientId,
-          'guest_name': guestName,
-          'guest_nationality': guestNationality,
-          'client_option_date': clientOptionDateIso,
-        })
-        .eq('id', reservationId)
-        .select(
-          'id,reservation_no,guest_name,guest_nationality,client_option_date,created_at,clients:clients(id,name,code)',
-        )
-        .single();
-    return Map<String, dynamic>.from(updated as Map);
+    final rmsText = (rmsInvoiceNo ?? '').trim();
+    final updatePayload = <String, dynamic>{
+      'client_id': clientId,
+      'guest_name': guestName,
+      'guest_nationality': guestNationality,
+      'client_option_date': clientOptionDateIso,
+      'rms_invoice_no': rmsText.isEmpty ? null : rmsText,
+    };
+    try {
+      final updated = await client
+          .from('reservation_orders')
+          .update(updatePayload)
+          .eq('id', reservationId)
+          .select(_reservationOrdersSelectWithRmsInvoiceNo)
+          .single();
+      return Map<String, dynamic>.from(updated as Map);
+    } on PostgrestException {
+      final updated = await client
+          .from('reservation_orders')
+          .update(<String, dynamic>{
+            'client_id': clientId,
+            'guest_name': guestName,
+            'guest_nationality': guestNationality,
+            'client_option_date': clientOptionDateIso,
+          })
+          .eq('id', reservationId)
+          .select(_reservationOrdersBaseSelect)
+          .single();
+      return Map<String, dynamic>.from(updated as Map);
+    }
   }
 
   Future<List<Map<String, dynamic>>> listReservationOrders({
     int limit = 50,
   }) async {
     final client = _requireClient();
-    final rows = await client
-        .from('reservation_orders')
-        .select(
-          'id,reservation_no,guest_name,guest_nationality,client_option_date,created_at,clients:clients(id,name,code)',
-        )
-        .order('created_at', ascending: false)
-        .limit(limit);
+    late final dynamic rows;
+    try {
+      rows = await client
+          .from('reservation_orders')
+          .select(_reservationOrdersSelectWithRmsInvoiceNo)
+          .order('created_at', ascending: false)
+          .limit(limit);
+    } on PostgrestException {
+      rows = await client
+          .from('reservation_orders')
+          .select(_reservationOrdersBaseSelect)
+          .order('created_at', ascending: false)
+          .limit(limit);
+    }
     return (rows as List<dynamic>)
         .map((row) => Map<String, dynamic>.from(row as Map))
         .toList(growable: false);
@@ -232,14 +272,21 @@ class ReservationsRemoteDataSource {
     String reservationId,
   ) async {
     final client = _requireClient();
-    final row = await client
-        .from('reservation_orders')
-        .select(
-          'id,reservation_no,guest_name,guest_nationality,client_option_date,created_at,clients:clients(id,name,code)',
-        )
-        .eq('id', reservationId)
-        .single();
-    return Map<String, dynamic>.from(row);
+    try {
+      final row = await client
+          .from('reservation_orders')
+          .select(_reservationOrdersSelectWithRmsInvoiceNo)
+          .eq('id', reservationId)
+          .single();
+      return Map<String, dynamic>.from(row);
+    } on PostgrestException {
+      final row = await client
+          .from('reservation_orders')
+          .select(_reservationOrdersBaseSelect)
+          .eq('id', reservationId)
+          .single();
+      return Map<String, dynamic>.from(row);
+    }
   }
 
   Future<List<Map<String, dynamic>>> fetchReservationServices(

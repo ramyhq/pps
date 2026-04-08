@@ -56,7 +56,7 @@ class _RmsLoginScreenState extends ConsumerState<RmsLoginScreen> {
 
     final session = ref.read(rmsSessionProvider);
     if (session.isAuthenticated) {
-      context.go('/dashboard');
+      context.go('/rms-bridge');
     }
   }
 
@@ -122,6 +122,42 @@ class _RmsLoginScreenState extends ConsumerState<RmsLoginScreen> {
                             AppStrings.loginTitle,
                             style: AppTextStyles.heading.copyWith(fontSize: 24),
                           ),
+                          if (session.isAuthenticated) ...[
+                            const SizedBox(height: AppSpacing.s12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    onPressed: () => ref
+                                        .read(rmsSessionProvider.notifier)
+                                        .logout(),
+                                    icon: const Icon(Icons.logout),
+                                    label: const Text(
+                                      AppStrings.rmsBridgeLogoutButton,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: AppSpacing.s12),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () => context.go('/rms-bridge'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.primary,
+                                      foregroundColor: AppColors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          AppRadii.r6,
+                                        ),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      AppStrings.rmsBridgeOpenDashboardButton,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                           const SizedBox(height: AppSpacing.s16),
                           TextField(
                             controller: _userController,

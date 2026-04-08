@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pps/core/constants/app_colors.dart';
 import 'package:pps/core/constants/app_strings.dart';
 import 'package:pps/core/widgets/custom_form_fields.dart';
+import 'package:pps/core/widgets/segmented_time_picker.dart';
 import 'package:pps/features/reservations/data/models/reservation_order.dart';
 import 'package:pps/features/reservations/data/models/transportation_service_draft.dart';
 import 'package:pps/features/reservations/provider/reservations_data_providers.dart';
@@ -822,6 +823,7 @@ class _CreateTransportationServiceScreenState
                   Widget dropdownFor(List<String> items) {
                     return CustomDropdown(
                       label: 'Service provider',
+                      isRequired: true,
                       items: items,
                       value: items.contains(_selectedSupplierLabel)
                           ? _selectedSupplierLabel
@@ -843,6 +845,7 @@ class _CreateTransportationServiceScreenState
                             .toList(growable: false);
                         return CustomDropdown(
                           label: 'Service provider',
+                          isRequired: true,
                           items: items,
                           value: items.contains(_selectedSupplierLabel)
                               ? _selectedSupplierLabel
@@ -1207,39 +1210,43 @@ class _CreateTransportationServiceScreenState
         }
 
         Widget perItemInput(TextEditingController controller) {
-          return SizedBox(
-            height: AppHeights.dropdownSearch30,
-            child: TextFormField(
-              controller: controller,
-              enabled: enabled,
-              onChanged: (_) => onChanged(),
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
+          return Align(
+            alignment: Alignment.centerLeft,
+            child: SizedBox(
+              width: 120,
+              height: AppHeights.dropdownSearch30,
+              child: TextFormField(
+                controller: controller,
+                enabled: enabled,
+                onChanged: (_) => onChanged(),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [
+                  ArabicDigitsToEnglishInputFormatter(),
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,6}$')),
+                ],
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadii.r4),
+                    borderSide: const BorderSide(color: borderColor),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadii.r4),
+                    borderSide: const BorderSide(color: borderColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadii.r4),
+                    borderSide: const BorderSide(color: AppColors.primary),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.s10,
+                    vertical: AppSpacing.s8,
+                  ),
+                  isDense: true,
+                ),
+                style: valueTextStyle,
               ),
-              inputFormatters: [
-                ArabicDigitsToEnglishInputFormatter(),
-                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,6}$')),
-              ],
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppRadii.r4),
-                  borderSide: const BorderSide(color: borderColor),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppRadii.r4),
-                  borderSide: const BorderSide(color: borderColor),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppRadii.r4),
-                  borderSide: const BorderSide(color: AppColors.primary),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.s10,
-                  vertical: AppSpacing.s8,
-                ),
-                isDense: true,
-              ),
-              style: valueTextStyle,
             ),
           );
         }
@@ -1262,7 +1269,7 @@ class _CreateTransportationServiceScreenState
                   ),
                 ),
                 Expanded(
-                  flex: 2,
+                  flex: 1,
                   child: gridCell(
                     child: const Center(
                       child: Text('Per Item', style: headerTextStyle),
@@ -1315,7 +1322,7 @@ class _CreateTransportationServiceScreenState
                   ),
                 ),
                 Expanded(
-                  flex: 2,
+                  flex: 1,
                   child: gridCell(
                     child: perItemInput(perItemController),
                     right: const BorderSide(color: borderColor),
@@ -1668,6 +1675,7 @@ class _CreateTransportationServiceScreenState
               children: [
                 CustomDropdown(
                   label: 'Vehicle',
+                  isRequired: true,
                   items: _vehicleItems,
                   value: _applyVehicle,
                   onChanged: (v) => setState(() => _applyVehicle = v),
@@ -1680,8 +1688,10 @@ class _CreateTransportationServiceScreenState
                     Expanded(
                       child: CustomTextField(
                         label: 'Quantity',
+                        isRequired: true,
                         controller: _applyQuantityController,
                         keyboardType: TextInputType.number,
+                        showStepper: true,
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                         ],
@@ -1695,6 +1705,7 @@ class _CreateTransportationServiceScreenState
                         label: 'PAX',
                         controller: _applyPaxController,
                         keyboardType: TextInputType.number,
+                        showStepper: true,
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                         ],
@@ -1733,6 +1744,7 @@ class _CreateTransportationServiceScreenState
                 width: vehicleWidth,
                 child: CustomDropdown(
                   label: 'Vehicle',
+                  isRequired: true,
                   items: _vehicleItems,
                   value: _applyVehicle,
                   onChanged: (v) => setState(() => _applyVehicle = v),
@@ -1745,8 +1757,10 @@ class _CreateTransportationServiceScreenState
                 width: quantityWidth,
                 child: CustomTextField(
                   label: 'Quantity',
+                  isRequired: true,
                   controller: _applyQuantityController,
                   keyboardType: TextInputType.number,
+                  showStepper: true,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 ),
               ),
@@ -1759,6 +1773,7 @@ class _CreateTransportationServiceScreenState
                   label: 'PAX',
                   controller: _applyPaxController,
                   keyboardType: TextInputType.number,
+                  showStepper: true,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 ),
               ),
@@ -1912,6 +1927,7 @@ class _CreateTransportationServiceScreenState
                         const SizedBox(height: rowGap),
                         CustomDropdown(
                           label: 'From',
+                          isRequired: true,
                           items: _destinationItems,
                           value: trip.fromDestination,
                           onChanged: (v) =>
@@ -1925,6 +1941,7 @@ class _CreateTransportationServiceScreenState
                         const SizedBox(height: rowGap),
                         CustomDropdown(
                           label: 'To',
+                          isRequired: true,
                           items: _destinationItems,
                           value: trip.toDestination,
                           onChanged: (v) =>
@@ -1938,18 +1955,21 @@ class _CreateTransportationServiceScreenState
                         const SizedBox(height: rowGap),
                         CustomDatePickerField(
                           label: 'Date',
+                          isRequired: true,
                           initialDate: trip.date,
                           onChanged: (d) => setState(() => trip.date = d),
                           popupWidth: AppWidths.datePickerPopup,
                         ),
                         const SizedBox(height: rowGap),
-                        CustomTimePickerField(
+                        SegmentedTimePicker(
                           label: 'Time',
+                          isRequired: true,
                           controller: trip.timeController,
                         ),
                         const SizedBox(height: rowGap),
                         CustomDropdown(
                           label: 'Vehicle',
+                          isRequired: true,
                           items: _vehicleItems,
                           value: trip.vehicle,
                           onChanged: (v) => setState(() => trip.vehicle = v),
@@ -1960,9 +1980,11 @@ class _CreateTransportationServiceScreenState
                             Expanded(
                               child: CustomTextField(
                                 label: 'Quantity',
+                                isRequired: true,
                                 controller: trip.quantityController,
                                 onChanged: (_) => setState(() {}),
                                 keyboardType: TextInputType.number,
+                                showStepper: true,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.digitsOnly,
                                 ],
@@ -1974,6 +1996,7 @@ class _CreateTransportationServiceScreenState
                                 label: 'PAX',
                                 controller: trip.paxController,
                                 keyboardType: TextInputType.number,
+                                showStepper: true,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.digitsOnly,
                                 ],
@@ -2028,6 +2051,7 @@ class _CreateTransportationServiceScreenState
                             flex: 3,
                             child: CustomDropdown(
                               label: 'From',
+                              isRequired: true,
                               items: _destinationItems,
                               value: trip.fromDestination,
                               onChanged: (v) =>
@@ -2047,6 +2071,7 @@ class _CreateTransportationServiceScreenState
                             flex: 3,
                             child: CustomDropdown(
                               label: 'To',
+                              isRequired: true,
                               items: _destinationItems,
                               value: trip.toDestination,
                               onChanged: (v) =>
@@ -2071,6 +2096,7 @@ class _CreateTransportationServiceScreenState
                             flex: 2,
                             child: CustomDatePickerField(
                               label: 'Date',
+                              isRequired: true,
                               initialDate: trip.date,
                               onChanged: (d) => setState(() => trip.date = d),
                               popupWidth: AppWidths.datePickerPopup,
@@ -2080,10 +2106,10 @@ class _CreateTransportationServiceScreenState
                           const SizedBox(width: fieldGap),
                           Expanded(
                             flex: 3,
-                            child: CustomTimePickerField(
+                            child: SegmentedTimePicker(
                               label: 'Time',
+                              isRequired: true,
                               controller: trip.timeController,
-                              hintText: '22:22',
                             ),
                           ),
                           const SizedBox(width: fieldGap),
@@ -2091,6 +2117,7 @@ class _CreateTransportationServiceScreenState
                             flex: 3,
                             child: CustomDropdown(
                               label: 'Vehicle',
+                              isRequired: true,
                               items: _vehicleItems,
                               value: trip.vehicle,
                               onChanged: (v) =>
@@ -2105,9 +2132,11 @@ class _CreateTransportationServiceScreenState
                                 Expanded(
                                   child: CustomTextField(
                                     label: 'Quantity',
+                                    isRequired: true,
                                     controller: trip.quantityController,
                                     onChanged: (_) => setState(() {}),
                                     keyboardType: TextInputType.number,
+                                    showStepper: true,
                                     inputFormatters: [
                                       FilteringTextInputFormatter.digitsOnly,
                                     ],
@@ -2119,6 +2148,7 @@ class _CreateTransportationServiceScreenState
                                     label: 'PAX',
                                     controller: trip.paxController,
                                     keyboardType: TextInputType.number,
+                                    showStepper: true,
                                     inputFormatters: [
                                       FilteringTextInputFormatter.digitsOnly,
                                     ],
@@ -2225,10 +2255,10 @@ class _TripFormData {
   final TextEditingController costPerItemController;
 
   _TripFormData({required this.index})
-    : date = DateTime(2026, 3, 12),
+    : date = DateTime.now(),
       fromPlaceController = TextEditingController(),
       toPlaceController = TextEditingController(),
-      timeController = TextEditingController(text: '22:22'),
+      timeController = TextEditingController(),
       quantityController = TextEditingController(),
       paxController = TextEditingController(),
       notesController = TextEditingController(),

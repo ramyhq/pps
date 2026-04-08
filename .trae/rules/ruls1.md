@@ -113,6 +113,14 @@ lib/
 - **Rule**: Fix all linter warnings before committing.
 - **Rule**: Use trailing commas for better formatting.
 
+## 14.1 Response Formatting (Arabic/Egyptian)
+
+- الرد يكون منسق وسهل القراءة باستخدام عناوين قصيرة وبنود `-`.
+- ابدأ دائمًا بـ **الخلاصة** ثم **السبب** ثم **الحل** ثم **الخطوات المطلوبة منك**.
+- استخدم كلمات واضحة وقصيرة، وقلل الحشو.
+- لما يكون فيه مشكلة متعلقة بقاعدة البيانات: اذكر (الجدول/العمود/السياسات RLS) بشكل مباشر.
+- لو فيه كود اتغير: اذكر الملفات/المسارات الأساسية فقط بدون تفصيل زائد.
+
 ## 15. Testing
 
 - Write **Unit Tests** for Repositories and Providers.

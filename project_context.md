@@ -63,6 +63,9 @@
   - ولازم يتحدث ملف `system_design.md` بما يتوافق.
 
 ## سجل التغييرات (Changelog)
+### 2026-04-07
+- تطوير `SegmentedTimePicker` كحقل وقت متقدم يدعم الإدخال المباشر للأرقام، التنقل بالأسهم، والتحويل التلقائي لصيغة 12 ساعة (مثال: 16 تتحول إلى 4 PM) واستبدال `CustomTimePickerField` به في شاشات الحجوزات.
+
 ### 2026-04-03
 - إضافة ميزة `rms_auth` لاستهلاك Auth الخاص بـRMS عبر Dio (CSRF token + Session cookies) + شاشة `/login` وربط Redirect بسيط في GoRouter.
 

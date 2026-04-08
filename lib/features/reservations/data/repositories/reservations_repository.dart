@@ -69,6 +69,7 @@ abstract class ReservationsRepository {
     required String? guestName,
     required String? guestNationality,
     required DateTime? clientOptionDate,
+    String? rmsInvoiceNo,
   });
 
   Future<void> deleteReservationService({required String serviceId});

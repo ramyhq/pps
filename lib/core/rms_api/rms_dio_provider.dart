@@ -95,6 +95,12 @@ final rmsDioProvider = Provider<Dio>((ref) {
         handler.next(response);
       },
       onError: (err, handler) async {
+        if (kIsWeb) {
+          final statusCode = err.response?.statusCode;
+          if (statusCode == 401 || statusCode == 403) {
+            ref.read(rmsRuntimeStateProvider.notifier).clear();
+          }
+        }
         handler.next(err);
       },
     ),

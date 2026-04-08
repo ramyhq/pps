@@ -30,6 +30,7 @@ class _CreateAgentReservationScreenState
   final TextEditingController _numberOfRoomsController =
       TextEditingController();
   final FocusNode _nightsFocusNode = FocusNode();
+  final FocusNode _numberOfRoomsFocusNode = FocusNode();
   late final ProviderSubscription<CreateAgentReservationState>
   _nightsSyncSubscription;
   bool _isUpdatingNightsField = false;
@@ -153,6 +154,7 @@ class _CreateAgentReservationScreenState
     _nightsController.dispose();
     _guestNameController.dispose();
     _nightsFocusNode.dispose();
+    _numberOfRoomsFocusNode.dispose();
     _nightsSyncSubscription.close();
     _numberOfRoomsController.dispose();
     _saleRoomApplyController.dispose();
@@ -1293,6 +1295,7 @@ class _CreateAgentReservationScreenState
                       child: _buildRoomTopTextInput(
                         'No. of rooms',
                         controller: _numberOfRoomsController,
+                        focusNode: _numberOfRoomsFocusNode,
                       ),
                     ),
                     const SizedBox(width: AppSpacing.s8),
@@ -2152,103 +2155,27 @@ class _CreateAgentReservationScreenState
   }
 
   Widget _buildNightsInput() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Nights',
-          style: AppTextStyles.label.copyWith(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.s4),
-        SizedBox(
-          height: AppHeights.field34,
-          child: TextField(
-            controller: _nightsController,
-            focusNode: _nightsFocusNode,
-            keyboardType: TextInputType.number,
-            onChanged: _onNightsChanged,
-            inputFormatters: [ArabicDigitsToEnglishInputFormatter()],
-            style: const TextStyle(
-              fontSize: AppFontSizes.label11,
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w500,
-            ),
-            decoration: InputDecoration(
-              isDense: true,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.s10,
-                vertical: AppSpacing.s10,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppRadii.r4),
-                borderSide: const BorderSide(color: AppColors.border),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppRadii.r4),
-                borderSide: const BorderSide(color: AppColors.border),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppRadii.r4),
-                borderSide: const BorderSide(color: AppColors.primary),
-              ),
-            ),
-          ),
-        ),
-      ],
+    return CustomTextField(
+      label: 'Nights',
+      controller: _nightsController,
+      keyboardType: TextInputType.number,
+      showStepper: true,
+      inputFormatters: [ArabicDigitsToEnglishInputFormatter()],
+      onChanged: _onNightsChanged,
     );
   }
 
   Widget _buildRoomTopTextInput(
     String label, {
     required TextEditingController controller,
+    FocusNode? focusNode,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildRoomTopLabel(label),
-        const SizedBox(height: AppSpacing.s6),
-        SizedBox(
-          height: AppHeights.button32,
-          child: TextField(
-            controller: controller,
-            keyboardType: TextInputType.number,
-            inputFormatters: [ArabicDigitsToEnglishInputFormatter()],
-            style: const TextStyle(
-              fontSize: AppFontSizes.label11,
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w500,
-            ),
-            decoration: InputDecoration(
-              hintText: 'Enter $label',
-              hintStyle: const TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: AppFontSizes.label11,
-                fontWeight: FontWeight.w500,
-              ),
-              isDense: true,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.s10,
-                vertical: AppSpacing.s10,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppRadii.r4),
-                borderSide: const BorderSide(color: AppColors.secondary),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppRadii.r4),
-                borderSide: const BorderSide(color: AppColors.secondary),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppRadii.r4),
-                borderSide: const BorderSide(color: AppColors.primary),
-              ),
-            ),
-          ),
-        ),
-      ],
+    return CustomTextField(
+      label: label,
+      controller: controller,
+      keyboardType: TextInputType.number,
+      showStepper: true,
+      inputFormatters: [ArabicDigitsToEnglishInputFormatter()],
     );
   }
 

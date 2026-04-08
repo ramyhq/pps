@@ -78,6 +78,13 @@ class RmsAuthRepositoryImpl implements RmsAuthRepository {
     final userName = (user['userName'] as String?)?.trim();
     final name = (user['name'] as String?)?.trim();
     final surname = (user['surname'] as String?)?.trim();
+    final emailAddress = (user['emailAddress'] as String?)?.trim();
+    final idValue = user['id'];
+    final id = switch (idValue) {
+      final int v => v,
+      final String v => int.tryParse(v.trim()),
+      _ => null,
+    };
     if (userName == null || userName.isEmpty) {
       return null;
     }
@@ -85,7 +92,13 @@ class RmsAuthRepositoryImpl implements RmsAuthRepository {
       if (name != null && name.isNotEmpty) name,
       if (surname != null && surname.isNotEmpty) surname,
     ].join(' ');
-    return RmsUserInfo(userName: userName, fullName: fullName);
+    final normalizedFullName = fullName.trim().isEmpty ? userName : fullName;
+    return RmsUserInfo(
+      userName: userName,
+      fullName: normalizedFullName,
+      emailAddress: emailAddress,
+      id: id,
+    );
   }
 
   @override

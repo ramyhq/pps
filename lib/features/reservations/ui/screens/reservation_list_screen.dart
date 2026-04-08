@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:decimal/decimal.dart';
 
 import 'package:pps/core/constants/app_colors.dart';
+import 'package:pps/core/constants/app_strings.dart';
 import 'package:pps/core/widgets/app_drop_menu_button.dart';
 import 'package:pps/core/widgets/custom_form_fields.dart';
 import 'package:pps/features/reservations/data/models/reservation_details.dart';
@@ -273,7 +274,10 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
                       'Hotel city',
                       'Hotel category',
                     ]),
-                    _buildFilterRow(const ['Reservation ID', 'Sale allotment']),
+                    _buildFilterRow([
+                      AppStrings.ppsResNumber,
+                      'Sale allotment',
+                    ]),
                   ]),
                 ),
                 const SizedBox(width: AppSpacing.s16),
@@ -585,7 +589,7 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
             width: _ReservationTableMetrics.actionsWidth,
           ),
           _buildHeaderTableCell(
-            text: 'ID',
+            text: AppStrings.ppsResNumber,
             width: _ReservationTableMetrics.idWidth,
             sortable: true,
           ),

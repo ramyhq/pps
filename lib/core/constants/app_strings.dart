@@ -21,8 +21,17 @@ class AppStrings {
   static const sidebarSectionResults = 'Results';
   static const back = 'Back';
   static const missingReservationId = 'Missing reservationId';
+  static const loginInvalidCredentials = 'Invalid username or password.';
 
   static const rmsBridgeSubtitle = 'Bridge RMS reservations into PPS workflow.';
+  static const rmsBridgeDashboardTitle = 'RMS Bridge Dashboard';
+  static const rmsBridgeDashboardSubtitle =
+      'Manage RMS sessions and import RMS data into PPS.';
+  static const rmsBridgeSessionConnected = 'Session connected';
+  static const rmsBridgeSessionDisconnected = 'Session disconnected';
+  static const rmsBridgeSignedInAs = 'Signed in as';
+  static const rmsBridgeLoginRequiredMessage =
+      'Connect to RMS first to use RMS Bridge tools.';
   static const rmsBridgeImportReservationTitle = 'Import Reservation';
   static const rmsBridgeImportReservationSubtitle =
       'Extract reservation preview from RMS.';
@@ -36,9 +45,18 @@ class AppStrings {
   static const rmsBridgeReservationIdInputHint = 'e.g. 1364033';
   static const rmsBridgeImportButton = 'Import';
   static const rmsBridgeOpenRmsLoginButton = 'Open RMS Login';
+  static const rmsBridgeOpenDashboardButton = 'Open RMS Bridge';
   static const rmsBridgeLogoutButton = 'Logout RMS';
   static const rmsBridgeMissingSessionHint =
       'RMS session is missing. Open RMS Login first.';
+
+  static const rmsBridgeSyncClientsTitle = 'Sync Clients';
+  static const rmsBridgeSyncClientsSubtitle = 'Pull clients from RMS into PPS.';
+  static const rmsBridgeSyncSuppliersTitle = 'Sync Suppliers';
+  static const rmsBridgeSyncSuppliersSubtitle =
+      'Pull suppliers/vendors from RMS into PPS.';
+  static const rmsBridgeSyncHotelsTitle = 'Sync Hotels';
+  static const rmsBridgeSyncHotelsSubtitle = 'Pull hotels from RMS into PPS.';
 
   static const rmsBridgeReservationIdLabel = 'Reservation ID:';
   static const rmsBridgeReservationNoLabel = 'Reservation No:';
@@ -50,11 +68,14 @@ class AppStrings {
 
   static const reservationMainInfoTitle = 'Reservation main info';
   static const reservationDetailsTitle = 'Reservation details';
+  static const ppsResNumber = 'PPS Res Number';
+  static const ppsResNumberLabel = 'PPS Res Number:';
   static const client = 'Client';
   static const fromDate = 'From date';
   static const toDate = 'To date';
   static const guestName = 'Guest name';
   static const clientOptionDate = 'Client option date';
+  static const rmsInvoiceNo = 'RMS invoice no.';
 
   static const editInfoTitle = 'Edit Info';
   static const editInfoTooltip = 'Edit info';
@@ -62,6 +83,14 @@ class AppStrings {
   static const close = 'Close';
   static const save = 'Save';
   static const saved = 'Saved';
+
+  static const rmsInvoiceDialogTitle = 'RMS invoice number';
+  static const rmsInvoiceDialogHint =
+      'Enter RMS invoice number to show it on the PDF (optional).';
+  static const continueWithout = 'Continue without';
+  static const saveAndPrint = 'Save & Print';
+  static const rmsInvoiceMissingColumn =
+      'Missing reservation_orders RMS invoice column in database.';
 
   static const clientPaymentDetailsTitle = 'Client payment details';
   static const createClientPayment = 'Create Client Payment';
@@ -74,7 +103,7 @@ class AppStrings {
   static const agentDirectReservation = 'Agent direct reservation';
   static const transportation = 'Transportation';
 
-  static const reservationIdLabel = 'Res. ID:';
+  static const reservationIdLabel = ppsResNumberLabel;
   static const creatorLabel = 'Creator:';
   static const dateLabel = 'Date:';
 
