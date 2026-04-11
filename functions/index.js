@@ -157,7 +157,25 @@ function decodeHtmlEntities(input) {
     .replaceAll("&#39;", "'")
     .replaceAll("&lt;", "<")
     .replaceAll("&gt;", ">")
-    .replaceAll("&nbsp;", " ");
+    .replaceAll("&nbsp;", " ")
+    .replace(/&#(\d+);/g, (_, code) => {
+      const n = Number(code);
+      if (!Number.isFinite(n)) return _;
+      try {
+        return String.fromCodePoint(n);
+      } catch (e) {
+        return _;
+      }
+    })
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => {
+      const n = Number.parseInt(hex, 16);
+      if (!Number.isFinite(n)) return _;
+      try {
+        return String.fromCodePoint(n);
+      } catch (e) {
+        return _;
+      }
+    });
 }
 
 function parseTagAttributes(tag) {
@@ -391,6 +409,307 @@ function isAllowedPath(path) {
   if (path.startsWith("/Account/")) return true;
   if (path.startsWith("/App/Reservations/")) return true;
   return false;
+}
+
+function splitOptionLabel(label) {
+  const normalized = String(label ?? "").replace(/\s+/g, " ").trim();
+  if (!normalized) {
+    return { code: null, name: "" };
+  }
+  const match = normalized.match(/^(.+?)\s*-\s*(.+)$/);
+  if (!match) {
+    return { code: null, name: normalized };
+  }
+  const code = match[1].trim();
+  const name = match[2].trim();
+  return { code: code || null, name };
+}
+
+function extractSelectOptionsById(html, selectId) {
+  const source = String(html ?? "");
+  const selectTagRegex = new RegExp(
+    `<select\\b[^>]*\\bid=(?:\"${String(selectId)}\"|'${String(selectId)}')[^>]*>`,
+    "i",
+  );
+  const startMatch = source.match(selectTagRegex);
+  if (!startMatch) {
+    return [];
+  }
+
+  const startIndex = source.indexOf(startMatch[0]);
+  if (startIndex < 0) {
+    return [];
+  }
+  const afterStart = startIndex + startMatch[0].length;
+  const endIndex = source.indexOf("</select>", afterStart);
+  if (endIndex < 0) {
+    return [];
+  }
+
+  const chunk = source.slice(afterStart, endIndex);
+  const optionRegex = /<option\b[^>]*>[\s\S]*?<\/option>/gi;
+
+  const items = [];
+  let match;
+  while ((match = optionRegex.exec(chunk)) !== null) {
+    const tag = match[0];
+    const openTagMatch = tag.match(/<option\b[^>]*>/i);
+    const openTag = openTagMatch ? openTagMatch[0] : "<option>";
+    const attrs = parseTagAttributes(openTag);
+    const value = String(attrs.value ?? "").trim();
+    if (!value) continue;
+
+    const labelHtml = tag
+      .replace(/<option\b[^>]*>/i, "")
+      .replace(/<\/option>/i, "");
+    const labelText = decodeHtmlEntities(stripHtmlTags(labelHtml));
+    const normalizedLabel = String(labelText).replace(/\s+/g, " ").trim();
+    if (!normalizedLabel) continue;
+
+    const id = Number.parseInt(value, 10);
+    if (!Number.isFinite(id)) continue;
+
+    const { code, name } = splitOptionLabel(normalizedLabel);
+    items.push({
+      id,
+      code,
+      name,
+      label: normalizedLabel,
+    });
+  }
+
+  return items;
+}
+
+function extractJsVarJsonArray(html, varName) {
+  const source = String(html ?? "");
+  const varIndex = source.indexOf(`var ${String(varName)} =`);
+  if (varIndex < 0) {
+    return null;
+  }
+
+  const arrayStart = source.indexOf("[", varIndex);
+  if (arrayStart < 0) {
+    return null;
+  }
+
+  let depth = 0;
+  let inString = false;
+  let stringQuote = null;
+  let isEscaped = false;
+  let arrayEnd = -1;
+
+  for (let i = arrayStart; i < source.length; i++) {
+    const ch = source[i];
+
+    if (inString) {
+      if (isEscaped) {
+        isEscaped = false;
+        continue;
+      }
+      if (ch === "\\") {
+        isEscaped = true;
+        continue;
+      }
+      if (ch === stringQuote) {
+        inString = false;
+        stringQuote = null;
+      }
+      continue;
+    }
+
+    if (ch === '"' || ch === "'") {
+      inString = true;
+      stringQuote = ch;
+      continue;
+    }
+
+    if (ch === "[") {
+      depth += 1;
+      continue;
+    }
+    if (ch === "]") {
+      depth -= 1;
+      if (depth === 0) {
+        arrayEnd = i;
+        break;
+      }
+    }
+  }
+
+  if (arrayEnd < 0) {
+    return null;
+  }
+
+  const jsonText = source.slice(arrayStart, arrayEnd + 1);
+  try {
+    const parsed = JSON.parse(jsonText);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch (e) {
+    try {
+      const fn = new Function(`"use strict"; return (${jsonText});`);
+      const parsed = fn();
+      return Array.isArray(parsed) ? parsed : null;
+    } catch (_) {
+      return null;
+    }
+  }
+}
+
+function buildLookupItemsFromReservationList(list) {
+  if (!Array.isArray(list)) return [];
+  const items = [];
+  for (const raw of list) {
+    if (!raw || typeof raw !== "object") continue;
+    const idValue = raw.id;
+    const id =
+      typeof idValue === "number"
+        ? idValue
+        : typeof idValue === "string"
+          ? Number.parseInt(idValue.trim(), 10)
+          : null;
+    if (!Number.isFinite(id)) continue;
+
+    const displayName = String(raw.displayName ?? "").trim();
+    if (!displayName) continue;
+
+    const displayNumberRaw =
+      raw.displayNumber === null || raw.displayNumber === undefined
+        ? null
+        : String(raw.displayNumber).trim();
+    const { code: labelCode, name } = splitOptionLabel(displayName);
+    const code = displayNumberRaw && displayNumberRaw.length > 0
+      ? displayNumberRaw
+      : labelCode;
+
+    const nationalityRaw = raw.nationalityId;
+    const nationalityId =
+      typeof nationalityRaw === "number"
+        ? nationalityRaw
+        : typeof nationalityRaw === "string"
+          ? Number.parseInt(nationalityRaw.trim(), 10)
+          : null;
+
+    items.push({
+      id,
+      code: code || null,
+      name,
+      label: displayName,
+      nationalityId: Number.isFinite(nationalityId) ? nationalityId : null,
+    });
+  }
+  return items;
+}
+
+function extractSelectOptionsByIdWithKey(html, selectId) {
+  const source = String(html ?? "");
+  const selectTagRegex = new RegExp(
+    `<select\\b[^>]*\\bid=(?:\"${String(selectId)}\"|'${String(selectId)}')[^>]*>`,
+    "i",
+  );
+  const startMatch = source.match(selectTagRegex);
+  if (!startMatch) {
+    return [];
+  }
+
+  const startIndex = source.indexOf(startMatch[0]);
+  if (startIndex < 0) {
+    return [];
+  }
+  const afterStart = startIndex + startMatch[0].length;
+  const endIndex = source.indexOf("</select>", afterStart);
+  if (endIndex < 0) {
+    return [];
+  }
+
+  const chunk = source.slice(afterStart, endIndex);
+  const optionRegex = /<option\b[^>]*>[\s\S]*?<\/option>/gi;
+
+  const items = [];
+  let match;
+  while ((match = optionRegex.exec(chunk)) !== null) {
+    const tag = match[0];
+    const openTagMatch = tag.match(/<option\b[^>]*>/i);
+    const openTag = openTagMatch ? openTagMatch[0] : "<option>";
+    const attrs = parseTagAttributes(openTag);
+    const value = String(attrs.value ?? "").trim();
+    if (!value) continue;
+
+    const labelHtml = tag
+      .replace(/<option\b[^>]*>/i, "")
+      .replace(/<\/option>/i, "");
+    const labelText = decodeHtmlEntities(stripHtmlTags(labelHtml));
+    const normalizedLabel = String(labelText).replace(/\s+/g, " ").trim();
+    if (!normalizedLabel) continue;
+
+    const { code, name } = splitOptionLabel(normalizedLabel);
+    const id = Number.parseInt(value, 10);
+    items.push({
+      key: value,
+      id: Number.isFinite(id) ? id : null,
+      code,
+      name,
+      label: normalizedLabel,
+    });
+  }
+
+  return items;
+}
+
+function buildLookupItemsFromGenericList(list, mapping) {
+  if (!Array.isArray(list)) return [];
+  const items = [];
+  for (const raw of list) {
+    if (!raw || typeof raw !== "object") continue;
+
+    const rawObj = raw;
+    const idValue = rawObj[mapping.idKey ?? "id"];
+    const id =
+      typeof idValue === "number"
+        ? idValue
+        : typeof idValue === "string"
+          ? Number.parseInt(idValue.trim(), 10)
+          : null;
+
+    const keyValue =
+      mapping.keyKey && rawObj[mapping.keyKey] !== undefined
+        ? rawObj[mapping.keyKey]
+        : id;
+    const key =
+      typeof keyValue === "string"
+        ? keyValue.trim()
+        : typeof keyValue === "number"
+          ? String(keyValue)
+          : null;
+    if (!key || key.trim().length === 0) continue;
+
+    const labelValue = mapping.labelKeys
+      .map((k) => rawObj[k])
+      .find((v) => typeof v === "string" && v.trim().length > 0);
+    const label = String(labelValue ?? "").trim();
+    if (!label) continue;
+
+    const codeValue = mapping.codeKeys
+      .map((k) => rawObj[k])
+      .find((v) => v !== undefined && v !== null);
+    const code = codeValue === undefined || codeValue === null
+      ? null
+      : String(codeValue).trim() || null;
+
+    const nameValue = mapping.nameKeys
+      .map((k) => rawObj[k])
+      .find((v) => typeof v === "string" && v.trim().length > 0);
+    const name = String(nameValue ?? "").trim() || label;
+
+    items.push({
+      key,
+      id: Number.isFinite(id) ? id : null,
+      code,
+      name,
+      label,
+    });
+  }
+  return items;
 }
 
 exports.rmsLogin = onRequest(async (req, res) => {
@@ -672,6 +991,219 @@ exports.rmsProxy = onRequest(async (req, res) => {
       };
 
       sendJson(res, 200, { result: extracted });
+      return;
+    }
+
+    if (action === "extractCreateOrEditLookups") {
+      const rms = bodyObj.rms ? String(bodyObj.rms).trim() : "";
+      const createUrl = buildRmsUrl(
+        "/App/Reservations/CreateOrEdit",
+        rms ? { rms } : null,
+      );
+      const createResp = await fetch(createUrl, {
+        method: "GET",
+        redirect: "manual",
+        headers: {
+          accept:
+            "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "x-xsrf-token": xsrfToken,
+          cookie: cookieHeader,
+        },
+      });
+      const html = await createResp.text();
+      await updateSessionCookieHeader(sessionId, cookieHeader, createResp.headers);
+
+      if (!createResp.ok) {
+        sendJson(res, createResp.status, {
+          error: "Failed to fetch CreateOrEdit HTML",
+          status: createResp.status,
+        });
+        return;
+      }
+
+      const agentList = extractJsVarJsonArray(html, "ReservationAgentList");
+      let clients = buildLookupItemsFromReservationList(agentList);
+      if (clients.length === 0) {
+        clients = extractSelectOptionsById(html, "clientId");
+      }
+      const hotels = extractSelectOptionsById(html, "myHotelId");
+
+      const supplierList = extractJsVarJsonArray(html, "ReservationSupplierList");
+      let suppliers = buildLookupItemsFromReservationList(supplierList);
+      if (suppliers.length === 0) {
+        const supplierSelectIds = [
+          "Reservation_SupplierId",
+          "ChangeTypeSupplierId",
+          "newSupplierId",
+        ];
+        for (const id of supplierSelectIds) {
+          suppliers = extractSelectOptionsById(html, id);
+          if (suppliers.length > 0) break;
+        }
+      }
+
+      sendJson(res, 200, {
+        result: {
+          source: {
+            url: createUrl,
+            title: extractTitle(html),
+          },
+          clients,
+          hotels,
+          suppliers,
+        },
+      });
+      return;
+    }
+
+    if (action === "extractAdditionalLookups") {
+      const extraServiceUrl = buildRmsUrl(
+        "/App/Reservations/CreateOrEditExtraService",
+      );
+      const transportServiceUrl = buildRmsUrl(
+        "/App/Reservations/CreateOrEditTransportationService",
+      );
+
+      const [extraResp, transportResp] = await Promise.all([
+        fetch(extraServiceUrl, {
+          method: "GET",
+          redirect: "manual",
+          headers: {
+            accept:
+              "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "x-xsrf-token": xsrfToken,
+            cookie: cookieHeader,
+          },
+        }),
+        fetch(transportServiceUrl, {
+          method: "GET",
+          redirect: "manual",
+          headers: {
+            accept:
+              "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "x-xsrf-token": xsrfToken,
+            cookie: cookieHeader,
+          },
+        }),
+      ]);
+
+      const extraHtml = await extraResp.text();
+      const transportHtml = await transportResp.text();
+
+      await updateSessionCookieHeader(
+        sessionId,
+        cookieHeader,
+        extraResp.headers,
+      );
+      await updateSessionCookieHeader(
+        sessionId,
+        cookieHeader,
+        transportResp.headers,
+      );
+
+      if (!extraResp.ok) {
+        sendJson(res, extraResp.status, {
+          error: "Failed to fetch CreateOrEditExtraService HTML",
+          status: extraResp.status,
+        });
+        return;
+      }
+      if (!transportResp.ok) {
+        sendJson(res, transportResp.status, {
+          error: "Failed to fetch CreateOrEditTransportationService HTML",
+          status: transportResp.status,
+        });
+        return;
+      }
+
+      const nationalityList = extractJsVarJsonArray(
+        extraHtml,
+        "ReservationNationalityList",
+      );
+      let nationalities = buildLookupItemsFromGenericList(nationalityList, {
+        labelKeys: ["name", "displayName", "label", "text"],
+        nameKeys: ["name", "displayName", "label", "text"],
+        codeKeys: ["code", "displayNumber", "number"],
+        idKey: "id",
+      });
+      if (nationalities.length === 0) {
+        const createUrl = buildRmsUrl("/App/Reservations/CreateOrEdit");
+        const createResp = await fetch(createUrl, {
+          method: "GET",
+          redirect: "manual",
+          headers: {
+            accept:
+              "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "x-xsrf-token": xsrfToken,
+            cookie: cookieHeader,
+          },
+        });
+        const createHtml = await createResp.text();
+        await updateSessionCookieHeader(
+          sessionId,
+          cookieHeader,
+          createResp.headers,
+        );
+        if (createResp.ok) {
+          nationalities = extractSelectOptionsByIdWithKey(
+            createHtml,
+            "guestNationalityId",
+          );
+        }
+      }
+
+      const extraServiceTypes = extractSelectOptionsByIdWithKey(
+        extraHtml,
+        "ExtraServiceTypeId",
+      );
+      const termsAndConditions = extractSelectOptionsByIdWithKey(
+        extraHtml,
+        "termsAndCondionId",
+      );
+
+      const routeList = extractJsVarJsonArray(transportHtml, "RouteList");
+      let routes = buildLookupItemsFromGenericList(routeList, {
+        labelKeys: ["displayName", "name", "label", "text"],
+        nameKeys: ["name", "displayName", "label", "text"],
+        codeKeys: ["displayNumber", "code", "number"],
+        idKey: "id",
+      });
+      if (routes.length === 0) {
+        routes = extractSelectOptionsByIdWithKey(transportHtml, "RouteId");
+      }
+
+      const vehicleTypeList = extractJsVarJsonArray(
+        transportHtml,
+        "VehicleTypeList",
+      );
+      let vehicleTypes = buildLookupItemsFromGenericList(vehicleTypeList, {
+        labelKeys: ["displayName", "name", "label", "text"],
+        nameKeys: ["name", "displayName", "label", "text"],
+        codeKeys: ["displayNumber", "code", "number"],
+        idKey: "id",
+      });
+      if (vehicleTypes.length === 0) {
+        vehicleTypes = extractSelectOptionsByIdWithKey(transportHtml, "VehicleId");
+      }
+
+      const tripTypes = extractSelectOptionsByIdWithKey(transportHtml, "TripType");
+
+      sendJson(res, 200, {
+        result: {
+          source: {
+            extraServiceUrl,
+            extraServiceTitle: extractTitle(extraHtml),
+            transportServiceUrl,
+            transportServiceTitle: extractTitle(transportHtml),
+          },
+          nationalities,
+          extraServiceTypes,
+          termsAndConditions,
+          routes,
+          vehicleTypes,
+          tripTypes,
+        },
+      });
       return;
     }
 

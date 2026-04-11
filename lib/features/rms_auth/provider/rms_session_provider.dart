@@ -14,24 +14,28 @@ final rmsSessionProvider =
 
 class RmsSessionState {
   const RmsSessionState({
+    required this.isChecking,
     required this.isAuthenticated,
     required this.isSubmitting,
     required this.user,
     required this.errorMessage,
   });
 
+  final bool isChecking;
   final bool isAuthenticated;
   final bool isSubmitting;
   final RmsUserInfo? user;
   final String? errorMessage;
 
   RmsSessionState copyWith({
+    bool? isChecking,
     bool? isAuthenticated,
     bool? isSubmitting,
     RmsUserInfo? user,
     String? errorMessage,
   }) {
     return RmsSessionState(
+      isChecking: isChecking ?? this.isChecking,
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       user: user ?? this.user,
@@ -40,6 +44,7 @@ class RmsSessionState {
   }
 
   static const initial = RmsSessionState(
+    isChecking: true,
     isAuthenticated: false,
     isSubmitting: false,
     user: null,
@@ -89,21 +94,31 @@ class RmsSessionNotifier extends Notifier<RmsSessionState> {
         _didRestoreFromStorage = true;
         () async {
           if (state.isAuthenticated) {
+            state = state.copyWith(isChecking: false);
             return;
           }
           final sessionId = ref.read(rmsRuntimeStateProvider).sessionId;
           if (sessionId == null || sessionId.trim().isEmpty) {
+            state = state.copyWith(isChecking: false);
             return;
           }
+          state = state.copyWith(isChecking: true);
           final repo = ref.read(rmsAuthRepositoryProvider);
           try {
             final user = await repo.getCurrentUser();
             if (user == null) {
               await repo.logout();
-              state = RmsSessionState.initial;
+              state = const RmsSessionState(
+                isChecking: false,
+                isAuthenticated: false,
+                isSubmitting: false,
+                user: null,
+                errorMessage: null,
+              );
               return;
             }
             state = state.copyWith(
+              isChecking: false,
               isAuthenticated: true,
               isSubmitting: false,
               user: user,
@@ -113,7 +128,13 @@ class RmsSessionNotifier extends Notifier<RmsSessionState> {
             try {
               await repo.logout();
             } catch (_) {}
-            state = RmsSessionState.initial;
+            state = const RmsSessionState(
+              isChecking: false,
+              isAuthenticated: false,
+              isSubmitting: false,
+              user: null,
+              errorMessage: null,
+            );
           }
         }();
       });
@@ -124,7 +145,13 @@ class RmsSessionNotifier extends Notifier<RmsSessionState> {
       final nextSessionId = next.sessionId;
       if (prevSessionId != null &&
           (nextSessionId == null || nextSessionId.isEmpty)) {
-        state = RmsSessionState.initial;
+        state = const RmsSessionState(
+          isChecking: false,
+          isAuthenticated: false,
+          isSubmitting: false,
+          user: null,
+          errorMessage: null,
+        );
       }
     });
 
@@ -136,7 +163,11 @@ class RmsSessionNotifier extends Notifier<RmsSessionState> {
     required String password,
     required bool rememberMe,
   }) async {
-    state = state.copyWith(isSubmitting: true, errorMessage: null);
+    state = state.copyWith(
+      isChecking: false,
+      isSubmitting: true,
+      errorMessage: null,
+    );
     try {
       final repo = ref.read(rmsAuthRepositoryProvider);
       final user = await repo.login(
@@ -145,6 +176,7 @@ class RmsSessionNotifier extends Notifier<RmsSessionState> {
         rememberMe: rememberMe,
       );
       state = state.copyWith(
+        isChecking: false,
         isSubmitting: false,
         isAuthenticated: true,
         user: user,
@@ -152,6 +184,7 @@ class RmsSessionNotifier extends Notifier<RmsSessionState> {
       );
     } catch (e) {
       state = state.copyWith(
+        isChecking: false,
         isSubmitting: false,
         isAuthenticated: false,
         user: null,
@@ -163,6 +196,12 @@ class RmsSessionNotifier extends Notifier<RmsSessionState> {
   Future<void> logout() async {
     final repo = ref.read(rmsAuthRepositoryProvider);
     await repo.logout();
-    state = RmsSessionState.initial;
+    state = const RmsSessionState(
+      isChecking: false,
+      isAuthenticated: false,
+      isSubmitting: false,
+      user: null,
+      errorMessage: null,
+    );
   }
 }

@@ -57,6 +57,117 @@ class AppStrings {
       'Pull suppliers/vendors from RMS into PPS.';
   static const rmsBridgeSyncHotelsTitle = 'Sync Hotels';
   static const rmsBridgeSyncHotelsSubtitle = 'Pull hotels from RMS into PPS.';
+  static const rmsBridgeSyncNationalitiesTitle = 'Sync Nationalities';
+  static const rmsBridgeSyncNationalitiesSubtitle =
+      'Pull nationalities list from RMS.';
+  static const rmsBridgeSyncExtraServiceTypesTitle = 'Sync Extra Service Types';
+  static const rmsBridgeSyncExtraServiceTypesSubtitle =
+      'Pull extra service types from RMS.';
+  static const rmsBridgeSyncRoutesTitle = 'Sync Routes';
+  static const rmsBridgeSyncRoutesSubtitle = 'Pull routes list from RMS.';
+  static const rmsBridgeSyncVehicleTypesTitle = 'Sync Vehicle Types';
+  static const rmsBridgeSyncVehicleTypesSubtitle =
+      'Pull vehicle types list from RMS.';
+  static const rmsBridgeSyncTermsTitle = 'Sync Terms & Conditions';
+  static const rmsBridgeSyncTermsSubtitle =
+      'Pull terms & conditions list from RMS.';
+  static const rmsBridgeSyncTripTypesTitle = 'Sync Trip Types';
+  static const rmsBridgeExportExcel = 'Export Excel';
+  static const rmsBridgeExportJson = 'Export JSON';
+  static const rmsBridgeSupabaseSync = 'Supabase Sync';
+  static const rmsBridgeSupabaseSyncDialogTitle = 'Supabase Sync';
+  static const rmsBridgeModelClients = 'Clients';
+  static const rmsBridgeModelSuppliers = 'Suppliers';
+  static const rmsBridgeModelHotels = 'Hotels';
+  static const rmsBridgeModelNationalities = 'Nationalities';
+  static const rmsBridgeModelExtraServiceTypes = 'Extra Service Types';
+  static const rmsBridgeModelRoutes = 'Routes';
+  static const rmsBridgeModelVehicleTypes = 'Vehicle Types';
+  static const rmsBridgeModelTermsAndConditions = 'Terms & Conditions';
+  static const rmsBridgeModelTripTypes = 'Trip Types';
+  static const rmsBridgeSupabaseModelLabel = 'Model';
+  static const rmsBridgeSupabaseConnectionLabel = 'Supabase status';
+  static const rmsBridgeSupabaseConfigured = 'Configured';
+  static const rmsBridgeSupabaseNotConfigured = 'Not configured';
+  static const rmsBridgeSupabaseNotConfiguredHint =
+      'Supabase is not configured. Add SUPABASE_URL and SUPABASE_ANON_KEY.';
+  static const rmsBridgeSupabaseTableLabel = 'Supabase table';
+  static const rmsBridgeSupabaseTableTooltip =
+      'Target table in Supabase for this model.';
+  static const rmsBridgeSupabaseRecordsLabel = 'Supabase records';
+  static const rmsBridgeSupabaseRecordsTooltip =
+      'Total number of rows in the Supabase table.';
+  static const rmsBridgeSupabaseMatchedByCodeLabel = 'Matched by code';
+  static const rmsBridgeSupabasePendingRecordsLabel = 'Pending sync';
+  static const rmsBridgeSupabasePendingRecordsTooltip =
+      'How many items will be inserted/updated in this preview.';
+  static const rmsBridgeSupabaseNoPendingRecords = 'No pending changes.';
+  static const rmsBridgeSupabasePendingSectionTitle = 'Pending changes';
+  static const rmsBridgeSupabaseIssuesSectionTitle = 'Issues';
+  static const rmsBridgeSupabaseLastSyncUserLabel = 'Last sync user';
+  static const rmsBridgeSupabaseLastSyncUserTooltip =
+      'User who ran the last sync (placeholder for now).';
+  static const rmsBridgeSupabaseLastSyncAtLabel = 'Last sync at';
+  static const rmsBridgeSupabaseLastSyncAtTooltip =
+      'Timestamp of the last sync (placeholder for now).';
+  static const rmsBridgeSupabaseLatestRowAtLabel = 'Latest record at';
+  static const rmsBridgeSupabaseLatestRowAtTooltip =
+      'created_at timestamp of the newest row in Supabase.';
+  static const rmsBridgeSupabaseInsertLabel = 'Insert';
+  static const rmsBridgeSupabaseInsertTooltip =
+      'How many new rows will be inserted into Supabase.';
+  static const rmsBridgeSupabaseUpdateLabel = 'Update';
+  static const rmsBridgeSupabaseUpdateTooltip =
+      'How many existing rows will be updated in Supabase.';
+  static const rmsBridgeSupabaseSkipLabel = 'Skip';
+  static const rmsBridgeSupabaseSkipTooltip =
+      'How many items already match Supabase and will be skipped.';
+  static const rmsBridgeSupabaseConflictsLabel = 'Conflicts';
+  static const rmsBridgeSupabaseConflictsTooltip =
+      'Conflicting items in the source list (e.g. duplicate codes).';
+  static const rmsBridgeSupabaseConflictLabel = 'Conflict';
+  static const rmsBridgeSupabaseNullCodesLabel = 'Null codes';
+  static const rmsBridgeSupabaseNullCodesTooltip =
+      'How many Supabase rows have code = NULL.';
+  static const rmsBridgeSupabaseDuplicateCodesLabel = 'Duplicate codes';
+  static const rmsBridgeSupabaseDuplicateCodesTooltip =
+      'How many duplicated non-null codes exist in Supabase.';
+  static const rmsBridgeSupabaseCodeUniqueLabel = 'Code unique';
+  static const rmsBridgeSupabaseCodeUniqueTooltip =
+      'Derived from the data (no duplicated non-null codes found).';
+  static const rmsBridgeSupabaseWarningsTitle = 'Warnings';
+  static const rmsBridgeSupabaseWarningNullCodes = 'Null codes in Supabase';
+  static const rmsBridgeSupabaseWarningDuplicateCodes =
+      'Duplicate codes in Supabase';
+  static const rmsBridgeSupabaseWarningConflicts = 'Conflicts in source list';
+  static const rmsBridgeSupabaseInsertActionTooltip =
+      'This row will be inserted in Supabase.';
+  static const rmsBridgeSupabaseUpdateActionTooltip =
+      'This row will update an existing Supabase row.';
+  static const rmsBridgeSupabaseConflictActionTooltip =
+      'This row has a conflict and will not be synced.';
+  static const rmsBridgeSupabaseTooltipFieldLabel = 'Field';
+  static const rmsBridgeSupabaseTooltipFromLabel = 'From';
+  static const rmsBridgeSupabaseTooltipToLabel = 'To';
+  static const rmsBridgeSupabaseFieldName = 'name';
+  static const rmsBridgeSupabaseApplySyncButton = 'Sync now';
+  static const rmsBridgeSupabaseSyncingButton = 'Syncing...';
+  static const rmsBridgeSupabaseSyncingInlineMessage =
+      'Please wait, syncing data...';
+  static const rmsBridgeSupabaseSyncConfirmTitle = 'Confirm Sync';
+  static const rmsBridgeSupabaseSyncConfirmMessage =
+      'This will apply changes to Supabase.';
+  static const rmsBridgeSupabaseSyncResultTitle = 'Sync Result';
+  static const rmsBridgeSupabaseSyncDisabledIssuesTooltip =
+      'Fix issues first (red items) before syncing.';
+  static const rmsBridgeSupabaseSyncDisabledNoChangesTooltip =
+      'No pending changes to sync.';
+  static const rmsBridgeSupabaseErrorsLabel = 'Errors';
+  static const rmsBridgeSupabaseSampleErrorsLabel = 'Error details';
+  static const rmsBridgeSupabaseErrorLabel = 'Error';
+  static const rmsBridgeBullet = '•';
+  static const rmsBridgeItemsCountLabel = 'Items';
+  static const rmsBridgeCheckingSession = 'Checking RMS session...';
 
   static const rmsBridgeReservationIdLabel = 'Reservation ID:';
   static const rmsBridgeReservationNoLabel = 'Reservation No:';
@@ -215,4 +326,6 @@ class AppStrings {
   static const loginRememberMe = 'Remember me';
   static const loginForgotPassword = 'Forgot password?';
   static const loginButton = 'Log in';
+
+  static const saveFileDialogTitle = 'Save file';
 }

@@ -333,9 +333,9 @@ class _HeaderState extends ConsumerState<Header> {
                             FilteringTextInputFormatter.digitsOnly,
                           ],
                           onSubmitted: (_) => _submitSearch(),
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             hintText: AppStrings.ppsResNumber,
-                            hintStyle: const TextStyle(
+                            hintStyle: TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: AppFontSizes.body12,
                               fontWeight: FontWeight.w500,

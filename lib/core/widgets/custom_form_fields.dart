@@ -164,7 +164,7 @@ class _HoverNumericStepperWrapperState
                     right: Radius.circular(3),
                   ),
                   border: Border(
-                    left: BorderSide(color: const Color(0xFFD5DEEE)),
+                    left: BorderSide(color: Color(0xFFD5DEEE)),
                   ),
                 ),
                 child: Material(

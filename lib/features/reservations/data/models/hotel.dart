@@ -8,6 +8,34 @@ class Hotel extends Equatable {
     required this.city,
   });
 
+  factory Hotel.fromRmsLookupJson(Map<String, Object?> json) {
+    final idValue = json['id'];
+    final nameValue = json['name'];
+    final codeValue = json['code'];
+    final cityValue = json['city'];
+
+    final id = switch (idValue) {
+      int v => v,
+      num v => v.toInt(),
+      String v => int.tryParse(v.trim()),
+      _ => null,
+    };
+    if (id == null) {
+      throw Exception('Invalid RMS hotel id.');
+    }
+    if (nameValue is! String || nameValue.trim().isEmpty) {
+      throw Exception('Invalid RMS hotel name.');
+    }
+    final code = codeValue is String && codeValue.trim().isNotEmpty
+        ? codeValue.trim()
+        : null;
+    final city = cityValue is String && cityValue.trim().isNotEmpty
+        ? cityValue.trim()
+        : null;
+
+    return Hotel(id: id, name: nameValue.trim(), code: code, city: city);
+  }
+
   final int id;
   final String name;
   final String? code;

@@ -8,6 +8,7 @@ import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:pps/core/constants/app_colors.dart';
 import 'package:pps/core/constants/app_strings.dart';
+import 'package:pps/core/widgets/app_dialog.dart';
 import 'package:pps/core/widgets/app_drop_menu_button.dart';
 import 'package:pps/core/widgets/custom_form_fields.dart';
 import 'package:pps/features/reservations/data/models/agent_reservation_draft.dart';
@@ -98,7 +99,7 @@ class ReservationDetailsScreen extends ConsumerWidget {
   ) {
     return Row(
       children: [
-        Column(
+        const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -110,7 +111,7 @@ class ReservationDetailsScreen extends ConsumerWidget {
               ),
             ),
             SizedBox(height: AppSpacing.s4),
-            const Row(
+            Row(
               children: [
                 Text(
                   AppStrings.reservationsTitle,
@@ -1601,12 +1602,36 @@ class ReservationDetailsScreen extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text(AppStrings.deleteReservationTitle),
-          content: const Text(AppStrings.deleteServiceMessage),
+        return AppDialog(
+          title: const Text(
+            AppStrings.deleteReservationTitle,
+            style: TextStyle(
+              fontSize: AppFontSizes.title14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          content: const Text(
+            AppStrings.deleteServiceMessage,
+            style: TextStyle(
+              fontSize: AppFontSizes.body12,
+              color: AppColors.textSecondary,
+              height: 1.35,
+            ),
+          ),
           actions: [
-            TextButton(
+            OutlinedButton(
               onPressed: () => Navigator.of(context).pop(false),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.textPrimary,
+                backgroundColor: AppColors.tableHeader,
+                minimumSize: const Size(110, AppHeights.button32),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16),
+                side: const BorderSide(color: AppColors.inputBorder),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadii.r8),
+                ),
+              ),
               child: const Text(AppStrings.cancel),
             ),
             ElevatedButton(
@@ -1614,6 +1639,11 @@ class ReservationDetailsScreen extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.danger,
                 foregroundColor: Colors.white,
+                minimumSize: const Size(110, AppHeights.button32),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadii.r8),
+                ),
               ),
               child: const Text(AppStrings.delete),
             ),
@@ -2519,12 +2549,36 @@ class ReservationDetailsScreen extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text(AppStrings.deleteReservationTitle),
-          content: const Text(AppStrings.deleteReservationMessage),
+        return AppDialog(
+          title: const Text(
+            AppStrings.deleteReservationTitle,
+            style: TextStyle(
+              fontSize: AppFontSizes.title14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          content: const Text(
+            AppStrings.deleteReservationMessage,
+            style: TextStyle(
+              fontSize: AppFontSizes.body12,
+              color: AppColors.textSecondary,
+              height: 1.35,
+            ),
+          ),
           actions: [
-            TextButton(
+            OutlinedButton(
               onPressed: () => Navigator.of(context).pop(false),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.textPrimary,
+                backgroundColor: AppColors.tableHeader,
+                minimumSize: const Size(110, AppHeights.button32),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16),
+                side: const BorderSide(color: AppColors.inputBorder),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadii.r8),
+                ),
+              ),
               child: const Text(AppStrings.cancel),
             ),
             ElevatedButton(
@@ -2532,6 +2586,11 @@ class ReservationDetailsScreen extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.danger,
                 foregroundColor: Colors.white,
+                minimumSize: const Size(110, AppHeights.button32),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadii.r8),
+                ),
               ),
               child: const Text(AppStrings.delete),
             ),

@@ -7,6 +7,7 @@ import 'package:decimal/decimal.dart';
 
 import 'package:pps/core/constants/app_colors.dart';
 import 'package:pps/core/constants/app_strings.dart';
+import 'package:pps/core/widgets/app_dialog.dart';
 import 'package:pps/core/widgets/app_drop_menu_button.dart';
 import 'package:pps/core/widgets/custom_form_fields.dart';
 import 'package:pps/features/reservations/data/models/reservation_details.dart';
@@ -173,35 +174,49 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
     final selected = await showDialog<String>(
       context: context,
       builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Create'),
-          content: SizedBox(
-            width: ReservationDetailsLayout.editClientWidthLg,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.hotel),
-                  title: const Text('Agent Direct Reservation'),
-                  onTap: () => Navigator.of(dialogContext).pop('agent'),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.miscellaneous_services),
-                  title: const Text('General service'),
-                  onTap: () => Navigator.of(dialogContext).pop('general'),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.directions_car),
-                  title: const Text('Transportation'),
-                  onTap: () =>
-                      Navigator.of(dialogContext).pop('transportation'),
-                ),
-              ],
+        return AppDialog(
+          maxWidth: ReservationDetailsLayout.editClientWidthLg,
+          title: const Text(
+            'Create',
+            style: TextStyle(
+              fontSize: AppFontSizes.title14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
             ),
           ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.hotel),
+                title: const Text('Agent Direct Reservation'),
+                onTap: () => Navigator.of(dialogContext).pop('agent'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.miscellaneous_services),
+                title: const Text('General service'),
+                onTap: () => Navigator.of(dialogContext).pop('general'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.directions_car),
+                title: const Text('Transportation'),
+                onTap: () => Navigator.of(dialogContext).pop('transportation'),
+              ),
+            ],
+          ),
           actions: [
-            TextButton(
+            OutlinedButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.textPrimary,
+                backgroundColor: AppColors.tableHeader,
+                minimumSize: const Size(110, AppHeights.button32),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16),
+                side: const BorderSide(color: AppColors.inputBorder),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadii.r8),
+                ),
+              ),
               child: const Text('Cancel'),
             ),
           ],

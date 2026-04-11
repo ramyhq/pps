@@ -67,8 +67,8 @@ class _RmsLoginScreenState extends ConsumerState<RmsLoginScreen> {
     final session = ref.watch(rmsSessionProvider);
 
     final cardWidth = MediaQuery.sizeOf(context).width >= 720 ? 500.0 : 360.0;
-    final logoUrl = '$rmsBaseUrl/Common/Images/RMS-logo.svg';
-    final bgUrl =
+    const logoUrl = '$rmsBaseUrl/Common/Images/RMS-logo.svg';
+    const bgUrl =
         '$rmsBaseUrl/metronic/assets/media/svg/illustrations/mecca.svg';
 
     return Scaffold(
@@ -225,7 +225,7 @@ class _RmsLoginScreenState extends ConsumerState<RmsLoginScreen> {
                                 ),
                               ),
                               const Spacer(),
-                              TextButton(
+                              const TextButton(
                                 onPressed: null,
                                 child: Text(AppStrings.loginForgotPassword),
                               ),
@@ -268,9 +268,9 @@ class _RmsLoginScreenState extends ConsumerState<RmsLoginScreen> {
                                             ),
                                       ),
                                     )
-                                  : Text(
+                                  : const Text(
                                       AppStrings.loginButton,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,
                                       ),

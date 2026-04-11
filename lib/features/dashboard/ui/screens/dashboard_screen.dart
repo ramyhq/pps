@@ -6,7 +6,6 @@ import 'package:fl_chart/fl_chart.dart';
 
 import 'package:pps/core/constants/app_colors.dart';
 import 'package:pps/core/widgets/app_drop_menu_button.dart';
-import 'package:pps/features/reservations/data/models/reservation_order.dart';
 import 'package:pps/features/dashboard/provider/dashboard_provider.dart';
 
 class DashboardScreen extends ConsumerWidget {
@@ -27,9 +26,9 @@ class DashboardScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Column(
+              const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
                     'Dashboard',
                     style: TextStyle(
@@ -51,6 +50,7 @@ class DashboardScreen extends ConsumerWidget {
               ),
               Tooltip(
                 message: "Select the time period for dashboard statistics.",
+                waitDuration: const Duration(seconds: 2),
                 child: _buildPeriodSelector(context, ref, selectedPeriod),
               ),
             ],
@@ -69,7 +69,7 @@ class DashboardScreen extends ConsumerWidget {
               child: Center(
                 child: Text(
                   'Error loading dashboard: $err',
-                  style: TextStyle(color: AppColors.danger),
+                  style: const TextStyle(color: AppColors.danger),
                 ),
               ),
             ),
@@ -180,7 +180,7 @@ class DashboardScreen extends ConsumerWidget {
               isTrendPositive: stats.isPerformancePositive,
             ),
             _buildPremiumKpiCard(
-              title: "Today's Schedule",
+              title: "Needs Attention",
               value: '${stats.needsFollowUp.length}',
               icon: Icons.schedule_rounded,
               color: AppColors.danger,
@@ -239,6 +239,7 @@ class DashboardScreen extends ConsumerWidget {
   }) {
     return Tooltip(
       message: tooltip,
+      waitDuration: const Duration(seconds: 2),
       textStyle: const TextStyle(fontSize: 12, color: Colors.white),
       decoration: BoxDecoration(
         color: Colors.black87,
@@ -250,10 +251,10 @@ class DashboardScreen extends ConsumerWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border.withOpacity(0.5)),
+          border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -276,7 +277,7 @@ class DashboardScreen extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(icon, size: 18, color: color),
@@ -309,7 +310,7 @@ class DashboardScreen extends ConsumerWidget {
                           (isTrendPositive
                                   ? const Color(0xFF10B981)
                                   : AppColors.danger)
-                              .withOpacity(0.1),
+                              .withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Row(
@@ -368,10 +369,10 @@ class DashboardScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withOpacity(0.5)),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -383,6 +384,7 @@ class DashboardScreen extends ConsumerWidget {
           const Tooltip(
             message:
                 "Shows a visual trend of daily reservations over the selected period.",
+            waitDuration: Duration(seconds: 2),
             child: Text(
               "Reservations Overview",
               style: TextStyle(
@@ -409,7 +411,7 @@ class DashboardScreen extends ConsumerWidget {
                       : 1,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: AppColors.border.withOpacity(0.5),
+                      color: AppColors.border.withValues(alpha: 0.5),
                       strokeWidth: 1,
                       dashArray: [5, 5],
                     );
@@ -494,8 +496,8 @@ class DashboardScreen extends ConsumerWidget {
                       show: true,
                       gradient: LinearGradient(
                         colors: [
-                          AppColors.primary.withOpacity(0.3),
-                          AppColors.primary.withOpacity(0.0),
+                          AppColors.primary.withValues(alpha: 0.3),
+                          AppColors.primary.withValues(alpha: 0.0),
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -546,10 +548,10 @@ class DashboardScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withOpacity(0.5)),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -564,8 +566,9 @@ class DashboardScreen extends ConsumerWidget {
               const Tooltip(
                 message:
                     "List of recent reservations that still need an RMS invoice number.",
+                waitDuration: Duration(seconds: 2),
                 child: Text(
-                  "Today's Schedule",
+                  "Needs Attention",
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -576,6 +579,7 @@ class DashboardScreen extends ConsumerWidget {
               Tooltip(
                 message:
                     "Select how many days back to check for missing RMS invoices.",
+                waitDuration: const Duration(seconds: 2),
                 child: Consumer(
                   builder: (context, ref, child) {
                     final followUpPeriod = ref.watch(
@@ -667,7 +671,7 @@ class DashboardScreen extends ConsumerWidget {
                     Icon(
                       Icons.check_circle_outline_rounded,
                       size: 48,
-                      color: const Color(0xFF10B981).withOpacity(0.5),
+                      color: const Color(0xFF10B981).withValues(alpha: 0.5),
                     ),
                     const SizedBox(height: 16),
                     const Text(
@@ -697,7 +701,7 @@ class DashboardScreen extends ConsumerWidget {
                     onTap: () => context.go(
                       '/reservations/details?reservationId=${order.id}',
                     ),
-                    hoverColor: AppColors.primary.withOpacity(0.05),
+                    hoverColor: AppColors.primary.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(8),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
@@ -795,10 +799,10 @@ class DashboardScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withOpacity(0.5)),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -810,6 +814,7 @@ class DashboardScreen extends ConsumerWidget {
           const Tooltip(
             message:
                 "Shows the top 5 clients based on the number of reservations created in the selected period.",
+            waitDuration: Duration(seconds: 2),
             child: Text(
               "Top Clients",
               style: TextStyle(
@@ -840,12 +845,14 @@ class DashboardScreen extends ConsumerWidget {
                     case 0:
                       rankIcon = const Tooltip(
                         message: "1st Place - Gold Cup",
+                        waitDuration: Duration(seconds: 2),
                         child: Text('🏆', style: TextStyle(fontSize: 20)),
                       );
                       break;
                     case 1:
                       rankIcon = const Tooltip(
                         message: "2nd Place - Silver Cup",
+                        waitDuration: Duration(seconds: 2),
                         child: Icon(
                           Icons.emoji_events,
                           color: Color(0xFFC0C0C0),
@@ -856,12 +863,14 @@ class DashboardScreen extends ConsumerWidget {
                     case 2:
                       rankIcon = const Tooltip(
                         message: "3rd Place - Gold Medal",
+                        waitDuration: Duration(seconds: 2),
                         child: Text('🥇', style: TextStyle(fontSize: 20)),
                       );
                       break;
                     case 3:
                       rankIcon = const Tooltip(
                         message: "4th Place - Silver Medal",
+                        waitDuration: Duration(seconds: 2),
                         child: Text('🥈', style: TextStyle(fontSize: 20)),
                       );
                       break;
@@ -887,7 +896,7 @@ class DashboardScreen extends ConsumerWidget {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.05),
+                            color: AppColors.primary.withValues(alpha: 0.05),
                             shape: BoxShape.circle,
                           ),
                           child: Center(child: rankIcon),
@@ -931,7 +940,7 @@ class DashboardScreen extends ConsumerWidget {
                                     height: 6,
                                     width: double.infinity,
                                     decoration: BoxDecoration(
-                                      color: AppColors.border.withOpacity(0.5),
+                                      color: AppColors.border.withValues(alpha: 0.5),
                                       borderRadius: BorderRadius.circular(3),
                                     ),
                                   ),
@@ -970,7 +979,7 @@ class DashboardScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withOpacity(0.5)),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

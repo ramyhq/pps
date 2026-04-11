@@ -28,6 +28,10 @@ dependencies:
   printing: ^5.14.2
   fl_chart: ^0.68.0
   collection: ^1.19.1
+  file_picker: ^11.0.2
+  url_launcher: ^6.3.2
+  universal_html: ^2.3.0
+  universal_io: ^2.3.1
 
 dev_dependencies:
   flutter_test:

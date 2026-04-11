@@ -422,7 +422,7 @@ class ReservationDetailsPdfGenerator {
 
     final rows = <pw.TableRow>[
       pw.TableRow(
-        decoration: pw.BoxDecoration(color: _tableHeaderColor),
+        decoration: const pw.BoxDecoration(color: _tableHeaderColor),
         children: [
           _cell('RMS Inv. No', headerStyle, align: pw.Alignment.centerLeft),
           _cell('City', headerStyle, align: pw.Alignment.centerLeft),
@@ -547,11 +547,11 @@ class ReservationDetailsPdfGenerator {
       fontSize: 10,
       fontWeight: pw.FontWeight.normal,
     );
-    final cellStyle = const pw.TextStyle(fontSize: 10.5);
+    const cellStyle = pw.TextStyle(fontSize: 10.5);
 
     final rows = <pw.TableRow>[
       pw.TableRow(
-        decoration: pw.BoxDecoration(color: _tableHeaderColor),
+        decoration: const pw.BoxDecoration(color: _tableHeaderColor),
         children: [
           _cell('Room Type', headerStyle),
           _cell('M / P', headerStyle),
@@ -605,7 +605,7 @@ class ReservationDetailsPdfGenerator {
       fontSize: 10.5,
       fontWeight: pw.FontWeight.bold,
     );
-    final cellStyle = const pw.TextStyle(fontSize: 10.5);
+    const cellStyle = pw.TextStyle(fontSize: 10.5);
 
     final trips = transportationServices
         .expand((s) => s.transportationDetails?.trips ?? const [])
@@ -613,7 +613,7 @@ class ReservationDetailsPdfGenerator {
 
     final rows = <pw.TableRow>[
       pw.TableRow(
-        decoration: pw.BoxDecoration(color: _tableHeaderColor),
+        decoration: const pw.BoxDecoration(color: _tableHeaderColor),
         children: [
           _cell('From', tableHeaderStyle),
           _cell('To', tableHeaderStyle),
@@ -717,7 +717,7 @@ class ReservationDetailsPdfGenerator {
       fontSize: 10,
       fontWeight: pw.FontWeight.bold,
     );
-    final cellStyle = const pw.TextStyle(fontSize: 10.5);
+    const cellStyle = pw.TextStyle(fontSize: 10.5);
 
     final ordered = _otherServicesOrderedList(
       agentServices: agentServices,
@@ -726,7 +726,7 @@ class ReservationDetailsPdfGenerator {
 
     final rows = <pw.TableRow>[
       pw.TableRow(
-        decoration: pw.BoxDecoration(color: _tableHeaderColor),
+        decoration: const pw.BoxDecoration(color: _tableHeaderColor),
         children: [_cell('Service', tableHeaderStyle)],
       ),
       if (ordered.isEmpty)

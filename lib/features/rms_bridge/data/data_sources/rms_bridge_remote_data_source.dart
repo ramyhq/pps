@@ -32,6 +32,54 @@ class RmsBridgeRemoteDataSource {
       throw Exception(_formatDioException(e));
     }
   }
+
+  Future<Map<String, Object?>> extractCreateOrEditLookups({
+    required String sessionId,
+    required String rms,
+  }) async {
+    try {
+      final response = await dio.post<Map<String, Object?>>(
+        RmsApiPaths.proxy,
+        data: <String, Object?>{
+          'action': 'extractCreateOrEditLookups',
+          'rms': rms,
+        },
+        options: Options(
+          headers: <String, Object?>{'x-rms-session': sessionId},
+        ),
+      );
+
+      final data = response.data;
+      if (data == null) {
+        throw Exception('RMS Bridge: empty response.');
+      }
+      return data;
+    } on DioException catch (e) {
+      throw Exception(_formatDioException(e));
+    }
+  }
+
+  Future<Map<String, Object?>> extractAdditionalLookups({
+    required String sessionId,
+  }) async {
+    try {
+      final response = await dio.post<Map<String, Object?>>(
+        RmsApiPaths.proxy,
+        data: <String, Object?>{'action': 'extractAdditionalLookups'},
+        options: Options(
+          headers: <String, Object?>{'x-rms-session': sessionId},
+        ),
+      );
+
+      final data = response.data;
+      if (data == null) {
+        throw Exception('RMS Bridge: empty response.');
+      }
+      return data;
+    } on DioException catch (e) {
+      throw Exception(_formatDioException(e));
+    }
+  }
 }
 
 String _formatDioException(DioException exception) {

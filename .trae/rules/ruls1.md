@@ -52,7 +52,7 @@ lib/
 ## 5. Type Safety
 
 - **Rule**: Avoid `dynamic` at all costs. Use strict types.
-- **Rule**: Use `built_value` or `freezed` or `json_serializable` for data models to ensure type-safe JSON parsing.
+- **Rule**: Keep models explicit and readable: write manual `fromJson/toJson` (no generated `*.g.dart`).
 
 ## 6. Immutable State
 
@@ -68,8 +68,8 @@ lib/
 ## 8. Repository Pattern
 
 - Separate Data Layer from Domain/UI Layer.
-- **Rule**: UI/Providers should never call API directly. They must call a `Repository`.
-- Repositories return `Either<Failure, Success>` or throw custom Exceptions.
+- **Rule**: Keep it simple by default: Provider calls a feature RemoteDataSource directly.
+- Use a Repository only when the feature is complex enough to justify it (aggregation, multiple sources, heavy mapping).
 
 ## 9. API & Networking
 
@@ -84,10 +84,10 @@ lib/
 - قبل ربط أي شاشة/Dropdown ببيانات Supabase، لازم يتم تأكيد الجداول والأعمدة الفعلية داخل schema `public` (عن طريق `information_schema` أو SQL Editor) وعدم افتراض أسماء جداول غير موجودة.
 - في هذا المشروع حاليًا مصدر قائمة الخدمات/الأنواع هو جدول `reservation_service_types` (الأعمدة: `key`, `label`, `code`) وليس `general_services`.
 
-## 10. Data Transfer Objects (DTOs) vs Domain Models
+## 10. Models (No Generators)
 
-- **Rule**: Separate API response models (DTOs) from the internal Domain models used by the UI.
-- Map DTOs to Domain models in the Repository layer. This protects the app from backend schema changes.
+- **Rule**: Prefer one explicit model per feature (manual `fromJson/toJson`) over DTO + generated files.
+- **Rule**: Do not add `*.g.dart` codegen for new work unless explicitly requested.
 
 ## 11. Responsive Design
 
@@ -139,18 +139,12 @@ lib/
 
 ## 17. Unified Data Layer Blueprint (Mandatory)
 
-- Any feature that persists or reads backend data MUST follow this exact order:
-  1) `features/<feature>/data/models` for app Domain models.
-  2) `features/<feature>/data/dto` for request/response DTOs with `json_serializable`.
-  3) `features/<feature>/data/data_sources` for direct Supabase/API access only.
-  4) `features/<feature>/data/repositories` with interface + implementation.
-  5) `features/<feature>/provider/*_data_providers.dart` for Riverpod DI wiring.
-  6) Feature provider/notifier calls Repository only, never data source/client directly.
-- Mapping rules:
-  - DTO ↔ Domain mapping must be centralized in DTO factories or repository layer.
-  - Never map raw JSON inside UI widgets.
-- Error rules:
-  - Data source/repository must throw typed/custom exceptions with clear messages.
-  - Provider converts technical failures to user-facing states/messages.
-- Reuse rule:
-  - Any repeated backend flow in other features MUST reuse this same blueprint and naming style to keep the whole codebase consistent.
+- Any feature that persists or reads backend data MUST follow this order:
+  1) `features/<feature>/data/models` (explicit model + `fromJson/toJson`).
+  2) `features/<feature>/data/data_sources` (direct Supabase/API access only).
+  3) `features/<feature>/provider` (Riverpod provider/notifier uses the RemoteDataSource).
+  4) `features/<feature>/ui` (widgets call provider only).
+- Rules:
+  - No API calls in UI widgets.
+  - No generated code for new data models (`*.g.dart`) unless explicitly requested.
+  - DataSource throws typed exceptions; Provider converts them to user-friendly logs/states.

@@ -20,10 +20,21 @@ final rmsBridgeRepositoryProvider = Provider<RmsBridgeRepository>((ref) {
 
 final rmsBridgeReservationPreviewProvider =
     FutureProvider.family<RmsBridgeReservationPreview, String>((
-  ref,
-  reservationId,
-) async {
-  final repo = ref.watch(rmsBridgeRepositoryProvider);
-  return repo.fetchReservationPreview(reservationId: reservationId);
-});
+      ref,
+      reservationId,
+    ) async {
+      final repo = ref.watch(rmsBridgeRepositoryProvider);
+      return repo.fetchReservationPreview(reservationId: reservationId);
+    });
 
+final rmsBridgeCreateOrEditLookupsProvider =
+    FutureProvider.family<RmsBridgeLookups, String>((ref, rms) async {
+      final repo = ref.watch(rmsBridgeRepositoryProvider);
+      return repo.fetchCreateOrEditLookups(rms: rms);
+    });
+
+final rmsBridgeAdditionalLookupsProvider =
+    FutureProvider<RmsBridgeAdditionalLookups>((ref) async {
+      final repo = ref.watch(rmsBridgeRepositoryProvider);
+      return repo.fetchAdditionalLookups();
+    });

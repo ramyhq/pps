@@ -4,6 +4,7 @@ import 'package:decimal/decimal.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:pps/core/constants/app_colors.dart';
+import 'package:pps/core/widgets/app_dialog.dart';
 import 'package:pps/core/widgets/custom_form_fields.dart';
 import 'package:pps/features/reservations/provider/create_agent_reservation_provider.dart';
 import 'package:pps/features/reservations/provider/reservations_data_providers.dart';
@@ -599,30 +600,44 @@ class _CreateAgentReservationScreenState
     final selected = await showDialog<String>(
       context: context,
       builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Add service'),
-          content: SizedBox(
-            width: 420,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.miscellaneous_services),
-                  title: const Text('General service'),
-                  onTap: () => Navigator.of(dialogContext).pop('general'),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.directions_car),
-                  title: const Text('Transportation'),
-                  onTap: () =>
-                      Navigator.of(dialogContext).pop('transportation'),
-                ),
-              ],
+        return AppDialog(
+          maxWidth: 420,
+          title: const Text(
+            'Add service',
+            style: TextStyle(
+              fontSize: AppFontSizes.title14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
             ),
           ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.miscellaneous_services),
+                title: const Text('General service'),
+                onTap: () => Navigator.of(dialogContext).pop('general'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.directions_car),
+                title: const Text('Transportation'),
+                onTap: () => Navigator.of(dialogContext).pop('transportation'),
+              ),
+            ],
+          ),
           actions: [
-            TextButton(
+            OutlinedButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.textPrimary,
+                backgroundColor: AppColors.tableHeader,
+                minimumSize: const Size(110, AppHeights.button32),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16),
+                side: const BorderSide(color: AppColors.inputBorder),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadii.r8),
+                ),
+              ),
               child: const Text('Cancel'),
             ),
           ],
@@ -2194,21 +2209,6 @@ class _CreateAgentReservationScreenState
       fieldHeight: AppHeights.button32,
       popupMaxHeight: AppHeights.dropdownPopupMax180,
       searchable: true,
-    );
-  }
-
-  Widget _buildRoomTopLabel(String label) {
-    return Row(
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: AppFontSizes.body12,
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
     );
   }
 

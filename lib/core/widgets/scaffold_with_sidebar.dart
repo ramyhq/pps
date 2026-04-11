@@ -80,7 +80,7 @@ class _ScaffoldWithSidebarState extends State<ScaffoldWithSidebar> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (_isSidebarExpanded)
-                        Sidebar(
+                        const Sidebar(
                           isExpanded: true,
                           showToggleButton: false,
                           showHeader: false,

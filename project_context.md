@@ -44,18 +44,17 @@
   - Data: جزئي (تم تنفيذ Data layer لحفظ Create Agent عبر Supabase)
 
 ## معيار موحد لبناء Data Layer (Template)
-- أي ميزة جديدة تتبع نفس التسلسل وبنفس أسماء الطبقات:
-  1) `data/models` لتمثيل Domain داخل التطبيق.
-  2) `data/dto` لتمثيل payload/response وربط `json_serializable`.
-  3) `data/data_sources` للتعامل المباشر مع Supabase فقط.
-  4) `data/repositories` (interface + implementation) لعزل المصدر عن provider.
-  5) `provider/*_data_providers.dart` لحقن DataSource/Repository عبر Riverpod.
-  6) `provider/<feature>_provider.dart` يستدعي Repository فقط ولا يستدعي API مباشرة.
+- أي ميزة جديدة تتبع نفس التسلسل وبنفس أسماء الطبقات (بدون تعقيد زائد):
+  1) `data/models` موديل واضح + `fromJson/toJson` (بدون ملفات مولدة `*.g.dart`).
+  2) `data/data_sources` RemoteDataSource فقط للتعامل المباشر مع Supabase.
+  3) `provider` Provider/Notifier يتعامل مع RemoteDataSource.
+  4) `ui` الواجهة تنادي provider فقط.
 - قواعد إلزامية:
-  - Mapping بين Domain و DTO يتم داخل repository أو dto factory فقط.
-  - معالجة الأخطاء تكون Exception موحدة برسالة واضحة للمستخدم.
+  - ممنوع استدعاء Supabase داخل الـUI مباشرة.
   - الحسابات المالية دائمًا بـ `Decimal` فقط.
-  - نفس هذا الـTemplate يطبق على أي جزء متكرر لضمان توحيد أسلوب الكود في المشروع كله.
+  - Exceptions في DataSource، و Provider يحولها لحالات/Logs مفهومة.
+
+ملاحظة: Feature `reservations` فيها Template أقدم (DTO/Repository) وستُبسّط لاحقًا عند الحاجة.
 
 ## سياسة التحديث (Mandatory)
 - أي **Feature** جديدة، أو **Screen** جديدة، أو **Route** جديدة، أو تعديل في الهيكل/الثيم/اللغة:
@@ -63,6 +62,9 @@
   - ولازم يتحدث ملف `system_design.md` بما يتوافق.
 
 ## سجل التغييرات (Changelog)
+### 2026-04-08
+- تفعيل Bulk Import حقيقي (Download CSV template + Upload CSV + Upsert إلى Supabase) لموديولات: Clients/Suppliers/Hotels/Services، مع نقل كود الداتا لكل Feature (Model + RemoteDataSource + Provider) بدون DTO أو ملفات مولدة.
+
 ### 2026-04-07
 - تطوير `SegmentedTimePicker` كحقل وقت متقدم يدعم الإدخال المباشر للأرقام، التنقل بالأسهم، والتحويل التلقائي لصيغة 12 ساعة (مثال: 16 تتحول إلى 4 PM) واستبدال `CustomTimePickerField` به في شاشات الحجوزات.
 
