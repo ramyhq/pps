@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -13,7 +14,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/widgets/app_dialog.dart';
 import '../../provider/rms_bridge_data_providers.dart';
-import '../../../clients/provider/clients_supabase_sync_preview_provider.dart';
+import '../../provider/rms_bridge_supabase_sync_provider.dart';
 import '../../../rms_auth/provider/rms_session_provider.dart';
 
 class RmsBridgeHomeScreen extends ConsumerStatefulWidget {
@@ -618,13 +619,34 @@ typedef _LookupExportItem = ({
   int? nationalityId,
 });
 
-class _LookupsDialog extends ConsumerWidget {
+class _LookupsDialog extends ConsumerStatefulWidget {
   const _LookupsDialog({required this.kind});
 
   final _LookupKind kind;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_LookupsDialog> createState() => _LookupsDialogState();
+}
+
+class _LookupsDialogState extends ConsumerState<_LookupsDialog> {
+  bool _isRefreshing = false;
+
+  Future<void> _refreshLookups() async {
+    if (_isRefreshing) return;
+    setState(() => _isRefreshing = true);
+    try {
+      ref.invalidate(rmsBridgeCreateOrEditLookupsProvider(''));
+      ref.invalidate(rmsBridgeAdditionalLookupsProvider);
+      await ref.read(rmsBridgeCreateOrEditLookupsProvider('').future);
+      await ref.read(rmsBridgeAdditionalLookupsProvider.future);
+    } finally {
+      if (mounted) setState(() => _isRefreshing = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final kind = widget.kind;
     final createAsync = ref.watch(rmsBridgeCreateOrEditLookupsProvider(''));
     final additionalAsync = ref.watch(rmsBridgeAdditionalLookupsProvider);
 
@@ -675,7 +697,7 @@ class _LookupsDialog extends ConsumerWidget {
         (lookups) => lookups.nationalities
             .map(
               (e) => (
-                key: e.key,
+                key: (e.id?.toString() ?? e.key),
                 id: e.id,
                 code: e.code,
                 name: e.name,
@@ -799,6 +821,59 @@ class _LookupsDialog extends ConsumerWidget {
             520.0,
           );
 
+          final list = DecoratedBox(
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              border: Border.all(color: AppColors.border),
+              borderRadius: BorderRadius.circular(AppRadii.r8),
+            ),
+            child: SizedBox(
+              height: listHeight,
+              child: ListView.separated(
+                itemCount: loadedItems.length,
+                separatorBuilder: (_, __) =>
+                    const Divider(height: 1, color: AppColors.border),
+                itemBuilder: (_, index) {
+                  final item = loadedItems[index];
+                  final subtitleParts = <String>[
+                    if ((item.code ?? '').trim().isNotEmpty) item.code!.trim(),
+                    if (item.id != null) 'ID: ${item.id}',
+                    'Key: ${item.key}',
+                    if (item.nationalityId != null)
+                      'Nationality: ${item.nationalityId}',
+                  ];
+                  return ListTile(
+                    dense: true,
+                    visualDensity: const VisualDensity(vertical: -4),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.s12,
+                    ),
+                    title: Text(
+                      item.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: AppFontSizes.body12,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    subtitle: subtitleParts.isEmpty
+                        ? null
+                        : Text(
+                            subtitleParts.join(' • '),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: AppFontSizes.label11,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                  );
+                },
+              ),
+            ),
+          );
+
           return Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -818,64 +893,47 @@ class _LookupsDialog extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: AppSpacing.s12),
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  border: Border.all(color: AppColors.border),
-                  borderRadius: BorderRadius.circular(AppRadii.r8),
-                ),
-                child: SizedBox(
-                  height: listHeight,
-                  child: ListView.separated(
-                    itemCount: loadedItems.length,
-                    separatorBuilder: (_, __) =>
-                        const Divider(height: 1, color: AppColors.border),
-                    itemBuilder: (_, index) {
-                      final item = loadedItems[index];
-                      final subtitleParts = <String>[
-                        if ((item.code ?? '').trim().isNotEmpty)
-                          item.code!.trim(),
-                        if (item.id != null) 'ID: ${item.id}',
-                        'Key: ${item.key}',
-                        if (item.nationalityId != null)
-                          'Nationality: ${item.nationalityId}',
-                      ];
-                      return ListTile(
-                        dense: true,
-                        visualDensity: const VisualDensity(vertical: -4),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.s12,
-                        ),
-                        title: Text(
-                          item.label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: AppFontSizes.body12,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        subtitle: subtitleParts.isEmpty
-                            ? null
-                            : Text(
-                                subtitleParts.join(' • '),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: AppFontSizes.label11,
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                      );
-                    },
-                  ),
-                ),
+              if (_isRefreshing) ...[
+                const LinearProgressIndicator(minHeight: 2),
+                const SizedBox(height: AppSpacing.s10),
+              ],
+              Stack(
+                children: [
+                  list,
+                  if (_isRefreshing)
+                    Positioned.fill(
+                      child: ColoredBox(
+                        color: AppColors.white.withValues(alpha: 0.6),
+                        child: const Center(child: CircularProgressIndicator()),
+                      ),
+                    ),
+                ],
               ),
             ],
           );
         },
       ),
       actions: [
+        OutlinedButton(
+          onPressed: _isRefreshing ? null : _refreshLookups,
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.textPrimary,
+            backgroundColor: AppColors.tableHeader,
+            minimumSize: const Size(110, AppHeights.button32),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16),
+            side: const BorderSide(color: AppColors.inputBorder),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadii.r8),
+            ),
+          ),
+          child: _isRefreshing
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text(AppStrings.rmsBridgeRefresh),
+        ),
         OutlinedButton(
           onPressed: (exportedItems == null || exportedItems.isEmpty)
               ? null
@@ -912,10 +970,7 @@ class _LookupsDialog extends ConsumerWidget {
           child: const Text(AppStrings.rmsBridgeExportJson),
         ),
         OutlinedButton(
-          onPressed:
-              (exportedItems == null ||
-                  exportedItems.isEmpty ||
-                  kind != _LookupKind.clients)
+          onPressed: (exportedItems == null || exportedItems.isEmpty)
               ? null
               : () async {
                   await showDialog<void>(
@@ -1093,13 +1148,75 @@ class _SupabaseSyncDialog extends ConsumerStatefulWidget {
 }
 
 class _SupabaseSyncDialogState extends ConsumerState<_SupabaseSyncDialog> {
-  late final List<ClientSupabaseSyncCandidate> _candidates = widget.sourceItems
-      .map((e) => ClientSupabaseSyncCandidate(name: e.name, code: e.code))
-      .toList(growable: false);
+  late final List<RmsBridgeSupabaseSyncCandidate> _candidates;
+  late final RmsBridgeSupabaseSyncRequest _request;
+  bool _isRefreshing = false;
+
+  RmsBridgeSupabaseSyncTarget _supabaseTargetForKind(_LookupKind kind) {
+    return switch (kind) {
+      _LookupKind.clients => const RmsBridgeSupabaseSyncTarget(
+        tableName: 'clients',
+        mode: RmsBridgeSupabaseSyncMode.codeBased,
+      ),
+      _LookupKind.suppliers => const RmsBridgeSupabaseSyncTarget(
+        tableName: 'suppliers',
+        mode: RmsBridgeSupabaseSyncMode.codeBased,
+      ),
+      _LookupKind.hotels => const RmsBridgeSupabaseSyncTarget(
+        tableName: 'hotels',
+        mode: RmsBridgeSupabaseSyncMode.codeBased,
+      ),
+      _LookupKind.nationalities => const RmsBridgeSupabaseSyncTarget(
+        tableName: 'nationalities',
+        mode: RmsBridgeSupabaseSyncMode.keyBased,
+        identifierField: 'id',
+        labelField: 'name',
+      ),
+      _LookupKind.extraServiceTypes => const RmsBridgeSupabaseSyncTarget(
+        tableName: 'reservation_service_types',
+        mode: RmsBridgeSupabaseSyncMode.keyBased,
+      ),
+      _LookupKind.routes => const RmsBridgeSupabaseSyncTarget(
+        tableName: 'routes',
+        mode: RmsBridgeSupabaseSyncMode.keyBased,
+      ),
+      _LookupKind.vehicleTypes => const RmsBridgeSupabaseSyncTarget(
+        tableName: 'vehicle_types',
+        mode: RmsBridgeSupabaseSyncMode.keyBased,
+      ),
+      _LookupKind.termsAndConditions => const RmsBridgeSupabaseSyncTarget(
+        tableName: 'terms_and_conditions',
+        mode: RmsBridgeSupabaseSyncMode.keyBased,
+      ),
+      _LookupKind.tripTypes => const RmsBridgeSupabaseSyncTarget(
+        tableName: 'trip_types',
+        mode: RmsBridgeSupabaseSyncMode.keyBased,
+      ),
+    };
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _candidates = widget.sourceItems
+        .map(
+          (e) => RmsBridgeSupabaseSyncCandidate(
+            key: e.key,
+            code: e.code,
+            name: e.name,
+            label: e.label,
+          ),
+        )
+        .toList(growable: false);
+    _request = RmsBridgeSupabaseSyncRequest(
+      target: _supabaseTargetForKind(widget.kind),
+      candidates: _candidates,
+    );
+  }
 
   Future<bool> _confirmSync(
     BuildContext context,
-    ClientsSupabaseSyncPreview preview,
+    RmsBridgeSupabaseSyncPreview preview,
   ) async {
     final result = await showDialog<bool>(
       context: context,
@@ -1177,7 +1294,7 @@ class _SupabaseSyncDialogState extends ConsumerState<_SupabaseSyncDialog> {
 
   Future<void> _showSyncResult(
     BuildContext context,
-    ClientsSupabaseSyncApplyResult result,
+    RmsBridgeSupabaseSyncApplyResult result,
   ) async {
     final failureItems = result.failureItems;
     await showDialog<void>(
@@ -1249,7 +1366,9 @@ class _SupabaseSyncDialogState extends ConsumerState<_SupabaseSyncDialog> {
                 for (final item in failureItems)
                   _SupabaseSyncChangeRow(
                     name: item.name,
-                    code: (item.code ?? '').trim().isEmpty ? null : item.code,
+                    code: (item.identifier ?? '').trim().isEmpty
+                        ? null
+                        : item.identifier,
                     dotColor: AppColors.danger,
                     badgeLabel: AppStrings.rmsBridgeSupabaseErrorLabel,
                     badgeTooltip: item.message,
@@ -1284,37 +1403,10 @@ class _SupabaseSyncDialogState extends ConsumerState<_SupabaseSyncDialog> {
         AppStrings.rmsBridgeModelTermsAndConditions,
       _LookupKind.tripTypes => AppStrings.rmsBridgeModelTripTypes,
     };
-    if (kind != _LookupKind.clients) {
-      return AppDialog(
-        maxWidth: 520,
-        title: Text(
-          '${AppStrings.rmsBridgeSupabaseSyncDialogTitle} - $modelName',
-          style: const TextStyle(
-            fontSize: AppFontSizes.title14,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        content: const Text(
-          'Not supported yet.',
-          style: TextStyle(
-            fontSize: AppFontSizes.body12,
-            color: AppColors.textSecondary,
-          ),
-        ),
-        actions: [
-          OutlinedButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text(AppStrings.close),
-          ),
-        ],
-      );
-    }
-
     final previewAsync = ref.watch(
-      clientsSupabaseSyncPreviewProvider(_candidates),
+      rmsBridgeSupabaseSyncPreviewProvider(_request),
     );
-    final applyState = ref.watch(clientsSupabaseSyncApplyProvider);
+    final applyState = ref.watch(rmsBridgeSupabaseSyncApplyProvider);
 
     return AppDialog(
       maxWidth: 620,
@@ -1349,14 +1441,14 @@ class _SupabaseSyncDialogState extends ConsumerState<_SupabaseSyncDialog> {
           final lastFailureItems =
               applyState.lastResult?.failureItems ?? const [];
           for (final item in lastFailureItems) {
-            final code = (item.code ?? '').trim();
-            final key = code.isNotEmpty
-                ? 'c:$code'
+            final identifier = (item.identifier ?? '').trim();
+            final key = identifier.isNotEmpty
+                ? 'i:$identifier'
                 : 'n:${item.name.trim().toLowerCase()}';
             failedByKey[key] = item.message;
           }
 
-          return LayoutBuilder(
+          final body = LayoutBuilder(
             builder: (context, constraints) {
               final fallbackHeight = (MediaQuery.sizeOf(context).height * 0.72)
                   .clamp(360.0, 620.0);
@@ -1553,11 +1645,12 @@ class _SupabaseSyncDialogState extends ConsumerState<_SupabaseSyncDialog> {
 
                     final pendingItem = entry.pendingItem;
                     if (pendingItem != null) {
-                      final code = (pendingItem.code ?? '').trim();
+                      final identifier = (pendingItem.identifier ?? '').trim();
                       final isUpdate =
-                          pendingItem.action == ClientSupabaseSyncAction.update;
-                      final key = code.isNotEmpty
-                          ? 'c:$code'
+                          pendingItem.action ==
+                          RmsBridgeSupabaseSyncAction.update;
+                      final key = identifier.isNotEmpty
+                          ? 'i:$identifier'
                           : 'n:${pendingItem.name.trim().toLowerCase()}';
                       final failureMessage = failedByKey[key];
                       final dotColor = failureMessage != null
@@ -1581,11 +1674,11 @@ class _SupabaseSyncDialogState extends ConsumerState<_SupabaseSyncDialog> {
                               : [
                                   AppStrings
                                       .rmsBridgeSupabaseInsertActionTooltip,
-                                  if (code.isNotEmpty) code,
+                                  if (identifier.isNotEmpty) identifier,
                                 ].join('\n'));
                       return _SupabaseSyncChangeRow(
                         name: pendingItem.name,
-                        code: code.isEmpty ? null : code,
+                        code: identifier.isEmpty ? null : identifier,
                         dotColor: dotColor,
                         badgeLabel: badgeLabel,
                         badgeTooltip: badgeTooltip,
@@ -1593,10 +1686,10 @@ class _SupabaseSyncDialogState extends ConsumerState<_SupabaseSyncDialog> {
                     }
 
                     final issueItem = entry.issueItem!;
-                    final code = (issueItem.code ?? '').trim();
+                    final identifier = (issueItem.identifier ?? '').trim();
                     return _SupabaseSyncChangeRow(
                       name: issueItem.name,
-                      code: code.isEmpty ? null : code,
+                      code: identifier.isEmpty ? null : identifier,
                       dotColor: AppColors.danger,
                       badgeLabel: AppStrings.rmsBridgeSupabaseConflictLabel,
                       badgeTooltip: [
@@ -1626,91 +1719,185 @@ class _SupabaseSyncDialogState extends ConsumerState<_SupabaseSyncDialog> {
               );
             },
           );
+          return Stack(
+            children: [
+              body,
+              if (_isRefreshing)
+                Positioned.fill(
+                  child: ColoredBox(
+                    color: AppColors.white.withValues(alpha: 0.6),
+                    child: const Center(child: CircularProgressIndicator()),
+                  ),
+                ),
+            ],
+          );
         },
       ),
       actions: [
-        Tooltip(
-          message: previewAsync.maybeWhen(
-            data: (preview) {
-              if (!preview.isSupabaseConfigured) {
-                return preview.configurationIssue ??
-                    AppStrings.rmsBridgeSupabaseNotConfiguredHint;
-              }
-              if (preview.issueItems.isNotEmpty) {
-                return AppStrings.rmsBridgeSupabaseSyncDisabledIssuesTooltip;
-              }
-              if (preview.pendingItems.isEmpty) {
-                return AppStrings.rmsBridgeSupabaseSyncDisabledNoChangesTooltip;
-              }
-              return '';
-            },
-            orElse: () => '',
+        OutlinedButton(
+          onPressed: _isRefreshing
+              ? null
+              : () async {
+                  setState(() => _isRefreshing = true);
+                  try {
+                    final _ = await ref.refresh(
+                      rmsBridgeSupabaseSyncPreviewProvider(_request).future,
+                    );
+                  } finally {
+                    if (mounted) setState(() => _isRefreshing = false);
+                  }
+                },
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.textPrimary,
+            backgroundColor: AppColors.tableHeader,
+            minimumSize: const Size(110, AppHeights.button32),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16),
+            side: const BorderSide(color: AppColors.inputBorder),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadii.r8),
+            ),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton(
-                onPressed: previewAsync.maybeWhen(
-                  data: (preview) {
-                    final disabled =
-                        applyState.isSyncing ||
-                        !preview.isSupabaseConfigured ||
-                        preview.issueItems.isNotEmpty ||
-                        preview.pendingItems.isEmpty;
-                    if (disabled) return null;
-                    return () async {
-                      final confirmed = await _confirmSync(context, preview);
-                      if (!context.mounted) return;
-                      if (!confirmed) return;
-                      final result = await ref
-                          .read(clientsSupabaseSyncApplyProvider.notifier)
-                          .apply(_candidates);
-                      if (!context.mounted) return;
-                      if (result != null) {
-                        ref.invalidate(
-                          clientsSupabaseSyncPreviewProvider(_candidates),
+          child: _isRefreshing
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text(AppStrings.rmsBridgeRefresh),
+        ),
+        Builder(
+          builder: (context) {
+            final tooltipMessage = previewAsync.maybeWhen(
+              data: (preview) {
+                if (applyState.isSyncing) return '';
+                if (!preview.isSupabaseConfigured) {
+                  return preview.configurationIssue ??
+                      AppStrings.rmsBridgeSupabaseNotConfiguredHint;
+                }
+                if (preview.issueItems.isNotEmpty) {
+                  return AppStrings.rmsBridgeSupabaseSyncDisabledIssuesTooltip;
+                }
+                if (preview.pendingItems.isEmpty) {
+                  return AppStrings
+                      .rmsBridgeSupabaseSyncDisabledNoChangesTooltip;
+                }
+                return '';
+              },
+              orElse: () => '',
+            );
+
+            final isDisabled = previewAsync.maybeWhen(
+              data: (preview) =>
+                  applyState.isSyncing ||
+                  !preview.isSupabaseConfigured ||
+                  preview.issueItems.isNotEmpty ||
+                  preview.pendingItems.isEmpty,
+              orElse: () => true,
+            );
+
+            return Tooltip(
+              message: tooltipMessage,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ElevatedButton(
+                    onPressed: previewAsync.maybeWhen(
+                      data: (preview) {
+                        if (isDisabled) return null;
+                        return () async {
+                          final confirmed = await _confirmSync(
+                            context,
+                            preview,
+                          );
+                          if (!context.mounted) return;
+                          if (!confirmed) return;
+                          final result = await ref
+                              .read(rmsBridgeSupabaseSyncApplyProvider.notifier)
+                              .apply(_request);
+                          if (!context.mounted) return;
+                          if (result != null) {
+                            ref.invalidate(
+                              rmsBridgeSupabaseSyncPreviewProvider(_request),
+                            );
+                            await _showSyncResult(context, result);
+                          }
+                        };
+                      },
+                      orElse: () => null,
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(130, AppHeights.button32),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.s16,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppRadii.r8),
+                      ),
+                    ),
+                    child: applyState.isSyncing
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            AppStrings.rmsBridgeSupabaseApplySyncButton,
+                          ),
+                  ),
+                  if (!applyState.isSyncing &&
+                      isDisabled &&
+                      tooltipMessage.trim().isNotEmpty) ...[
+                    const SizedBox(width: AppSpacing.s10),
+                    OutlinedButton.icon(
+                      onPressed: () async {
+                        final message = tooltipMessage.trim();
+                        if (message.isEmpty) return;
+                        await Clipboard.setData(ClipboardData(text: message));
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              AppStrings.rmsBridgeCopiedToClipboard,
+                            ),
+                          ),
                         );
-                        await _showSyncResult(context, result);
-                      }
-                    };
-                  },
-                  orElse: () => null,
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(130, AppHeights.button32),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.s16,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppRadii.r8),
-                  ),
-                ),
-                child: applyState.isSyncing
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.textPrimary,
+                        backgroundColor: AppColors.tableHeader,
+                        minimumSize: const Size(140, AppHeights.button32),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.s12,
                         ),
-                      )
-                    : const Text(AppStrings.rmsBridgeSupabaseApplySyncButton),
+                        side: const BorderSide(color: AppColors.inputBorder),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppRadii.r8),
+                        ),
+                      ),
+                      icon: const Icon(Icons.copy, size: 16),
+                      label: const Text(AppStrings.rmsBridgeCopyError),
+                    ),
+                  ],
+                  if (applyState.isSyncing) ...[
+                    const SizedBox(width: AppSpacing.s10),
+                    const Text(
+                      AppStrings.rmsBridgeSupabaseSyncingInlineMessage,
+                      style: TextStyle(
+                        fontSize: AppFontSizes.label11,
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ],
               ),
-              if (applyState.isSyncing) ...[
-                const SizedBox(width: AppSpacing.s10),
-                const Text(
-                  AppStrings.rmsBridgeSupabaseSyncingInlineMessage,
-                  style: TextStyle(
-                    fontSize: AppFontSizes.label11,
-                    color: AppColors.textSecondary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ],
-          ),
+            );
+          },
         ),
         OutlinedButton(
           onPressed: () => Navigator.of(context).pop(),
@@ -1787,8 +1974,8 @@ class _SupabaseSyncMetricCell extends StatelessWidget {
 class _SupabaseSyncListEntry {
   final String? header;
   final String? message;
-  final ClientSupabaseSyncPlannedItem? pendingItem;
-  final ClientSupabaseSyncIssueItem? issueItem;
+  final RmsBridgeSupabaseSyncPlannedItem? pendingItem;
+  final RmsBridgeSupabaseSyncIssueItem? issueItem;
 
   const _SupabaseSyncListEntry.header(this.header)
     : message = null,

@@ -82,6 +82,24 @@ class ReservationDetailsPdfGenerator {
             agentServices: agentServices,
             generalServices: generalServices,
           ),
+          pw.SizedBox(height: 8),
+          pw.Align(
+            alignment: pw.Alignment.centerRight,
+            child: pw.Row(
+              mainAxisSize: pw.MainAxisSize.min,
+              children: [
+                pw.Text(
+                  'Add-ons / Pax:',
+                  style: const pw.TextStyle(fontSize: 11),
+                ),
+                pw.SizedBox(width: 16),
+                pw.Text(
+                  _formatMoney(additionalPerPax),
+                  style: const pw.TextStyle(fontSize: 11),
+                ),
+              ],
+            ),
+          ),
           pw.SizedBox(height: 12),
           pw.Align(
             alignment: pw.Alignment.centerRight,
@@ -978,6 +996,15 @@ class ReservationDetailsPdfGenerator {
     List<ReservationServiceSummary> agentServices,
     Decimal additionalPerPax,
   ) {
+    Decimal parseMoney(String raw) {
+      final trimmed = raw.trim();
+      if (trimmed.isEmpty) {
+        return Decimal.zero;
+      }
+      final normalized = trimmed.replaceAll(',', '');
+      return Decimal.tryParse(normalized) ?? Decimal.zero;
+    }
+
     final Map<String, _RoomLineAccumulator> acc = {};
     for (final s in agentServices) {
       final a = s.agentDetails;
@@ -996,6 +1023,19 @@ class ReservationDetailsPdfGenerator {
         current.qty += room.numberOfRooms;
         current.rn += room.totalRn;
         current.total += room.totalSale;
+        if (room.roomRates.isNotEmpty) {
+          var perRoomRoomTotalForHotelAndType = Decimal.zero;
+          for (final rate in room.roomRates) {
+            perRoomRoomTotalForHotelAndType += parseMoney(rate.saleRoom);
+          }
+          current.roomTotalAcrossHotels += perRoomRoomTotalForHotelAndType;
+        } else {
+          var perRoomRoomTotalForHotel = Decimal.zero;
+          for (final rate in a.roomRates) {
+            perRoomRoomTotalForHotel += parseMoney(rate.saleRoom);
+          }
+          current.roomTotalAcrossHotels += perRoomRoomTotalForHotel;
+        }
       }
     }
 
@@ -1003,19 +1043,14 @@ class ReservationDetailsPdfGenerator {
       final paxPerRoom = _paxPerRoomForRoomType(a.roomType);
       final paxDisplay = max(1, a.qty * paxPerRoom);
 
-      final qtyDecimal = Decimal.fromInt(max(1, a.qty));
       final paxPerRoomDecimal = Decimal.fromInt(max(1, paxPerRoom));
-
-      final salePerRoom = (a.total / qtyDecimal).toDecimal(
-        scaleOnInfinitePrecision: 6,
-      );
-      final baseRatePerPax = (salePerRoom / paxPerRoomDecimal).toDecimal(
-        scaleOnInfinitePrecision: 6,
-      );
+      final baseRatePerPax = (a.roomTotalAcrossHotels / paxPerRoomDecimal)
+          .toDecimal(scaleOnInfinitePrecision: 6);
       final rateWithAddOns = (baseRatePerPax + additionalPerPax).round(
         scale: 2,
       );
-      final totalWithAddOns = (rateWithAddOns * qtyDecimal).round(scale: 2);
+      final totalWithAddOns = (rateWithAddOns * Decimal.fromInt(paxDisplay))
+          .round(scale: 2);
       final nights = a.qty > 0 ? (a.rn / a.qty).round() : 0;
       return _RoomLine(
         roomType: a.roomType,
@@ -1162,6 +1197,7 @@ class _RoomLineAccumulator {
   int qty = 0;
   int rn = 0;
   Decimal total = Decimal.parse('0');
+  Decimal roomTotalAcrossHotels = Decimal.parse('0');
 }
 
 class _HotelSegmentLine {

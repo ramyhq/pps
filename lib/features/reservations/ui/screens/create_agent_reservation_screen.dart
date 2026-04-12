@@ -49,6 +49,19 @@ class _CreateAgentReservationScreenState
   bool _hasAppliedRates = false;
   bool _isRatesLoading = false;
 
+  void _resetRoomEntryUi() {
+    _hasAppliedRates = false;
+    _isRatesLoading = false;
+    _numberOfRoomsController.clear();
+    _saleRoomApplyController.clear();
+    _saleMealPerPaxApplyController.clear();
+    _costRoomApplyController.clear();
+    _costMealPerPaxApplyController.clear();
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -77,7 +90,15 @@ class _CreateAgentReservationScreenState
         return;
       }
       final notifier = ref.read(createAgentReservationProvider.notifier);
-      if (widget.reservationId == null) {
+      final serviceId = widget.serviceId;
+      final isEditingService =
+          serviceId != null && serviceId.trim().isNotEmpty;
+      if (!isEditingService) {
+        notifier.startNewServiceEntry();
+        _selectedHotelId = null;
+        _selectedSupplierId = null;
+        _resetRoomEntryUi();
+      } else if (widget.reservationId == null) {
         notifier.startNewReservation();
       }
       final currentState = ref.read(createAgentReservationProvider);
@@ -126,24 +147,25 @@ class _CreateAgentReservationScreenState
         } catch (_) {}
       });
     }
-    final serviceId = widget.serviceId;
-    if (serviceId != null && serviceId.trim().isNotEmpty) {
+    final editingServiceId = widget.serviceId;
+    if (editingServiceId != null && editingServiceId.trim().isNotEmpty) {
       Future<void>.microtask(() async {
         try {
           final draft = await ref
               .read(reservationsRepositoryProvider)
-              .fetchAgentServiceDraft(serviceId);
+              .fetchAgentServiceDraft(editingServiceId);
           if (!mounted) {
             return;
           }
           ref
               .read(createAgentReservationProvider.notifier)
-              .startEditingService(serviceId: serviceId, draft: draft);
+              .startEditingService(serviceId: editingServiceId, draft: draft);
           _guestNameController.text =
               ref.read(createAgentReservationProvider).guestName ?? '';
           _selectedHotelId = draft.hotelId;
           _selectedSupplierId = draft.supplierId;
           _setNightsText(ref.read(createAgentReservationProvider).nightsCount);
+          _resetRoomEntryUi();
           setState(() {});
         } catch (_) {}
       });
@@ -262,6 +284,34 @@ class _CreateAgentReservationScreenState
     return Decimal.tryParse(normalized) ?? Decimal.parse('0');
   }
 
+  String _roomUnitSaleWithMealText(AddedRoomSummary room) {
+    Decimal parseMoney(String raw) {
+      final trimmed = raw.trim();
+      if (trimmed.isEmpty) {
+        return Decimal.zero;
+      }
+      final normalized = trimmed.replaceAll(',', '');
+      return Decimal.tryParse(normalized) ?? Decimal.zero;
+    }
+
+    final rates = room.roomRates;
+    if (rates.isEmpty) {
+      return '-';
+    }
+    final firstNonEmpty = rates.firstWhere(
+      (r) => r.saleRoom.trim().isNotEmpty || r.saleMealPerPax.trim().isNotEmpty,
+      orElse: () => rates.first,
+    );
+    final paxPerRoom = CreateAgentReservationNotifier.paxPerRoomFor(
+      room.roomType,
+    );
+    final paxPerRoomDecimal = Decimal.fromInt(paxPerRoom);
+    final unit =
+        parseMoney(firstNonEmpty.saleRoom) +
+        (parseMoney(firstNonEmpty.saleMealPerPax) * paxPerRoomDecimal);
+    return _formatMoney(unit);
+  }
+
   String _formatFixed(Decimal value, int fractionDigits) {
     final text = value.toString();
     if (fractionDigits < 1) {
@@ -297,14 +347,16 @@ class _CreateAgentReservationScreenState
   }
 
   void _clearRoomDetailsForm() {
-    _hasAppliedRates = true;
+    _hasAppliedRates = false;
     _numberOfRoomsController.clear();
+    _saleRoomApplyController.clear();
+    _saleMealPerPaxApplyController.clear();
+    _costRoomApplyController.clear();
+    _costMealPerPaxApplyController.clear();
+    ref.read(createAgentReservationProvider.notifier).clearRoomFormState();
     if (mounted) {
       setState(() {});
     }
-    ref
-        .read(createAgentReservationProvider.notifier)
-        .clearRoomDetailsForNextEntry();
   }
 
   void _onAddOrEditRoomPressed() {
@@ -566,6 +618,7 @@ class _CreateAgentReservationScreenState
     if (reservationId == null) {
       return;
     }
+    _clearRoomForm();
     ref.invalidate(reservationDetailsProvider(reservationId));
     ref.invalidate(reservationOrdersProvider);
     context.go('/reservations/details?reservationId=$reservationId');
@@ -1845,6 +1898,7 @@ class _CreateAgentReservationScreenState
                                     _buildSummaryHeader('Total RN', flex: 2),
                                     _buildSummaryHeader('Room Type', flex: 3),
                                     _buildSummaryHeader('Meal Plan', flex: 2),
+                                    _buildSummaryHeader('Room Price', flex: 2),
                                     _buildSummaryHeader('Total Sale', flex: 2),
                                     _buildSummaryHeader('Total Cost', flex: 2),
                                     _buildSummaryHeader('Actions', flex: 2),
@@ -1933,6 +1987,10 @@ class _CreateAgentReservationScreenState
                                         ),
                                         _buildSummaryCell(
                                           room.mealPlan,
+                                          flex: 2,
+                                        ),
+                                        _buildSummaryCell(
+                                          _roomUnitSaleWithMealText(room),
                                           flex: 2,
                                         ),
                                         _buildSummaryCell(
@@ -2126,7 +2184,7 @@ class _CreateAgentReservationScreenState
                                 color: AppColors.secondary,
                                 child: Row(
                                   children: [
-                                    _buildSummaryCell('Total', flex: 9),
+                                    _buildSummaryCell('Total', flex: 11),
                                     _buildSummaryCell(
                                       _formatMoney(state.totalSale),
                                       flex: 2,

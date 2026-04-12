@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:pps/features/reservations/data/data_sources/reservations_remote_data_source.dart';
 import 'package:pps/features/reservations/data/dto/create_agent_reservation_payload_dto.dart';
 import 'package:pps/features/reservations/data/dto/general_service_payload_dto.dart';
@@ -179,9 +181,27 @@ class ReservationsRepositoryImpl implements ReservationsRepository {
   }) async {
     try {
       final payload = CreateAgentReservationPayloadDto.fromDomain(draft);
+      final payloadJson = payload.toJson();
+      payloadJson['roomsSummaryRates'] = draft.roomsSummary
+          .map((room) {
+            return room.roomRates
+                .map(
+                  (rate) => <String, dynamic>{
+                    'date': rate.date.toIso8601String(),
+                    'saleRoom': rate.saleRoom,
+                    'saleMealPerPax': rate.saleMealPerPax,
+                    'costRoom': rate.costRoom,
+                    'costMealPerPax': rate.costMealPerPax,
+                  },
+                )
+                .toList(growable: false);
+          })
+          .toList(growable: false);
       final created = await _remoteDataSource.addAgentService(
         reservationId: reservationId,
-        payload: payload,
+        payload: payloadJson,
+        totalSale: payload.totalSale,
+        totalCost: payload.totalCost,
       );
       return _mapSavedService(created);
     } on PostgrestException catch (error) {
@@ -242,9 +262,27 @@ class ReservationsRepositoryImpl implements ReservationsRepository {
   }) async {
     try {
       final payload = CreateAgentReservationPayloadDto.fromDomain(draft);
+      final payloadJson = payload.toJson();
+      payloadJson['roomsSummaryRates'] = draft.roomsSummary
+          .map((room) {
+            return room.roomRates
+                .map(
+                  (rate) => <String, dynamic>{
+                    'date': rate.date.toIso8601String(),
+                    'saleRoom': rate.saleRoom,
+                    'saleMealPerPax': rate.saleMealPerPax,
+                    'costRoom': rate.costRoom,
+                    'costMealPerPax': rate.costMealPerPax,
+                  },
+                )
+                .toList(growable: false);
+          })
+          .toList(growable: false);
       final updated = await _remoteDataSource.updateAgentService(
         serviceId: serviceId,
-        payload: payload,
+        payload: payloadJson,
+        totalSale: payload.totalSale,
+        totalCost: payload.totalCost,
       );
       return _mapSavedService(updated);
     } on PostgrestException catch (error) {
@@ -308,10 +346,9 @@ class ReservationsRepositoryImpl implements ReservationsRepository {
       if (rawPayload is! Map) {
         throw const ReservationDataException('Invalid agent payload.');
       }
-      final payload = CreateAgentReservationPayloadDto.fromJson(
-        Map<String, dynamic>.from(rawPayload),
-      );
-      return _mapAgentDraft(payload);
+      final map = Map<String, dynamic>.from(rawPayload);
+      final payload = CreateAgentReservationPayloadDto.fromJson(map);
+      return _mapAgentDraft(payload, map);
     } on PostgrestException catch (error) {
       throw ReservationDataException(error.message);
     } on AuthException catch (error) {
@@ -605,7 +642,7 @@ class ReservationsRepositoryImpl implements ReservationsRepository {
         switch (type) {
           case ReservationServiceType.agent:
             final dto = CreateAgentReservationPayloadDto.fromJson(map);
-            agentDetails = _mapAgentDraft(dto);
+            agentDetails = _mapAgentDraft(dto, map);
           case ReservationServiceType.general:
             final dto = GeneralServicePayloadDto.fromJson(map);
             generalDetails = _mapGeneralDraft(dto);
@@ -638,11 +675,15 @@ class ReservationsRepositoryImpl implements ReservationsRepository {
     return Decimal.tryParse(raw.trim()) ?? Decimal.parse('0');
   }
 
-  AgentReservationDraft _mapAgentDraft(CreateAgentReservationPayloadDto dto) {
+  AgentReservationDraft _mapAgentDraft(
+    CreateAgentReservationPayloadDto dto,
+    Map<String, dynamic> rawPayload,
+  ) {
     final arrivalDate =
         DateTime.tryParse(dto.arrivalDate)?.toLocal() ?? DateTime.now();
     final departureDate =
         DateTime.tryParse(dto.departureDate)?.toLocal() ?? DateTime.now();
+    final nightsCount = max(1, departureDate.difference(arrivalDate).inDays);
 
     final roomRates = dto.roomRates
         .map((rate) {
@@ -658,16 +699,86 @@ class ReservationsRepositoryImpl implements ReservationsRepository {
         })
         .toList(growable: false);
 
+    List<AgentReservationRoomRate> parseRoomRatesList(Object? raw) {
+      if (raw is! List) {
+        return const <AgentReservationRoomRate>[];
+      }
+      final parsed = <AgentReservationRoomRate>[];
+      for (final item in raw) {
+        if (item is! Map) {
+          continue;
+        }
+        final map = Map<String, dynamic>.from(item);
+        final date =
+            DateTime.tryParse(map['date']?.toString() ?? '')?.toLocal() ??
+            DateTime.now();
+        parsed.add(
+          AgentReservationRoomRate(
+            date: date,
+            saleRoom: map['saleRoom']?.toString() ?? '',
+            saleMealPerPax: map['saleMealPerPax']?.toString() ?? '',
+            costRoom: map['costRoom']?.toString() ?? '',
+            costMealPerPax: map['costMealPerPax']?.toString() ?? '',
+          ),
+        );
+      }
+      return parsed.toList(growable: false);
+    }
+
+    List<AgentReservationRoomRate> generateFallbackRoomRates({
+      required Decimal totalSale,
+      required int totalRn,
+    }) {
+      if (totalRn <= 0) {
+        return const <AgentReservationRoomRate>[];
+      }
+      final perRn = (totalSale / Decimal.fromInt(totalRn)).toDecimal(
+        scaleOnInfinitePrecision: 6,
+      );
+      return List<AgentReservationRoomRate>.generate(
+        nightsCount,
+        (i) => AgentReservationRoomRate(
+          date: arrivalDate.add(Duration(days: i)),
+          saleRoom: perRn.toString(),
+          saleMealPerPax: '',
+          costRoom: '',
+          costMealPerPax: '',
+        ),
+        growable: false,
+      );
+    }
+
+    final rawRoomsSummaryRates = rawPayload['roomsSummaryRates'];
+    final roomsSummaryRatesByIndex = rawRoomsSummaryRates is List
+        ? rawRoomsSummaryRates
+        : const <dynamic>[];
+
     final roomsSummary = dto.roomsSummary
-        .map((summary) {
+        .asMap()
+        .entries
+        .map((entry) {
+          final summary = entry.value;
+          final index = entry.key;
+          final totalSale = _parseDecimalOrZero(summary.totalSale);
+          final totalCost = _parseDecimalOrZero(summary.totalCost);
+          final extractedRates = index < roomsSummaryRatesByIndex.length
+              ? parseRoomRatesList(roomsSummaryRatesByIndex[index])
+              : const <AgentReservationRoomRate>[];
+          final roomRatesForSummary = extractedRates.isEmpty
+              ? generateFallbackRoomRates(
+                  totalSale: totalSale,
+                  totalRn: summary.totalRn,
+                )
+              : extractedRates;
           return AgentReservationRoomSummary(
             numberOfRooms: summary.numberOfRooms,
             totalRn: summary.totalRn,
             roomType: summary.roomType,
             mealPlan: summary.mealPlan,
             pax: summary.pax,
-            totalSale: _parseDecimalOrZero(summary.totalSale),
-            totalCost: _parseDecimalOrZero(summary.totalCost),
+            totalSale: totalSale,
+            totalCost: totalCost,
+            roomRates: roomRatesForSummary,
           );
         })
         .toList(growable: false);

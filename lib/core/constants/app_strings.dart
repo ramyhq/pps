@@ -75,6 +75,9 @@ class AppStrings {
   static const rmsBridgeExportExcel = 'Export Excel';
   static const rmsBridgeExportJson = 'Export JSON';
   static const rmsBridgeSupabaseSync = 'Supabase Sync';
+  static const rmsBridgeRefresh = 'Refresh';
+  static const rmsBridgeCopyError = 'Copy error';
+  static const rmsBridgeCopiedToClipboard = 'Copied to clipboard';
   static const rmsBridgeSupabaseSyncDialogTitle = 'Supabase Sync';
   static const rmsBridgeModelClients = 'Clients';
   static const rmsBridgeModelSuppliers = 'Suppliers';

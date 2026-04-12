@@ -1912,6 +1912,47 @@ class ReservationDetailsScreen extends ConsumerWidget {
       return parsed == null ? raw : _formatMoney(parsed);
     }
 
+    String roomRateTextForSummary(AgentReservationRoomSummary room) {
+      int paxPerRoomForRoomType(String roomType) {
+        final normalized = roomType.trim().toLowerCase();
+        if (normalized == 'triple' || normalized == 'trip') {
+          return 3;
+        }
+        if (normalized == 'quad') {
+          return 4;
+        }
+        if (normalized == 'quent' || normalized == 'quint') {
+          return 5;
+        }
+        return 2;
+      }
+
+      Decimal parseMoney(String raw) {
+        final trimmed = raw.trim();
+        if (trimmed.isEmpty) {
+          return Decimal.zero;
+        }
+        final normalized = trimmed.replaceAll(',', '');
+        return Decimal.tryParse(normalized) ?? Decimal.zero;
+      }
+
+      final rates = room.roomRates;
+      if (rates.isEmpty) {
+        return '-';
+      }
+      final firstNonEmpty = rates.firstWhere(
+        (r) =>
+            r.saleRoom.trim().isNotEmpty || r.saleMealPerPax.trim().isNotEmpty,
+        orElse: () => rates.first,
+      );
+      final paxPerRoom = paxPerRoomForRoomType(room.roomType);
+      final unit =
+          parseMoney(firstNonEmpty.saleRoom) +
+          (parseMoney(firstNonEmpty.saleMealPerPax) *
+              Decimal.fromInt(paxPerRoom));
+      return _formatMoney(unit);
+    }
+
     final headerStyle = TextStyle(
       fontSize: 11,
       fontWeight: FontWeight.w700,
@@ -2085,7 +2126,7 @@ class ReservationDetailsScreen extends ConsumerWidget {
                           textAlign: TextAlign.center,
                         ),
                         _TableCellData(
-                          text: roomRateText,
+                          text: roomRateTextForSummary(room),
                           width: 120,
                           alignment: Alignment.center,
                           textAlign: TextAlign.center,

@@ -93,6 +93,7 @@ class AgentReservationRoomSummary extends Equatable {
     required this.pax,
     required this.totalSale,
     required this.totalCost,
+    this.roomRates = const <AgentReservationRoomRate>[],
   });
 
   final int numberOfRooms;
@@ -102,6 +103,7 @@ class AgentReservationRoomSummary extends Equatable {
   final int pax;
   final Decimal totalSale;
   final Decimal totalCost;
+  final List<AgentReservationRoomRate> roomRates;
 
   @override
   List<Object?> get props => <Object?>[
@@ -112,5 +114,6 @@ class AgentReservationRoomSummary extends Equatable {
     pax,
     totalSale,
     totalCost,
+    roomRates,
   ];
 }

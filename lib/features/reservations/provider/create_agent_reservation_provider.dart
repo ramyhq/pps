@@ -118,6 +118,31 @@ class CreateAgentReservationNotifier
           ),
         )
         .toList(growable: false);
+    final clearedDraftRates = draftRates
+        .map(
+          (rate) => rate.copyWith(
+            saleRoom: '',
+            saleMealPerPax: '',
+            costRoom: '',
+            costMealPerPax: '',
+          ),
+        )
+        .toList(growable: false);
+
+    List<RoomDayRate> toRoomDayRates(List<AgentReservationRoomRate> rates) {
+      return rates
+          .map(
+            (rate) => RoomDayRate(
+              date: rate.date,
+              saleRoom: rate.saleRoom,
+              saleMealPerPax: rate.saleMealPerPax,
+              costRoom: rate.costRoom,
+              costMealPerPax: rate.costMealPerPax,
+            ),
+          )
+          .toList(growable: false);
+    }
+
     final next = state.copyWith(
       editingServiceId: serviceId,
       arrivalDate: draft.arrivalDate,
@@ -129,10 +154,10 @@ class CreateAgentReservationNotifier
       hotelCity: draft.hotelCity,
       supplierId: draft.supplierId,
       supplierName: draft.supplierName,
-      selectedRoomType: draft.selectedRoomType,
-      selectedMealPlan: draft.selectedMealPlan,
+      selectedRoomType: null,
+      selectedMealPlan: null,
       selectedWeekdays: <int>{},
-      roomRates: draftRates,
+      roomRates: clearedDraftRates,
       addedRooms: draft.roomsSummary
           .map(
             (room) => AddedRoomSummary(
@@ -143,13 +168,16 @@ class CreateAgentReservationNotifier
               pax: room.pax,
               totalSale: room.totalSale,
               totalCost: room.totalCost,
-              roomRates: draftRates,
+              roomRates: room.roomRates.isEmpty
+                  ? draftRates
+                  : toRoomDayRates(room.roomRates),
               isManualRate: false,
             ),
           )
           .toList(growable: false),
       clearLastSaveError: true,
       clearLastSavedServiceDisplayNo: true,
+      clearEditingRoomIndex: true,
     );
     state = _syncRoomRatesWithDates(next);
   }
@@ -157,6 +185,40 @@ class CreateAgentReservationNotifier
   void startNewReservation() {
     final next = _syncRoomRatesWithDates(CreateAgentReservationState.initial());
     state = next;
+  }
+
+  void startNewServiceEntry() {
+    final now = DateTime.now();
+    final arrivalDate = DateTime(now.year, now.month, now.day);
+    final next = CreateAgentReservationState(
+      reservationId: state.reservationId,
+      editingServiceId: null,
+      editingRoomIndex: null,
+      roomRatesRevision: state.roomRatesRevision + 1,
+      selectedClientId: state.selectedClientId,
+      clientOptionDate: state.clientOptionDate,
+      guestName: state.guestName,
+      guestNationality: state.guestNationality,
+      arrivalDate: arrivalDate,
+      departureDate: arrivalDate.add(const Duration(days: 1)),
+      isManualRate: false,
+      isPricesWithoutVat: false,
+      hotelId: null,
+      hotelName: null,
+      hotelCity: null,
+      supplierId: null,
+      supplierName: null,
+      selectedRoomType: null,
+      selectedMealPlan: null,
+      selectedWeekdays: <int>{},
+      roomRates: const <RoomDayRate>[],
+      addedRooms: const <AddedRoomSummary>[],
+      isSaving: false,
+      lastSaveError: null,
+      lastSavedReservationId: state.lastSavedReservationId,
+      lastSavedServiceDisplayNo: null,
+    );
+    state = _syncRoomRatesWithDates(next);
   }
 
   void setSelectedClientId(int? value) {
@@ -568,6 +630,8 @@ class CreateAgentReservationNotifier
     if (source.arrivalDate == null || source.nightsCount < 1) {
       return source.copyWith(roomRates: const <RoomDayRate>[]);
     }
+    final arrivalDate = source.arrivalDate!;
+    final nightsCount = source.nightsCount;
     final existingByDate = <int, RoomDayRate>{
       for (final rate in source.roomRates)
         DateTime(
@@ -577,9 +641,9 @@ class CreateAgentReservationNotifier
         ).millisecondsSinceEpoch: rate,
     };
     final nextRates = <RoomDayRate>[];
-    for (var i = 0; i < source.nightsCount; i++) {
+    for (var i = 0; i < nightsCount; i++) {
       //CALCULATIONS تاريخ صف الليلة = تاريخ الوصول + رقم الليلة داخل الحلقة.
-      final date = source.arrivalDate!.add(Duration(days: i));
+      final date = arrivalDate.add(Duration(days: i));
       final dateKey = DateTime(
         date.year,
         date.month,
@@ -587,7 +651,112 @@ class CreateAgentReservationNotifier
       ).millisecondsSinceEpoch;
       nextRates.add(existingByDate[dateKey] ?? RoomDayRate(date: date));
     }
-    return source.copyWith(roomRates: nextRates);
+
+    final nextRooms = source.addedRooms.isEmpty
+        ? source.addedRooms
+        : source.addedRooms
+              .map(
+                (room) => _syncAddedRoomSummaryWithDates(
+                  room,
+                  arrivalDate: arrivalDate,
+                  nightsCount: nightsCount,
+                  fallbackRates: nextRates,
+                ),
+              )
+              .toList(growable: false);
+
+    return source.copyWith(roomRates: nextRates, addedRooms: nextRooms);
+  }
+
+  AddedRoomSummary _syncAddedRoomSummaryWithDates(
+    AddedRoomSummary room, {
+    required DateTime arrivalDate,
+    required int nightsCount,
+    required List<RoomDayRate> fallbackRates,
+  }) {
+    final paxPerRoom = paxPerRoomFor(room.roomType);
+    final pax = room.numberOfRooms * paxPerRoom;
+    final totalRn = room.numberOfRooms * nightsCount;
+    final baseRates = room.roomRates.isEmpty ? fallbackRates : room.roomRates;
+    final syncedRates = _syncRoomRatesListWithDates(
+      roomRates: baseRates,
+      arrivalDate: arrivalDate,
+      nightsCount: nightsCount,
+    );
+    final totals = _calculateTotalsForRates(
+      roomRates: syncedRates,
+      roomCount: room.numberOfRooms,
+      pax: pax,
+    );
+    return AddedRoomSummary(
+      numberOfRooms: room.numberOfRooms,
+      totalRn: totalRn,
+      roomType: room.roomType,
+      mealPlan: room.mealPlan,
+      pax: pax,
+      totalSale: totals.totalSale,
+      totalCost: totals.totalCost,
+      roomRates: syncedRates,
+      isManualRate: room.isManualRate,
+    );
+  }
+
+  List<RoomDayRate> _syncRoomRatesListWithDates({
+    required List<RoomDayRate> roomRates,
+    required DateTime arrivalDate,
+    required int nightsCount,
+  }) {
+    if (nightsCount < 1) {
+      return const <RoomDayRate>[];
+    }
+    final byDateKey = <int, RoomDayRate>{
+      for (final rate in roomRates)
+        DateTime(
+          rate.date.year,
+          rate.date.month,
+          rate.date.day,
+        ).millisecondsSinceEpoch: rate,
+    };
+    final nextRates = <RoomDayRate>[];
+    for (var i = 0; i < nightsCount; i++) {
+      final date = arrivalDate.add(Duration(days: i));
+      final dateKey = DateTime(
+        date.year,
+        date.month,
+        date.day,
+      ).millisecondsSinceEpoch;
+      nextRates.add(byDateKey[dateKey] ?? RoomDayRate(date: date));
+    }
+    return nextRates;
+  }
+
+  RoomTotals _calculateTotalsForRates({
+    required List<RoomDayRate> roomRates,
+    required int roomCount,
+    required int pax,
+  }) {
+    var totalSale = Decimal.parse('0');
+    var totalCost = Decimal.parse('0');
+    final roomCountDecimal = Decimal.fromInt(roomCount);
+    final paxDecimal = Decimal.fromInt(pax);
+
+    for (final rate in roomRates) {
+      final saleRoom = _parseMoney(rate.saleRoom);
+      final saleMealPerPax = _parseMoney(rate.saleMealPerPax);
+      final costRoom = _parseMoney(rate.costRoom);
+      final costMealPerPax = _parseMoney(rate.costMealPerPax);
+
+      totalSale =
+          totalSale +
+          (saleRoom * roomCountDecimal) +
+          (saleMealPerPax * paxDecimal);
+      totalCost =
+          totalCost +
+          (costRoom * roomCountDecimal) +
+          (costMealPerPax * paxDecimal);
+    }
+
+    return RoomTotals(totalSale: totalSale, totalCost: totalCost);
   }
 
   RoomTotals _calculateTotals({required int roomCount, required int pax}) {
@@ -629,6 +798,19 @@ class CreateAgentReservationNotifier
   }
 
   AgentReservationDraft _toDomainDraft(CreateAgentReservationState source) {
+    List<RoomDayRate> fallbackRoomRates() {
+      if (_hasAnyRateValue(source.roomRates)) {
+        return source.roomRates;
+      }
+      for (final room in source.addedRooms) {
+        if (_hasAnyRateValue(room.roomRates)) {
+          return room.roomRates;
+        }
+      }
+      return source.roomRates;
+    }
+
+    final roomRatesSnapshot = fallbackRoomRates();
     return AgentReservationDraft(
       arrivalDate: source.arrivalDate!,
       departureDate: source.departureDate!,
@@ -641,7 +823,7 @@ class CreateAgentReservationNotifier
       supplierName: source.supplierName,
       selectedRoomType: source.selectedRoomType,
       selectedMealPlan: source.selectedMealPlan,
-      roomRates: source.roomRates
+      roomRates: roomRatesSnapshot
           .map(
             (rate) => AgentReservationRoomRate(
               date: rate.date,
@@ -662,6 +844,17 @@ class CreateAgentReservationNotifier
               pax: room.pax,
               totalSale: room.totalSale,
               totalCost: room.totalCost,
+              roomRates: room.roomRates
+                  .map(
+                    (rate) => AgentReservationRoomRate(
+                      date: rate.date,
+                      saleRoom: rate.saleRoom,
+                      saleMealPerPax: rate.saleMealPerPax,
+                      costRoom: rate.costRoom,
+                      costMealPerPax: rate.costMealPerPax,
+                    ),
+                  )
+                  .toList(growable: false),
             ),
           )
           .toList(growable: false),
@@ -669,6 +862,18 @@ class CreateAgentReservationNotifier
       totalSale: source.totalSale,
       totalCost: source.totalCost,
     );
+  }
+
+  bool _hasAnyRateValue(List<RoomDayRate> rates) {
+    for (final rate in rates) {
+      if (rate.saleRoom.trim().isNotEmpty ||
+          rate.saleMealPerPax.trim().isNotEmpty ||
+          rate.costRoom.trim().isNotEmpty ||
+          rate.costMealPerPax.trim().isNotEmpty) {
+        return true;
+      }
+    }
+    return false;
   }
 
   CreateAgentReservationState _clearServiceForNewEntry(

@@ -1,4 +1,3 @@
-import 'package:pps/features/reservations/data/dto/create_agent_reservation_payload_dto.dart';
 import 'package:pps/features/reservations/data/dto/general_service_payload_dto.dart';
 import 'package:pps/features/reservations/data/dto/transportation_service_payload_dto.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -213,7 +212,9 @@ class ReservationsRemoteDataSource {
 
   Future<Map<String, dynamic>> addAgentService({
     required String reservationId,
-    required CreateAgentReservationPayloadDto payload,
+    required Map<String, dynamic> payload,
+    required String totalSale,
+    required String totalCost,
   }) async {
     final client = _requireClient();
     final created = await client
@@ -221,9 +222,9 @@ class ReservationsRemoteDataSource {
         .insert(<String, dynamic>{
           'reservation_id': reservationId,
           'service_type': 'agent',
-          'payload': payload.toJson(),
-          'total_sale': payload.totalSale,
-          'total_cost': payload.totalCost,
+          'payload': payload,
+          'total_sale': totalSale,
+          'total_cost': totalCost,
         })
         .select('id,display_no')
         .single();
@@ -321,15 +322,17 @@ class ReservationsRemoteDataSource {
 
   Future<Map<String, dynamic>> updateAgentService({
     required String serviceId,
-    required CreateAgentReservationPayloadDto payload,
+    required Map<String, dynamic> payload,
+    required String totalSale,
+    required String totalCost,
   }) async {
     final client = _requireClient();
     final updated = await client
         .from('reservation_services')
         .update(<String, dynamic>{
-          'payload': payload.toJson(),
-          'total_sale': payload.totalSale,
-          'total_cost': payload.totalCost,
+          'payload': payload,
+          'total_sale': totalSale,
+          'total_cost': totalCost,
         })
         .eq('id', serviceId)
         .select('id,display_no')

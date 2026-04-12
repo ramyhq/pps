@@ -27,6 +27,7 @@ void main() {
         ),
       ),
     );
+    await tester.pumpAndSettle();
 
     final roomDetailsHeader = find.text('Room details');
     final roomDetailsCard = find
@@ -82,14 +83,14 @@ void main() {
     await tester.tap(find.text('Add'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Double'), findsAtLeastNWidgets(2));
-    expect(find.text('BB'), findsAtLeastNWidgets(2));
+    expect(find.text('Double'), findsAtLeastNWidgets(1));
+    expect(find.text('BB'), findsAtLeastNWidgets(1));
     final rnCheckIcon = find.descendant(
       of: roomDetailsCard,
       matching: find.byIcon(Icons.check_circle),
     );
     expect(rnCheckIcon, findsAtLeastNWidgets(1));
-    expect(find.text('4'), findsAtLeastNWidgets(1));
+    expect(find.text('2'), findsAtLeastNWidgets(1));
   });
 
   testWidgets('Edit restores daily rates and apply inputs', (tester) async {
@@ -112,6 +113,7 @@ void main() {
         ),
       ),
     );
+    await tester.pumpAndSettle();
 
     final roomDetailsHeader = find.text('Room details');
     final roomDetailsCard = find
@@ -167,7 +169,7 @@ void main() {
     await tester.tap(find.text('Add'));
     await tester.pumpAndSettle();
 
-    final editIcon = find.byIcon(Icons.edit_outlined).first;
+    final editIcon = find.byIcon(Icons.edit_outlined, skipOffstage: false).first;
     await tester.ensureVisible(editIcon);
     await tester.tap(editIcon);
     await tester.pumpAndSettle();

@@ -4896,3 +4896,6 @@
 <!-- end::Body -->
 
 </html>
+
+((roomPrice for hotel1 * nights)+(roomPrice for hotel2 * nights)+(roomPrice for hotel3 * nights)
+)/roomPax
