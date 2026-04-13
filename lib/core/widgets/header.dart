@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_strings.dart';
+import '../../features/reservations/provider/create_agent_reservation_provider.dart';
 import '../../features/reservations/provider/reservations_data_providers.dart';
 import 'custom_form_fields.dart';
 
@@ -182,15 +183,17 @@ class _HeaderState extends ConsumerState<Header> {
         return;
       }
 
+      final flowKey = DateTime.now().microsecondsSinceEpoch.toString();
       switch (selected) {
         case _HeaderCreateAction.addAgentDirect:
-          context.go('/reservations/create-agent');
+          ref.invalidate(createAgentReservationProvider);
+          context.go('/reservations/create-agent?flow=$flowKey');
           return;
         case _HeaderCreateAction.addGeneral:
-          context.go('/reservations/create-general');
+          context.go('/reservations/create-general?flow=$flowKey');
           return;
         case _HeaderCreateAction.addTransport:
-          context.go('/reservations/create-transportation');
+          context.go('/reservations/create-transportation?flow=$flowKey');
           return;
       }
     } finally {

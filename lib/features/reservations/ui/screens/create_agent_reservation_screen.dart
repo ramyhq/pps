@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:decimal/decimal.dart';
@@ -6,8 +8,11 @@ import 'package:intl/intl.dart';
 import 'package:pps/core/constants/app_colors.dart';
 import 'package:pps/core/widgets/app_dialog.dart';
 import 'package:pps/core/widgets/custom_form_fields.dart';
+import 'package:pps/l10n/app_localizations.dart';
 import 'package:pps/features/reservations/provider/create_agent_reservation_provider.dart';
 import 'package:pps/features/reservations/provider/reservations_data_providers.dart';
+
+enum _RoomRateResetChoice { keepPrices, resetPrices }
 
 class CreateAgentReservationScreen extends ConsumerStatefulWidget {
   const CreateAgentReservationScreen({
@@ -35,6 +40,8 @@ class _CreateAgentReservationScreenState
   late final ProviderSubscription<CreateAgentReservationState>
   _nightsSyncSubscription;
   bool _isUpdatingNightsField = false;
+  Timer? _nightsDebounce;
+  bool _isNightsDialogOpen = false;
   int? _selectedHotelId;
   int? _selectedSupplierId;
   final TextEditingController _saleRoomApplyController =
@@ -91,8 +98,7 @@ class _CreateAgentReservationScreenState
       }
       final notifier = ref.read(createAgentReservationProvider.notifier);
       final serviceId = widget.serviceId;
-      final isEditingService =
-          serviceId != null && serviceId.trim().isNotEmpty;
+      final isEditingService = serviceId != null && serviceId.trim().isNotEmpty;
       if (!isEditingService) {
         notifier.startNewServiceEntry();
         _selectedHotelId = null;
@@ -105,6 +111,7 @@ class _CreateAgentReservationScreenState
       _setNightsText(currentState.nightsCount);
       notifier.setReservationContext(
         reservationId: widget.reservationId,
+        reservationNo: currentState.reservationNo,
         clientId: currentState.selectedClientId,
         clientOptionDate: currentState.clientOptionDate,
         guestName: currentState.guestName,
@@ -139,6 +146,7 @@ class _CreateAgentReservationScreenState
               .read(createAgentReservationProvider.notifier)
               .setReservationContext(
                 reservationId: reservationId,
+                reservationNo: details.order.reservationNo,
                 clientId: details.order.client.id,
                 clientOptionDate: details.order.clientOptionDate,
                 guestName: details.order.guestName,
@@ -174,6 +182,7 @@ class _CreateAgentReservationScreenState
 
   @override
   void dispose() {
+    _nightsDebounce?.cancel();
     _nightsController.dispose();
     _guestNameController.dispose();
     _nightsFocusNode.dispose();
@@ -189,20 +198,218 @@ class _CreateAgentReservationScreenState
 
   void _onArrivalDateChanged(DateTime date) {
     _hasAppliedRates = false;
-    final notifier = ref.read(createAgentReservationProvider.notifier);
-    notifier.onArrivalDateChanged(
-      date: date,
-      desiredNights: _parseNightsInput(),
-    );
-    _setNightsText(ref.read(createAgentReservationProvider).nightsCount);
+    Future<void>.microtask(() async {
+      await _handleArrivalDateChanged(date);
+    });
   }
 
   void _onDepartureDateChanged(DateTime date) {
     _hasAppliedRates = false;
-    ref
-        .read(createAgentReservationProvider.notifier)
-        .onDepartureDateChanged(date);
-    _setNightsText(ref.read(createAgentReservationProvider).nightsCount);
+    Future<void>.microtask(() async {
+      await _handleDepartureDateChanged(date);
+    });
+  }
+
+  bool _hasAnyRateValue(List<RoomDayRate> rates) {
+    for (final rate in rates) {
+      if (rate.saleRoom.trim().isNotEmpty ||
+          rate.saleMealPerPax.trim().isNotEmpty ||
+          rate.costRoom.trim().isNotEmpty ||
+          rate.costMealPerPax.trim().isNotEmpty) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  Future<_RoomRateResetChoice?> _confirmRoomRateResetDialog() async {
+    final l10n = AppLocalizations.of(context)!;
+    final result = await showDialog<_RoomRateResetChoice>(
+      context: context,
+      builder: (dialogContext) {
+        return AppDialog(
+          maxWidth: 520,
+          title: Text(
+            l10n.changeDatesTitle,
+            style: const TextStyle(
+              fontSize: AppFontSizes.title14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          content: Text(
+            l10n.changeDatesMessage,
+            style: const TextStyle(
+              fontSize: AppFontSizes.title13,
+              color: AppColors.textPrimary,
+              height: 1.4,
+            ),
+          ),
+          actions: [
+            OutlinedButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.textPrimary,
+                backgroundColor: AppColors.tableHeader,
+                minimumSize: const Size(110, AppHeights.button32),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16),
+                side: const BorderSide(color: AppColors.inputBorder),
+              ),
+              child: Text(l10n.cancel),
+            ),
+            OutlinedButton(
+              onPressed: () => Navigator.of(
+                dialogContext,
+              ).pop(_RoomRateResetChoice.keepPrices),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.textPrimary,
+                backgroundColor: Colors.white,
+                minimumSize: const Size(130, AppHeights.button32),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16),
+                side: const BorderSide(color: AppColors.inputBorder),
+              ),
+              child: Text(l10n.keepPrices),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(
+                dialogContext,
+              ).pop(_RoomRateResetChoice.resetPrices),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.danger,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(130, AppHeights.button32),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadii.r4),
+                ),
+              ),
+              child: Text(l10n.resetPrices),
+            ),
+          ],
+        );
+      },
+    );
+    return result;
+  }
+
+  Future<void> _handleArrivalDateChanged(DateTime date) async {
+    if (!mounted) {
+      return;
+    }
+    final state = ref.read(createAgentReservationProvider);
+    final hasAnyRates =
+        _hasAnyRateValue(state.roomRates) ||
+        state.addedRooms.any((room) => _hasAnyRateValue(room.roomRates));
+
+    final notifier = ref.read(createAgentReservationProvider.notifier);
+    if (!hasAnyRates) {
+      notifier.onArrivalDateChanged(
+        date: date,
+        desiredNights: _parseNightsInput(),
+      );
+      _setNightsText(ref.read(createAgentReservationProvider).nightsCount);
+      return;
+    }
+
+    final choice = await _confirmRoomRateResetDialog();
+    if (!mounted) {
+      return;
+    }
+    switch (choice) {
+      case _RoomRateResetChoice.keepPrices:
+        notifier.onArrivalDateChangedPreserveRates(
+          date: date,
+          desiredNights: _parseNightsInput(),
+        );
+        _setNightsText(ref.read(createAgentReservationProvider).nightsCount);
+        return;
+      case _RoomRateResetChoice.resetPrices:
+        notifier.onArrivalDateChangedWithRateReset(
+          date: date,
+          desiredNights: _parseNightsInput(),
+        );
+        _setNightsText(ref.read(createAgentReservationProvider).nightsCount);
+        return;
+      case null:
+        setState(() {});
+        _setNightsText(ref.read(createAgentReservationProvider).nightsCount);
+        return;
+    }
+  }
+
+  Future<void> _handleDepartureDateChanged(DateTime date) async {
+    if (!mounted) {
+      return;
+    }
+    final state = ref.read(createAgentReservationProvider);
+    final hasAnyRates =
+        _hasAnyRateValue(state.roomRates) ||
+        state.addedRooms.any((room) => _hasAnyRateValue(room.roomRates));
+    final notifier = ref.read(createAgentReservationProvider.notifier);
+    if (!hasAnyRates) {
+      notifier.onDepartureDateChanged(date);
+      _setNightsText(ref.read(createAgentReservationProvider).nightsCount);
+      return;
+    }
+
+    final choice = await _confirmRoomRateResetDialog();
+    if (!mounted) {
+      return;
+    }
+    switch (choice) {
+      case _RoomRateResetChoice.keepPrices:
+        notifier.onDepartureDateChangedPreserveRates(date);
+        _setNightsText(ref.read(createAgentReservationProvider).nightsCount);
+        return;
+      case _RoomRateResetChoice.resetPrices:
+        notifier.onDepartureDateChangedWithRateReset(date);
+        _setNightsText(ref.read(createAgentReservationProvider).nightsCount);
+        return;
+      case null:
+        setState(() {});
+        _setNightsText(ref.read(createAgentReservationProvider).nightsCount);
+        return;
+    }
+  }
+
+  Future<void> _handleNightsChanged(int nights) async {
+    if (!mounted || _isNightsDialogOpen) {
+      return;
+    }
+    final currentState = ref.read(createAgentReservationProvider);
+    if (nights == currentState.nightsCount) {
+      return;
+    }
+    final hasAnyRates =
+        _hasAnyRateValue(currentState.roomRates) ||
+        currentState.addedRooms.any((room) => _hasAnyRateValue(room.roomRates));
+    final notifier = ref.read(createAgentReservationProvider.notifier);
+    if (!hasAnyRates) {
+      notifier.onNightsChanged(nights);
+      _setNightsText(ref.read(createAgentReservationProvider).nightsCount);
+      return;
+    }
+
+    _isNightsDialogOpen = true;
+    final choice = await _confirmRoomRateResetDialog();
+    _isNightsDialogOpen = false;
+    if (!mounted) {
+      return;
+    }
+    switch (choice) {
+      case _RoomRateResetChoice.keepPrices:
+        notifier.onNightsChangedPreserveRates(nights);
+        _setNightsText(ref.read(createAgentReservationProvider).nightsCount);
+        return;
+      case _RoomRateResetChoice.resetPrices:
+        notifier.onNightsChangedWithRateReset(nights);
+        _setNightsText(ref.read(createAgentReservationProvider).nightsCount);
+        return;
+      case null:
+        setState(() {});
+        _setNightsText(ref.read(createAgentReservationProvider).nightsCount);
+        return;
+    }
   }
 
   int _parseNightsInput() {
@@ -232,7 +439,15 @@ class _CreateAgentReservationScreenState
       return;
     }
     _hasAppliedRates = false;
-    ref.read(createAgentReservationProvider.notifier).onNightsChanged(nights);
+    _nightsDebounce?.cancel();
+    _nightsDebounce = Timer(const Duration(milliseconds: 450), () {
+      if (!mounted) {
+        return;
+      }
+      Future<void>.microtask(() async {
+        await _handleNightsChanged(nights);
+      });
+    });
   }
 
   void _applyRatesToAllDays() {
@@ -551,6 +766,7 @@ class _CreateAgentReservationScreenState
     }
 
     final currentState = ref.read(createAgentReservationProvider);
+    final l10n = AppLocalizations.of(context)!;
     final messenger = ScaffoldMessenger.of(context);
     messenger.hideCurrentSnackBar();
     if (success) {
@@ -566,13 +782,14 @@ class _CreateAgentReservationScreenState
       }
       return reservationId == '-' ? null : reservationId;
     }
+    final rawError = currentState.lastSaveError;
+    final message = switch (rawError) {
+      'errorRoomPricesReset' => l10n.errorRoomPricesReset,
+      'errorRoomPricesZero' => l10n.errorRoomPricesZero,
+      _ => rawError ?? 'Failed to save reservation',
+    };
     messenger.showSnackBar(
-      SnackBar(
-        content: Text(
-          currentState.lastSaveError ?? 'Failed to save reservation',
-        ),
-        backgroundColor: AppColors.danger,
-      ),
+      SnackBar(content: Text(message), backgroundColor: AppColors.danger),
     );
     return null;
   }

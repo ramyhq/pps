@@ -59,6 +59,30 @@ class CreateAgentReservationNotifier
     state = _syncRoomRatesWithDates(next);
   }
 
+  void onArrivalDateChangedPreserveRates({
+    required DateTime date,
+    required int desiredNights,
+  }) {
+    final normalizedDate = DateTime(date.year, date.month, date.day);
+    final next = state.copyWith(
+      arrivalDate: normalizedDate,
+      departureDate: normalizedDate.add(Duration(days: desiredNights)),
+    );
+    state = _preserveRoomRatesAfterDatesChange(next);
+  }
+
+  void onArrivalDateChangedWithRateReset({
+    required DateTime date,
+    required int desiredNights,
+  }) {
+    final normalizedDate = DateTime(date.year, date.month, date.day);
+    final next = state.copyWith(
+      arrivalDate: normalizedDate,
+      departureDate: normalizedDate.add(Duration(days: desiredNights)),
+    );
+    state = _resetRoomRatesAfterDateChange(next);
+  }
+
   void onDepartureDateChanged(DateTime date) {
     final arrivalDate = state.arrivalDate;
     if (arrivalDate == null || !date.isAfter(arrivalDate)) {
@@ -68,6 +92,28 @@ class CreateAgentReservationNotifier
       departureDate: DateTime(date.year, date.month, date.day),
     );
     state = _syncRoomRatesWithDates(next);
+  }
+
+  void onDepartureDateChangedPreserveRates(DateTime date) {
+    final arrivalDate = state.arrivalDate;
+    if (arrivalDate == null || !date.isAfter(arrivalDate)) {
+      return;
+    }
+    final next = state.copyWith(
+      departureDate: DateTime(date.year, date.month, date.day),
+    );
+    state = _preserveRoomRatesAfterDatesChange(next);
+  }
+
+  void onDepartureDateChangedWithRateReset(DateTime date) {
+    final arrivalDate = state.arrivalDate;
+    if (arrivalDate == null || !date.isAfter(arrivalDate)) {
+      return;
+    }
+    final next = state.copyWith(
+      departureDate: DateTime(date.year, date.month, date.day),
+    );
+    state = _resetRoomRatesAfterDateChange(next);
   }
 
   void onNightsChanged(int nights) {
@@ -85,18 +131,48 @@ class CreateAgentReservationNotifier
     state = _syncRoomRatesWithDates(next);
   }
 
+  void onNightsChangedPreserveRates(int nights) {
+    if (nights < 1) {
+      return;
+    }
+    final arrivalDate = state.arrivalDate;
+    if (arrivalDate == null) {
+      return;
+    }
+    final next = state.copyWith(
+      departureDate: arrivalDate.add(Duration(days: nights)),
+    );
+    state = _preserveRoomRatesAfterDatesChange(next);
+  }
+
+  void onNightsChangedWithRateReset(int nights) {
+    if (nights < 1) {
+      return;
+    }
+    final arrivalDate = state.arrivalDate;
+    if (arrivalDate == null) {
+      return;
+    }
+    final next = state.copyWith(
+      departureDate: arrivalDate.add(Duration(days: nights)),
+    );
+    state = _resetRoomRatesAfterDateChange(next);
+  }
+
   void setManualRate(bool value) {
     state = state.copyWith(isManualRate: false);
   }
 
   void setReservationContext({
     required String? reservationId,
+    required int? reservationNo,
     required int? clientId,
     required DateTime? clientOptionDate,
     String? guestName,
   }) {
     state = state.copyWith(
       reservationId: reservationId,
+      reservationNo: reservationNo,
       selectedClientId: clientId,
       clientOptionDate: clientOptionDate,
       guestName: guestName,
@@ -191,7 +267,8 @@ class CreateAgentReservationNotifier
     final now = DateTime.now();
     final arrivalDate = DateTime(now.year, now.month, now.day);
     final next = CreateAgentReservationState(
-      reservationId: state.reservationId,
+      reservationId: null,
+      reservationNo: null,
       editingServiceId: null,
       editingRoomIndex: null,
       roomRatesRevision: state.roomRatesRevision + 1,
@@ -214,6 +291,7 @@ class CreateAgentReservationNotifier
       roomRates: const <RoomDayRate>[],
       addedRooms: const <AddedRoomSummary>[],
       isSaving: false,
+      requiresRoomRatesReentry: false,
       lastSaveError: null,
       lastSavedReservationId: state.lastSavedReservationId,
       lastSavedServiceDisplayNo: null,
@@ -291,9 +369,12 @@ class CreateAgentReservationNotifier
           );
         })
         .toList(growable: false);
+    final nextRequiresReentry =
+        state.requiresRoomRatesReentry && !_hasAnyRateValue(nextRates);
     state = state.copyWith(
       roomRates: nextRates,
       roomRatesRevision: state.roomRatesRevision + 1,
+      requiresRoomRatesReentry: nextRequiresReentry,
     );
   }
 
@@ -348,6 +429,7 @@ class CreateAgentReservationNotifier
       selectedWeekdays: <int>{},
       roomRates: clearedRates,
       roomRatesRevision: state.roomRatesRevision + 1,
+      requiresRoomRatesReentry: false,
     );
   }
 
@@ -377,6 +459,8 @@ class CreateAgentReservationNotifier
         state.copyWith(
           roomRates: roomRates.toList(growable: false),
           roomRatesRevision: state.roomRatesRevision + 1,
+          requiresRoomRatesReentry:
+              state.requiresRoomRatesReentry && !_hasAnyRateValue(roomRates),
         ),
       );
       state = next;
@@ -409,9 +493,12 @@ class CreateAgentReservationNotifier
           );
         })
         .toList(growable: false);
+    final nextRequiresReentry =
+        state.requiresRoomRatesReentry && !_hasAnyRateValue(nextRates);
     state = state.copyWith(
       roomRates: nextRates,
       roomRatesRevision: state.roomRatesRevision + 1,
+      requiresRoomRatesReentry: nextRequiresReentry,
     );
   }
 
@@ -534,6 +621,23 @@ class CreateAgentReservationNotifier
       );
       return false;
     }
+    if (state.requiresRoomRatesReentry) {
+      state = state.copyWith(
+        lastSaveError: 'errorRoomPricesReset',
+        clearLastSavedReservationId: true,
+        clearLastSavedServiceDisplayNo: true,
+      );
+      return false;
+    }
+    final zero = Decimal.parse('0');
+    if (state.totalSale == zero && state.totalCost == zero) {
+      state = state.copyWith(
+        lastSaveError: 'errorRoomPricesZero',
+        clearLastSavedReservationId: true,
+        clearLastSavedServiceDisplayNo: true,
+      );
+      return false;
+    }
 
     state = state.copyWith(
       isSaving: true,
@@ -621,7 +725,142 @@ class CreateAgentReservationNotifier
           return rate;
         })
         .toList(growable: false);
-    state = state.copyWith(roomRates: nextRates);
+    final nextRequiresReentry =
+        state.requiresRoomRatesReentry && !_hasAnyRateValue(nextRates);
+    state = state.copyWith(
+      roomRates: nextRates,
+      requiresRoomRatesReentry: nextRequiresReentry,
+    );
+  }
+
+  CreateAgentReservationState _preserveRoomRatesAfterDatesChange(
+    CreateAgentReservationState source,
+  ) {
+    if (source.arrivalDate == null || source.nightsCount < 1) {
+      return source.copyWith(roomRates: const <RoomDayRate>[]);
+    }
+
+    final arrivalDate = source.arrivalDate!;
+    final nightsCount = source.nightsCount;
+    final previousRates = state.roomRates;
+    final preserved = <RoomDayRate>[];
+    for (var i = 0; i < nightsCount; i++) {
+      final date = arrivalDate.add(Duration(days: i));
+      final previous = i < previousRates.length ? previousRates[i] : null;
+      preserved.add(
+        RoomDayRate(
+          date: date,
+          saleRoom: previous?.saleRoom ?? '',
+          saleMealPerPax: previous?.saleMealPerPax ?? '',
+          costRoom: previous?.costRoom ?? '',
+          costMealPerPax: previous?.costMealPerPax ?? '',
+        ),
+      );
+    }
+
+    final nextRooms = state.addedRooms
+        .map((room) {
+          final previousRoomRates = room.roomRates;
+          final preservedRoomRates = <RoomDayRate>[];
+          for (var i = 0; i < nightsCount; i++) {
+            final date = arrivalDate.add(Duration(days: i));
+            final previous = i < previousRoomRates.length
+                ? previousRoomRates[i]
+                : null;
+            preservedRoomRates.add(
+              RoomDayRate(
+                date: date,
+                saleRoom: previous?.saleRoom ?? '',
+                saleMealPerPax: previous?.saleMealPerPax ?? '',
+                costRoom: previous?.costRoom ?? '',
+                costMealPerPax: previous?.costMealPerPax ?? '',
+              ),
+            );
+          }
+          final paxPerRoom = paxPerRoomFor(room.roomType);
+          final pax = room.numberOfRooms * paxPerRoom;
+          final totalRn = room.numberOfRooms * nightsCount;
+          final totals = _calculateTotalsForRates(
+            roomRates: preservedRoomRates,
+            roomCount: room.numberOfRooms,
+            pax: pax,
+          );
+          return AddedRoomSummary(
+            numberOfRooms: room.numberOfRooms,
+            totalRn: totalRn,
+            roomType: room.roomType,
+            mealPlan: room.mealPlan,
+            pax: pax,
+            totalSale: totals.totalSale,
+            totalCost: totals.totalCost,
+            roomRates: preservedRoomRates,
+            isManualRate: room.isManualRate,
+          );
+        })
+        .toList(growable: false);
+
+    return source.copyWith(
+      roomRates: preserved,
+      addedRooms: nextRooms,
+      roomRatesRevision: state.roomRatesRevision + 1,
+      requiresRoomRatesReentry: false,
+      clearLastSaveError: true,
+    );
+  }
+
+  CreateAgentReservationState _resetRoomRatesAfterDateChange(
+    CreateAgentReservationState source,
+  ) {
+    final synced = _syncRoomRatesWithDates(source);
+    final clearedRates = synced.roomRates
+        .map(
+          (rate) => rate.copyWith(
+            saleRoom: '',
+            saleMealPerPax: '',
+            costRoom: '',
+            costMealPerPax: '',
+          ),
+        )
+        .toList(growable: false);
+
+    final nextRooms = synced.addedRooms
+        .map((room) {
+          final clearedRoomRates = room.roomRates
+              .map(
+                (rate) => rate.copyWith(
+                  saleRoom: '',
+                  saleMealPerPax: '',
+                  costRoom: '',
+                  costMealPerPax: '',
+                ),
+              )
+              .toList(growable: false);
+          final totals = _calculateTotalsForRates(
+            roomRates: clearedRoomRates,
+            roomCount: room.numberOfRooms,
+            pax: room.pax,
+          );
+          return AddedRoomSummary(
+            numberOfRooms: room.numberOfRooms,
+            totalRn: room.totalRn,
+            roomType: room.roomType,
+            mealPlan: room.mealPlan,
+            pax: room.pax,
+            totalSale: totals.totalSale,
+            totalCost: totals.totalCost,
+            roomRates: clearedRoomRates,
+            isManualRate: room.isManualRate,
+          );
+        })
+        .toList(growable: false);
+
+    return synced.copyWith(
+      roomRates: clearedRates,
+      addedRooms: nextRooms,
+      roomRatesRevision: synced.roomRatesRevision + 1,
+      requiresRoomRatesReentry: true,
+      clearLastSaveError: true,
+    );
   }
 
   CreateAgentReservationState _syncRoomRatesWithDates(
@@ -902,6 +1141,7 @@ class CreateAgentReservationNotifier
       addedRooms: const <AddedRoomSummary>[],
       roomRatesRevision: source.roomRatesRevision + 1,
       clearLastSaveError: true,
+      requiresRoomRatesReentry: false,
     );
   }
 }
@@ -909,6 +1149,7 @@ class CreateAgentReservationNotifier
 class CreateAgentReservationState {
   const CreateAgentReservationState({
     required this.reservationId,
+    required this.reservationNo,
     required this.editingServiceId,
     required this.editingRoomIndex,
     required this.roomRatesRevision,
@@ -931,6 +1172,7 @@ class CreateAgentReservationState {
     required this.roomRates,
     required this.addedRooms,
     required this.isSaving,
+    required this.requiresRoomRatesReentry,
     required this.lastSaveError,
     required this.lastSavedReservationId,
     required this.lastSavedServiceDisplayNo,
@@ -941,6 +1183,7 @@ class CreateAgentReservationState {
     final arrivalDate = DateTime(now.year, now.month, now.day);
     return CreateAgentReservationState(
       reservationId: null,
+      reservationNo: null,
       editingServiceId: null,
       editingRoomIndex: null,
       roomRatesRevision: 0,
@@ -963,6 +1206,7 @@ class CreateAgentReservationState {
       roomRates: <RoomDayRate>[],
       addedRooms: <AddedRoomSummary>[],
       isSaving: false,
+      requiresRoomRatesReentry: false,
       lastSaveError: null,
       lastSavedReservationId: null,
       lastSavedServiceDisplayNo: null,
@@ -970,6 +1214,7 @@ class CreateAgentReservationState {
   }
 
   final String? reservationId;
+  final int? reservationNo;
   final String? editingServiceId;
   final int? editingRoomIndex;
   final int roomRatesRevision;
@@ -992,6 +1237,7 @@ class CreateAgentReservationState {
   final List<RoomDayRate> roomRates;
   final List<AddedRoomSummary> addedRooms;
   final bool isSaving;
+  final bool requiresRoomRatesReentry;
   final String? lastSaveError;
   final String? lastSavedReservationId;
   final String? lastSavedServiceDisplayNo;
@@ -1025,6 +1271,8 @@ class CreateAgentReservationState {
   CreateAgentReservationState copyWith({
     String? reservationId,
     bool clearReservationId = false,
+    int? reservationNo,
+    bool clearReservationNo = false,
     String? editingServiceId,
     bool clearEditingServiceId = false,
     int? editingRoomIndex,
@@ -1062,6 +1310,7 @@ class CreateAgentReservationState {
     List<RoomDayRate>? roomRates,
     List<AddedRoomSummary>? addedRooms,
     bool? isSaving,
+    bool? requiresRoomRatesReentry,
     String? lastSaveError,
     bool clearLastSaveError = false,
     String? lastSavedReservationId,
@@ -1073,6 +1322,9 @@ class CreateAgentReservationState {
       reservationId: clearReservationId
           ? null
           : reservationId ?? this.reservationId,
+      reservationNo: clearReservationNo
+          ? null
+          : reservationNo ?? this.reservationNo,
       editingServiceId: clearEditingServiceId
           ? null
           : editingServiceId ?? this.editingServiceId,
@@ -1113,6 +1365,8 @@ class CreateAgentReservationState {
       roomRates: roomRates ?? this.roomRates,
       addedRooms: addedRooms ?? this.addedRooms,
       isSaving: isSaving ?? this.isSaving,
+      requiresRoomRatesReentry:
+          requiresRoomRatesReentry ?? this.requiresRoomRatesReentry,
       lastSaveError: clearLastSaveError
           ? null
           : lastSaveError ?? this.lastSaveError,

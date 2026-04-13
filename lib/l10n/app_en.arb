@@ -1,0 +1,10 @@
+{
+  "@@locale": "en",
+  "cancel": "Cancel",
+  "keepPrices": "Keep prices",
+  "resetPrices": "Confirm & reset",
+  "changeDatesTitle": "Change dates",
+  "changeDatesMessage": "Changing arrival/departure dates or nights can reset room prices and you will need to re-enter them.",
+  "errorRoomPricesReset": "Room prices were reset due to date/nights change. Please re-enter prices.",
+  "errorRoomPricesZero": "Room prices are 0. Please enter prices before saving."
+}

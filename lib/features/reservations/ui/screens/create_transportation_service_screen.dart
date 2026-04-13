@@ -38,6 +38,7 @@ class _CreateTransportationServiceScreenState
   int? _selectedClientId;
   DateTime _clientOptionDate = DateTime.now();
   String? _reservationId;
+  int? _reservationNo;
   bool _isSaving = false;
 
   int? _selectedSupplierId;
@@ -193,6 +194,7 @@ class _CreateTransportationServiceScreenState
             _clientOptionDate =
                 details.order.clientOptionDate ?? DateTime.now();
             _guestNameController.text = details.order.guestName ?? '';
+            _reservationNo = details.order.reservationNo;
           });
         } catch (_) {}
       });
@@ -254,6 +256,7 @@ class _CreateTransportationServiceScreenState
         setState(() {
           _reservationId = reservationId;
           _selectedClientId = createdOrder.client.id;
+          _reservationNo = createdOrder.reservationNo;
         });
       } else {
         await repository.updateReservationMainInfo(
@@ -439,9 +442,9 @@ class _CreateTransportationServiceScreenState
             const SizedBox(
               height: CreateTransportationServiceScreen._sectionGap,
             ),
-            const Text(
-              'Reservation number : - S',
-              style: TextStyle(
+            Text(
+              'Reservation number : ${_reservationNo ?? '-'}',
+              style: const TextStyle(
                 fontSize: AppFontSizes.title13,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,

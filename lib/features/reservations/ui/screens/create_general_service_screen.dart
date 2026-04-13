@@ -38,6 +38,7 @@ class _CreateGeneralServiceScreenState
   DateTime _clientOptionDate = DateTime.now();
   bool _isSaving = false;
   String? _reservationId;
+  int? _reservationNo;
   int? _selectedSupplierId;
   String? _selectedSupplierLabel;
   String? _selectedServiceName;
@@ -139,6 +140,7 @@ class _CreateGeneralServiceScreenState
             _clientOptionDate =
                 details.order.clientOptionDate ?? DateTime.now();
             _guestNameController.text = details.order.guestName ?? '';
+            _reservationNo = details.order.reservationNo;
           });
         } catch (_) {}
       });
@@ -279,6 +281,7 @@ class _CreateGeneralServiceScreenState
         setState(() {
           _reservationId = reservationId;
           _selectedClientId = createdOrder.client.id;
+          _reservationNo = createdOrder.reservationNo;
         });
       } else {
         final clientId = _selectedClientId;
@@ -434,9 +437,9 @@ class _CreateGeneralServiceScreenState
             const SizedBox(height: CreateGeneralServiceScreen._sectionGap),
 
             // Reservation Number
-            const Text(
-              'Reservation number : - S',
-              style: TextStyle(
+            Text(
+              'Reservation number : ${_reservationNo ?? '-'}',
+              style: const TextStyle(
                 fontSize: AppFontSizes.title13,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
