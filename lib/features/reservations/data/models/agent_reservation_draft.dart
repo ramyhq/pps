@@ -10,6 +10,7 @@ class AgentReservationDraft extends Equatable {
     required this.hotelId,
     required this.hotelName,
     required this.hotelCity,
+    required this.hotelLocation,
     required this.supplierId,
     required this.supplierName,
     required this.selectedRoomType,
@@ -28,6 +29,7 @@ class AgentReservationDraft extends Equatable {
   final int? hotelId;
   final String? hotelName;
   final String? hotelCity;
+  final String? hotelLocation;
   final int? supplierId;
   final String? supplierName;
   final String? selectedRoomType;
@@ -47,6 +49,7 @@ class AgentReservationDraft extends Equatable {
     hotelId,
     hotelName,
     hotelCity,
+    hotelLocation,
     supplierId,
     supplierName,
     selectedRoomType,

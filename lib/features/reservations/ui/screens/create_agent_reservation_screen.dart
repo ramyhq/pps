@@ -6,6 +6,7 @@ import 'package:decimal/decimal.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:pps/core/constants/app_colors.dart';
+import 'package:pps/core/constants/app_strings.dart';
 import 'package:pps/core/widgets/app_dialog.dart';
 import 'package:pps/core/widgets/custom_form_fields.dart';
 import 'package:pps/l10n/app_localizations.dart';
@@ -55,6 +56,7 @@ class _CreateAgentReservationScreenState
   bool _isRoomActionLocked = false;
   bool _hasAppliedRates = false;
   bool _isRatesLoading = false;
+  bool _isInitialLoading = false;
 
   void _resetRoomEntryUi() {
     _hasAppliedRates = false;
@@ -133,49 +135,76 @@ class _CreateAgentReservationScreenState
       },
     );
     final reservationId = widget.reservationId;
-    if (reservationId != null) {
-      Future<void>.microtask(() async {
-        try {
-          final details = await ref
-              .read(reservationsRepositoryProvider)
-              .fetchReservationDetails(reservationId);
-          if (!mounted) {
-            return;
-          }
-          ref
-              .read(createAgentReservationProvider.notifier)
-              .setReservationContext(
-                reservationId: reservationId,
-                reservationNo: details.order.reservationNo,
-                clientId: details.order.client.id,
-                clientOptionDate: details.order.clientOptionDate,
-                guestName: details.order.guestName,
-              );
-          _guestNameController.text = details.order.guestName ?? '';
-        } catch (_) {}
-      });
-    }
     final editingServiceId = widget.serviceId;
-    if (editingServiceId != null && editingServiceId.trim().isNotEmpty) {
+    final shouldLoad =
+        (reservationId != null && reservationId.trim().isNotEmpty) ||
+        (editingServiceId != null && editingServiceId.trim().isNotEmpty);
+    if (shouldLoad) {
+      _isInitialLoading = true;
       Future<void>.microtask(() async {
         try {
-          final draft = await ref
-              .read(reservationsRepositoryProvider)
-              .fetchAgentServiceDraft(editingServiceId);
+          if (reservationId != null && reservationId.trim().isNotEmpty) {
+            final details = await ref
+                .read(reservationsRepositoryProvider)
+                .fetchReservationDetails(reservationId);
+            if (!mounted) {
+              return;
+            }
+            ref
+                .read(createAgentReservationProvider.notifier)
+                .setReservationContext(
+                  reservationId: reservationId,
+                  reservationNo: details.order.reservationNo,
+                  clientId: details.order.client.id,
+                  clientOptionDate: details.order.clientOptionDate,
+                  guestName: details.order.guestName,
+                );
+            _guestNameController.text = details.order.guestName ?? '';
+          }
+          if (editingServiceId != null && editingServiceId.trim().isNotEmpty) {
+            final draft = await ref
+                .read(reservationsRepositoryProvider)
+                .fetchAgentServiceDraft(editingServiceId);
+            if (!mounted) {
+              return;
+            }
+            ref
+                .read(createAgentReservationProvider.notifier)
+                .startEditingService(serviceId: editingServiceId, draft: draft);
+            _guestNameController.text =
+                ref.read(createAgentReservationProvider).guestName ?? '';
+            _selectedHotelId = draft.hotelId;
+            _selectedSupplierId = draft.supplierId;
+            _setNightsText(
+              ref.read(createAgentReservationProvider).nightsCount,
+            );
+            _resetRoomEntryUi();
+          }
           if (!mounted) {
             return;
           }
-          ref
-              .read(createAgentReservationProvider.notifier)
-              .startEditingService(serviceId: editingServiceId, draft: draft);
-          _guestNameController.text =
-              ref.read(createAgentReservationProvider).guestName ?? '';
-          _selectedHotelId = draft.hotelId;
-          _selectedSupplierId = draft.supplierId;
-          _setNightsText(ref.read(createAgentReservationProvider).nightsCount);
-          _resetRoomEntryUi();
-          setState(() {});
-        } catch (_) {}
+          setState(() => _isInitialLoading = false);
+        } catch (e) {
+          if (!mounted) {
+            return;
+          }
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(e.toString())));
+          setState(() => _isInitialLoading = false);
+          final router = GoRouter.maybeOf(context);
+          if (router != null) {
+            if (router.canPop()) {
+              router.pop();
+            } else {
+              router.go('/reservations');
+            }
+            return;
+          }
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          }
+        }
       });
     }
   }
@@ -934,41 +963,52 @@ class _CreateAgentReservationScreenState
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(createAgentReservationProvider);
+    final isBlocking = _isInitialLoading || state.isSaving || _isRatesLoading;
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.s16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Title Section
-            _buildTitleSection(),
-            const SizedBox(height: AppSpacing.s16),
-
-            // Reservation ID
-            Text(
-              'Res. ID : ${state.lastSavedServiceDisplayNo ?? '-'}',
-              style: const TextStyle(
-                fontSize: AppFontSizes.title13,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+      body: Stack(
+        children: [
+          AbsorbPointer(
+            absorbing: isBlocking,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(AppSpacing.s16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTitleSection(),
+                  const SizedBox(height: AppSpacing.s16),
+                  Text(
+                    'Res. ID : ${state.lastSavedServiceDisplayNo ?? '-'}',
+                    style: const TextStyle(
+                      fontSize: AppFontSizes.title13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.s12),
+                  _buildReservationDetailsCard(state),
+                  const SizedBox(height: AppSpacing.s16),
+                  _buildRoomDetailsCard(state),
+                  const SizedBox(height: AppSpacing.s16),
+                  _buildBottomActions(state),
+                  const SizedBox(height: AppSpacing.s40),
+                ],
               ),
             ),
-            const SizedBox(height: AppSpacing.s12),
-
-            // Reservation Details Card
-            _buildReservationDetailsCard(state),
-            const SizedBox(height: AppSpacing.s16),
-
-            // Room Details Card
-            _buildRoomDetailsCard(state),
-            const SizedBox(height: AppSpacing.s16),
-
-            // Bottom Actions
-            _buildBottomActions(state),
-            const SizedBox(height: AppSpacing.s40),
-          ],
-        ),
+          ),
+          if (isBlocking)
+            Positioned.fill(
+              child: Stack(
+                children: [
+                  ModalBarrier(
+                    dismissible: false,
+                    color: Colors.black.withValues(alpha: 0.18),
+                  ),
+                  const Center(child: CircularProgressIndicator()),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -1079,6 +1119,9 @@ class _CreateAgentReservationScreenState
       ...suppliers.map((supplier) => supplier.label),
       if (selectedSupplierLabel != null) selectedSupplierLabel,
     }.toList(growable: false);
+
+    final selectedLocationLabel = state.hotelLocation;
+    final locationItems = <String>[AppStrings.madinah, AppStrings.makkah];
 
     return Card(
       child: Column(
@@ -1359,6 +1402,18 @@ class _CreateAgentReservationScreenState
                               },
                             ),
                           ),
+                          const SizedBox(width: AppSpacing.s12),
+                          SizedBox(
+                            width: 160,
+                            child: CustomDropdown(
+                              label: AppStrings.location,
+                              value: selectedLocationLabel,
+                              items: locationItems,
+                              onChanged: (value) => ref
+                                  .read(createAgentReservationProvider.notifier)
+                                  .setHotelLocation(value),
+                            ),
+                          ),
                           const Spacer(),
                         ],
                       )
@@ -1392,6 +1447,23 @@ class _CreateAgentReservationScreenState
                           ),
                         ],
                       ),
+                    if (!isDesktop) ...[
+                      const SizedBox(height: AppSpacing.s16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomDropdown(
+                              label: AppStrings.location,
+                              value: selectedLocationLabel,
+                              items: locationItems,
+                              onChanged: (value) => ref
+                                  .read(createAgentReservationProvider.notifier)
+                                  .setHotelLocation(value),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: AppSpacing.s16),
                     if (isDesktop)
                       Row(

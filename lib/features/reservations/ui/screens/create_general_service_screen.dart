@@ -37,6 +37,7 @@ class _CreateGeneralServiceScreenState
   int? _selectedClientId;
   DateTime _clientOptionDate = DateTime.now();
   bool _isSaving = false;
+  bool _isInitialLoading = false;
   String? _reservationId;
   int? _reservationNo;
   int? _selectedSupplierId;
@@ -70,79 +71,104 @@ class _CreateGeneralServiceScreenState
     _endDate = _dateOfService.add(const Duration(days: 1));
     _daysController = TextEditingController(text: '1');
     final serviceId = widget.serviceId;
-    if (serviceId != null && serviceId.trim().isNotEmpty) {
+    final reservationId = widget.reservationId;
+    final shouldLoad =
+        (serviceId != null && serviceId.trim().isNotEmpty) ||
+        (reservationId != null && reservationId.trim().isNotEmpty);
+    if (shouldLoad) {
+      _isInitialLoading = true;
       Future<void>.microtask(() async {
         try {
           final repository = ref.read(reservationsRepositoryProvider);
-          final draft = await repository.fetchGeneralServiceDraft(serviceId);
-          if (!mounted) {
-            return;
-          }
-          String? supplierLabel;
-          final supplierId = draft.supplierId;
-          if (supplierId != null) {
-            final cached =
-                ref.read(reservationSuppliersProvider).value ??
-                const <Supplier>[];
-            final cachedMatch = cached
-                .where((s) => s.id == supplierId)
-                .toList(growable: false);
-            if (cachedMatch.isNotEmpty) {
-              supplierLabel = cachedMatch.first.label;
-            } else {
-              final list = await repository.listSuppliers();
-              final match = list
+          if (serviceId != null && serviceId.trim().isNotEmpty) {
+            final draft = await repository.fetchGeneralServiceDraft(serviceId);
+            if (!mounted) {
+              return;
+            }
+            String? supplierLabel;
+            final supplierId = draft.supplierId;
+            if (supplierId != null) {
+              final cached =
+                  ref.read(reservationSuppliersProvider).value ??
+                  const <Supplier>[];
+              final cachedMatch = cached
                   .where((s) => s.id == supplierId)
                   .toList(growable: false);
-              if (match.isNotEmpty) {
-                supplierLabel = match.first.label;
+              if (cachedMatch.isNotEmpty) {
+                supplierLabel = cachedMatch.first.label;
+              } else {
+                final list = await repository.listSuppliers();
+                final match = list
+                    .where((s) => s.id == supplierId)
+                    .toList(growable: false);
+                if (match.isNotEmpty) {
+                  supplierLabel = match.first.label;
+                }
               }
             }
+            setState(() {
+              _selectedSupplierId = draft.supplierId;
+              _selectedSupplierLabel = supplierLabel;
+              _selectedServiceName = draft.serviceName;
+              _saleController.text = draft.salePerItem.toString();
+              _costController.text = draft.costPerItem.toString();
+              _quantityController.text = draft.quantity.toString();
+              _serviceDescriptionController.text = draft.description;
+              _providerRemarksController.text = draft.providerRemarks ?? '';
+              _selectedTermsAndConditions =
+                  draft.termsAndConditions?.trim().isNotEmpty == true
+                  ? draft.termsAndConditions!.trim()
+                  : _selectedTermsAndConditions;
+              _dateOfService = _dateOnly(draft.dateOfService);
+              _endDate = _dateOnly(draft.endDate);
+              _daysManuallyEdited = false;
+              _daysController.text = _endDate
+                  .difference(_dateOfService)
+                  .inDays
+                  .clamp(0, 9999)
+                  .toString();
+            });
           }
-          setState(() {
-            _selectedSupplierId = draft.supplierId;
-            _selectedSupplierLabel = supplierLabel;
-            _selectedServiceName = draft.serviceName;
-            _saleController.text = draft.salePerItem.toString();
-            _costController.text = draft.costPerItem.toString();
-            _quantityController.text = draft.quantity.toString();
-            _serviceDescriptionController.text = draft.description;
-            _providerRemarksController.text = draft.providerRemarks ?? '';
-            _selectedTermsAndConditions =
-                draft.termsAndConditions?.trim().isNotEmpty == true
-                ? draft.termsAndConditions!.trim()
-                : _selectedTermsAndConditions;
-            _dateOfService = _dateOnly(draft.dateOfService);
-            _endDate = _dateOnly(draft.endDate);
-            _daysManuallyEdited = false;
-            //CALCULATIONS عدد الأيام المحفوظ يعاد احتسابه من فرق تاريخ النهاية وبداية الخدمة.
-            _daysController.text = _endDate
-                .difference(_dateOfService)
-                .inDays
-                .clamp(0, 9999)
-                .toString();
-          });
-        } catch (_) {}
-      });
-    }
-    final reservationId = widget.reservationId;
-    if (reservationId != null) {
-      Future<void>.microtask(() async {
-        try {
-          final details = await ref
-              .read(reservationsRepositoryProvider)
-              .fetchReservationDetails(reservationId);
+          if (reservationId != null && reservationId.trim().isNotEmpty) {
+            final details = await repository.fetchReservationDetails(
+              reservationId,
+            );
+            if (!mounted) {
+              return;
+            }
+            setState(() {
+              _selectedClientId = details.order.client.id;
+              _clientOptionDate =
+                  details.order.clientOptionDate ?? DateTime.now();
+              _guestNameController.text = details.order.guestName ?? '';
+              _reservationNo = details.order.reservationNo;
+            });
+          }
           if (!mounted) {
             return;
           }
-          setState(() {
-            _selectedClientId = details.order.client.id;
-            _clientOptionDate =
-                details.order.clientOptionDate ?? DateTime.now();
-            _guestNameController.text = details.order.guestName ?? '';
-            _reservationNo = details.order.reservationNo;
-          });
-        } catch (_) {}
+          setState(() => _isInitialLoading = false);
+        } catch (e) {
+          if (!mounted) {
+            return;
+          }
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(e.toString())));
+          setState(() => _isInitialLoading = false);
+          final router = GoRouter.maybeOf(context);
+          if (router != null) {
+            if (router.canPop()) {
+              router.pop();
+            } else {
+              router.go('/reservations');
+            }
+            return;
+          }
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          }
+        }
       });
     }
   }
@@ -275,6 +301,7 @@ class _CreateGeneralServiceScreenState
                 : _guestNameController.text.trim(),
             guestNationality: null,
             clientOptionDate: _clientOptionDate,
+            partyPaxManual: null,
           ),
         );
         reservationId = createdOrder.id;
@@ -294,6 +321,7 @@ class _CreateGeneralServiceScreenState
                 : _guestNameController.text.trim(),
             guestNationality: null,
             clientOptionDate: _clientOptionDate,
+            partyPaxManual: null,
           );
         }
       }
@@ -425,41 +453,60 @@ class _CreateGeneralServiceScreenState
 
   @override
   Widget build(BuildContext context) {
+    final isBlocking = _isInitialLoading || _isSaving;
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(CreateGeneralServiceScreen._pagePadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Title Section
-            _buildTitleSection(),
-            const SizedBox(height: CreateGeneralServiceScreen._sectionGap),
-
-            // Reservation Number
-            Text(
-              'Reservation number : ${_reservationNo ?? '-'}',
-              style: const TextStyle(
-                fontSize: AppFontSizes.title13,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+      body: Stack(
+        children: [
+          AbsorbPointer(
+            absorbing: isBlocking,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(
+                CreateGeneralServiceScreen._pagePadding,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTitleSection(),
+                  const SizedBox(
+                    height: CreateGeneralServiceScreen._sectionGap,
+                  ),
+                  Text(
+                    'Reservation number : ${_reservationNo ?? '-'}',
+                    style: const TextStyle(
+                      fontSize: AppFontSizes.title13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.s12),
+                  _buildReservationDetailsCard(),
+                  const SizedBox(
+                    height: CreateGeneralServiceScreen._sectionGap,
+                  ),
+                  _buildServiceDetailsCard(),
+                  const SizedBox(
+                    height: CreateGeneralServiceScreen._sectionGap,
+                  ),
+                  _buildBottomActions(),
+                  const SizedBox(height: AppSpacing.s40),
+                ],
               ),
             ),
-            const SizedBox(height: AppSpacing.s12),
-
-            // Reservation Details Card
-            _buildReservationDetailsCard(),
-            const SizedBox(height: CreateGeneralServiceScreen._sectionGap),
-
-            // Service Details Card
-            _buildServiceDetailsCard(),
-            const SizedBox(height: CreateGeneralServiceScreen._sectionGap),
-
-            // Bottom Actions
-            _buildBottomActions(),
-            const SizedBox(height: AppSpacing.s40),
-          ],
-        ),
+          ),
+          if (isBlocking)
+            Positioned.fill(
+              child: Stack(
+                children: [
+                  ModalBarrier(
+                    dismissible: false,
+                    color: Colors.black.withValues(alpha: 0.18),
+                  ),
+                  const Center(child: CircularProgressIndicator()),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }

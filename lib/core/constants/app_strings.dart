@@ -205,6 +205,8 @@ class AppStrings {
   static const saveAndPrint = 'Save & Print';
   static const rmsInvoiceMissingColumn =
       'Missing reservation_orders RMS invoice column in database.';
+  static const rmsInvoiceIndicatorTooltip =
+      'RMS invoice no. محفوظ في قاعدة البيانات وبيظهر في الـ PDF.';
 
   static const clientPaymentDetailsTitle = 'Client payment details';
   static const createClientPayment = 'Create Client Payment';
@@ -226,6 +228,83 @@ class AppStrings {
   static const addGeneral = 'Add General';
   static const addTransport = 'Add Transport';
   static const print = 'Print';
+  static const print2 = 'Print 2';
+  static const print1Summary = 'Print 1 — Invoice (Standard)';
+  static const print2Summary = 'Print 2 — Invoice (Excel rate)';
+  static const printUsageTitle = 'شرح استخدام Print 1 و Print 2';
+  static const printUsageBody =
+      'هشرح لك الموضوع كأنك أول مرة تستخدم النظام:\n'
+      '\n'
+      '1) يعني إيه (Qty / Nights / PAX)؟\n'
+      '- Qty: عدد الغرف (الكمية).\n'
+      '- Nights: عدد الليالي.\n'
+      '- PAX: عدد الأشخاص اللي الحساب بيتوزع عليهم.\n'
+      '\n'
+      '2) أهم قاعدة في الفاتورة (علشان ما تغلطش)\n'
+      '- الفندق بيتحسب على نوع الغرفة (Double / Triple / Quad ...).\n'
+      '- الإضافات (General + Transportation) بيتوزعوا على عدد الأشخاص (PAX).\n'
+      '\n'
+      '3) Party Pax (Manual) ده إيه؟\n'
+      '- ده رقم اختياري إنت بتكتبه بنفسك.\n'
+      '- الهدف منه تقول للنظام: (عدد المسافرين الحقيقي كام؟).\n'
+      '- لو كتبته: النظام بيستخدمه لتوزيع الإضافات على الشخص.\n'
+      '- لو ما كتبتهوش: النظام بياخد أكبر PAX موجود في سيجمنتات الفنادق.\n'
+      '\n'
+      '4) النقطة الحمرا جنب Party Pax (Manual) معناها إيه؟\n'
+      '- معناها فيه سيجمنت فندق PAX بتاعه مختلف عن الرقم اللي إنت كاتبه.\n'
+      '- مثال: إنت كاتب 105، وسيجمنت مكة مكتوب فيه 103.\n'
+      '- ساعتها لازم تراجع: هل فعلاً عدد المسافرين اتغير؟ ولا فيه إدخال غلط؟\n'
+      '\n'
+      '5) Print 1 بيعمل إيه؟ (Standard)\n'
+      '- ده الطباعة الأساسية.\n'
+      '- بيحافظ على طريقة الحساب الحالية في Rate/Pax.\n'
+      '- بيحسب (Add-ons / Pax) من (General + Transportation) ويقسمهم على Party Pax.\n'
+      '- وبعدين يضيفهم على Rate/Pax النهائي.\n'
+      '\n'
+      '6) Print 2 بيعمل إيه؟ (Excel rate)\n'
+      '- ده طباعة بديلة مفيدة لو بتراجع الأرقام بطريقة Excel.\n'
+      '- بيحسب Rate/Pax للفنادق من Total Sale لكل سيجمنت/حجز، وبعد كده يضيف Add-ons / Pax.\n'
+      '\n'
+      '7) طريقة استخدام صحيحة خطوة بخطوة\n'
+      '- افتح الحجز اللي عايز تعدله.\n'
+      '- اكتب Party Pax (Manual) لو عايز تثبت عدد المسافرين الحقيقي.\n'
+      '- لو ظهرت نقطة حمرا: افتح السيجمنتات وراجع PAX.\n'
+      '- بعد ما تتأكد، اطبع Print 1 أو Print 2 حسب اللي محتاجه.\n'
+      '\n'
+      'ملحوظة مهمة:\n'
+      '- لو البيانات لسه بتتحمل، هتشوف Loading على الشاشة ومش هتقدر تعمل أي تعديل.\n'
+      '- لو التحميل فشل، النظام بيرجعك تلقائي علشان ما تحفظش على بيانات قديمة.';
+  static const calculationsGuide = 'Guide — How totals are calculated';
+  static const calculationsGuideBody =
+      'Print 1:\n'
+      '- Add-ons / Pax = (Total Sale of General + Transportation) / Party Pax\n'
+      '- Party Pax = Party Pax (Manual) if entered, otherwise the maximum hotel Party Pax.\n'
+      '\n'
+      'Print 2:\n'
+      '- Calculates hotel Rate/Pax per room type from hotel Total Sale, then adds Add-ons / Pax.\n'
+      '\n'
+      'Party Pax (Manual):\n'
+      '- Optional number you enter to represent the real travelers count.\n'
+      '- If any hotel segment has different PAX, the system shows a red warning dot.';
+  static const partyPaxManual = 'Party Pax (Manual)';
+  static const partyPaxManualHint =
+      'Optional. Used to validate hotel segments and distribute add-ons.';
+  static const partyPaxManualIndicatorTooltip =
+      'لو فيه سيجمنتات PAX مختلفة عن Party Pax (Manual) هيظهر تحذير.';
+  static const warningIndicatorDefaultTooltip = 'تحذير: راجع التفاصيل.';
+  static const partyPaxMismatchTitle = 'Party Pax mismatch';
+  static const partyPaxMismatchBodyPrefix =
+      'Some hotel segments have PAX different from Party Pax (Manual):';
+  static const continueAnyway = 'Continue anyway';
+  static const fixNow = 'Fix now';
+  static const partyPaxMismatchInlineTemplate =
+      'Warning: PAX in {place} ({segmentPax}) differs from Party Pax (Manual) ({manualPax})';
+  static const generalQtyMismatchTemplate =
+      'Warning: General service Qty ({qty}) differs from Party Pax (Manual) ({manualPax}). If Qty represents PAX for this service, review it.';
+  static const locationPaxMismatchTemplate =
+      'Warning: Total PAX in {place} ({locationPax}) differs from Party Pax (Manual) ({manualPax}).';
+  static const locationPaxDifferenceTemplate =
+      'Warning: Total PAX in {place} ({placePax}) differs from {otherPlace} ({otherPax}).';
   static const pdfPreview = 'PDF Preview';
   static const attachments = 'Attachments';
   static const delete = 'Delete';
@@ -244,6 +323,11 @@ class AppStrings {
   static const pax = 'PAX';
   static const supplier = 'Supplier';
   static const hotel = 'Hotel';
+  static const location = 'Location';
+  static const madinah = 'Madinah';
+  static const makkah = 'Makkah';
+  static const med = 'MED';
+  static const mak = 'MAK';
   static const serviceName = 'Service name';
   static const quantity = 'Quantity';
   static const salePrice = 'Sale price';

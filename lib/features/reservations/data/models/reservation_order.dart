@@ -11,6 +11,7 @@ class ReservationOrder extends Equatable {
     required this.guestNationality,
     required this.clientOptionDate,
     required this.rmsInvoiceNo,
+    this.partyPaxManual,
     required this.createdAt,
   });
 
@@ -21,6 +22,7 @@ class ReservationOrder extends Equatable {
   final String? guestNationality;
   final DateTime? clientOptionDate;
   final String? rmsInvoiceNo;
+  final int? partyPaxManual;
   final DateTime createdAt;
 
   @override
@@ -32,6 +34,7 @@ class ReservationOrder extends Equatable {
     guestNationality,
     clientOptionDate,
     rmsInvoiceNo,
+    partyPaxManual,
     createdAt,
   ];
 }
@@ -42,12 +45,14 @@ class CreateReservationOrderDraft extends Equatable {
     required this.guestName,
     required this.guestNationality,
     required this.clientOptionDate,
+    this.partyPaxManual,
   });
 
   final int clientId;
   final String? guestName;
   final String? guestNationality;
   final DateTime? clientOptionDate;
+  final int? partyPaxManual;
 
   @override
   List<Object?> get props => <Object?>[
@@ -55,5 +60,6 @@ class CreateReservationOrderDraft extends Equatable {
     guestName,
     guestNationality,
     clientOptionDate,
+    partyPaxManual,
   ];
 }

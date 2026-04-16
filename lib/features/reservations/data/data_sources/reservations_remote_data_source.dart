@@ -12,6 +12,10 @@ class ReservationsRemoteDataSource {
       'id,reservation_no,guest_name,guest_nationality,client_option_date,created_at,clients:clients(id,name,code)';
   static const String _reservationOrdersSelectWithRmsInvoiceNo =
       '$_reservationOrdersBaseSelect,rms_invoice_no';
+  static const String _reservationOrdersSelectFull =
+      '$_reservationOrdersSelectWithRmsInvoiceNo,party_pax_manual';
+  static const String _reservationOrdersSelectFullLegacyParty =
+      '$_reservationOrdersSelectWithRmsInvoiceNo,manual_party_pax';
 
   Future<List<Map<String, dynamic>>> listClients() async {
     final client = _requireClient();
@@ -100,30 +104,44 @@ class ReservationsRemoteDataSource {
     required String? clientOptionDateIso,
   }) async {
     final client = _requireClient();
+    final payload = <String, dynamic>{
+      'client_id': clientId,
+      'guest_name': guestName,
+      'guest_nationality': guestNationality,
+      'client_option_date': clientOptionDateIso,
+    };
     try {
       final created = await client
           .from('reservation_orders')
-          .insert(<String, dynamic>{
-            'client_id': clientId,
-            'guest_name': guestName,
-            'guest_nationality': guestNationality,
-            'client_option_date': clientOptionDateIso,
-          })
-          .select(_reservationOrdersSelectWithRmsInvoiceNo)
+          .insert(payload)
+          .select(_reservationOrdersSelectFull)
           .single();
       return Map<String, dynamic>.from(created as Map);
     } on PostgrestException {
-      final created = await client
-          .from('reservation_orders')
-          .insert(<String, dynamic>{
-            'client_id': clientId,
-            'guest_name': guestName,
-            'guest_nationality': guestNationality,
-            'client_option_date': clientOptionDateIso,
-          })
-          .select(_reservationOrdersBaseSelect)
-          .single();
-      return Map<String, dynamic>.from(created as Map);
+      try {
+        final created = await client
+            .from('reservation_orders')
+            .insert(payload)
+            .select(_reservationOrdersSelectFullLegacyParty)
+            .single();
+        return Map<String, dynamic>.from(created as Map);
+      } on PostgrestException {
+        try {
+          final created = await client
+              .from('reservation_orders')
+              .insert(payload)
+              .select(_reservationOrdersSelectWithRmsInvoiceNo)
+              .single();
+          return Map<String, dynamic>.from(created as Map);
+        } on PostgrestException {
+          final created = await client
+              .from('reservation_orders')
+              .insert(payload)
+              .select(_reservationOrdersBaseSelect)
+              .single();
+          return Map<String, dynamic>.from(created as Map);
+        }
+      }
     }
   }
 
@@ -134,37 +152,53 @@ class ReservationsRemoteDataSource {
     required String? guestNationality,
     required String? clientOptionDateIso,
     required String? rmsInvoiceNo,
+    required bool setRmsInvoiceNo,
+    required int? partyPaxManual,
+    required bool setPartyPaxManual,
   }) async {
     final client = _requireClient();
-    final rmsText = (rmsInvoiceNo ?? '').trim();
     final updatePayload = <String, dynamic>{
       'client_id': clientId,
       'guest_name': guestName,
       'guest_nationality': guestNationality,
       'client_option_date': clientOptionDateIso,
-      'rms_invoice_no': rmsText.isEmpty ? null : rmsText,
     };
+    if (setRmsInvoiceNo) {
+      final rmsText = (rmsInvoiceNo ?? '').trim();
+      updatePayload['rms_invoice_no'] = rmsText.isEmpty ? null : rmsText;
+    }
     try {
       final updated = await client
           .from('reservation_orders')
-          .update(updatePayload)
+          .update(<String, dynamic>{
+            ...updatePayload,
+            if (setPartyPaxManual) 'party_pax_manual': partyPaxManual,
+          })
           .eq('id', reservationId)
-          .select(_reservationOrdersSelectWithRmsInvoiceNo)
+          .select(_reservationOrdersSelectFull)
           .single();
       return Map<String, dynamic>.from(updated as Map);
     } on PostgrestException {
-      final updated = await client
-          .from('reservation_orders')
-          .update(<String, dynamic>{
-            'client_id': clientId,
-            'guest_name': guestName,
-            'guest_nationality': guestNationality,
-            'client_option_date': clientOptionDateIso,
-          })
-          .eq('id', reservationId)
-          .select(_reservationOrdersBaseSelect)
-          .single();
-      return Map<String, dynamic>.from(updated as Map);
+      try {
+        final updated = await client
+            .from('reservation_orders')
+            .update(<String, dynamic>{
+              ...updatePayload,
+              if (setPartyPaxManual) 'manual_party_pax': partyPaxManual,
+            })
+            .eq('id', reservationId)
+            .select(_reservationOrdersSelectFullLegacyParty)
+            .single();
+        return Map<String, dynamic>.from(updated as Map);
+      } on PostgrestException {
+        final updated = await client
+            .from('reservation_orders')
+            .update(updatePayload)
+            .eq('id', reservationId)
+            .select(_reservationOrdersBaseSelect)
+            .single();
+        return Map<String, dynamic>.from(updated as Map);
+      }
     }
   }
 
@@ -176,15 +210,23 @@ class ReservationsRemoteDataSource {
     try {
       rows = await client
           .from('reservation_orders')
-          .select(_reservationOrdersSelectWithRmsInvoiceNo)
+          .select(_reservationOrdersSelectFull)
           .order('created_at', ascending: false)
           .limit(limit);
     } on PostgrestException {
-      rows = await client
-          .from('reservation_orders')
-          .select(_reservationOrdersBaseSelect)
-          .order('created_at', ascending: false)
-          .limit(limit);
+      try {
+        rows = await client
+            .from('reservation_orders')
+            .select(_reservationOrdersSelectFullLegacyParty)
+            .order('created_at', ascending: false)
+            .limit(limit);
+      } on PostgrestException {
+        rows = await client
+            .from('reservation_orders')
+            .select(_reservationOrdersBaseSelect)
+            .order('created_at', ascending: false)
+            .limit(limit);
+      }
     }
     return (rows as List<dynamic>)
         .map((row) => Map<String, dynamic>.from(row as Map))
@@ -276,17 +318,26 @@ class ReservationsRemoteDataSource {
     try {
       final row = await client
           .from('reservation_orders')
-          .select(_reservationOrdersSelectWithRmsInvoiceNo)
+          .select(_reservationOrdersSelectFull)
           .eq('id', reservationId)
           .single();
       return Map<String, dynamic>.from(row);
     } on PostgrestException {
-      final row = await client
-          .from('reservation_orders')
-          .select(_reservationOrdersBaseSelect)
-          .eq('id', reservationId)
-          .single();
-      return Map<String, dynamic>.from(row);
+      try {
+        final row = await client
+            .from('reservation_orders')
+            .select(_reservationOrdersSelectFullLegacyParty)
+            .eq('id', reservationId)
+            .single();
+        return Map<String, dynamic>.from(row);
+      } on PostgrestException {
+        final row = await client
+            .from('reservation_orders')
+            .select(_reservationOrdersBaseSelect)
+            .eq('id', reservationId)
+            .single();
+        return Map<String, dynamic>.from(row);
+      }
     }
   }
 

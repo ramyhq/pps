@@ -70,6 +70,9 @@ abstract class ReservationsRepository {
     required String? guestNationality,
     required DateTime? clientOptionDate,
     String? rmsInvoiceNo,
+    bool setRmsInvoiceNo = false,
+    int? partyPaxManual,
+    bool setPartyPaxManual = false,
   });
 
   Future<void> deleteReservationService({required String serviceId});

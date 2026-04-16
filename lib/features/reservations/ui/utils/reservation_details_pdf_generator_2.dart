@@ -12,7 +12,7 @@ import 'package:pps/features/reservations/data/models/reservation_details.dart';
 import 'package:pps/features/reservations/data/models/reservation_order.dart';
 import 'package:pps/features/reservations/data/models/reservation_service.dart';
 
-class ReservationDetailsPdfGenerator {
+class ReservationDetailsPdfGenerator2 {
   static const String _companyNameEn =
       'SAHL Saudi Accommodation & Handling Labor';
   static const String _companyNameAr = 'شركة سهل الفندقية';
@@ -62,7 +62,12 @@ class ReservationDetailsPdfGenerator {
       transportationServices: transportationServices,
       generalServices: generalServices,
     );
-    final roomLines = _roomLines(agentServices, additionalPerPax);
+    final totalHotelNights = _totalHotelNightsForTopTable(agentServices);
+    final roomLines = _roomLines(
+      agentServices,
+      additionalPerPax,
+      totalHotelNights,
+    );
     final totalSale = roomLines.isEmpty
         ? _sumMoney(details.services.map((s) => s.totalSale))
         : _sumMoney(roomLines.map((l) => l.total));
@@ -570,6 +575,30 @@ class ReservationDetailsPdfGenerator {
     );
   }
 
+  static int _totalHotelNightsForTopTable(
+    List<ReservationServiceSummary> agentServices,
+  ) {
+    final acc = <String, int>{};
+    for (final service in agentServices) {
+      final a = service.agentDetails;
+      if (a == null) {
+        continue;
+      }
+      final hotelKey = (a.hotelId ?? a.hotelName ?? '').toString().trim();
+      final locationKey = _hotelLocationKey(a.hotelLocation, a.hotelCity);
+      final nights = max(0, a.departureDate.difference(a.arrivalDate).inDays);
+      final key =
+          '${hotelKey}__${locationKey ?? ''}__${a.arrivalDate.millisecondsSinceEpoch}__${a.departureDate.millisecondsSinceEpoch}';
+      acc.putIfAbsent(key, () => nights);
+    }
+
+    var sum = 0;
+    for (final n in acc.values) {
+      sum += n;
+    }
+    return sum;
+  }
+
   static pw.Widget _roomPricingTable(List<_RoomLine> lines) {
     final headerStyle = pw.TextStyle(
       fontSize: 10,
@@ -1005,7 +1034,9 @@ class ReservationDetailsPdfGenerator {
   static List<_RoomLine> _roomLines(
     List<ReservationServiceSummary> agentServices,
     Decimal additionalPerPax,
+    int totalHotelNights,
   ) {
+    final totalSaleByRoomType = <String, Decimal>{};
     final stays = <String, _RoomStayAccumulator>{};
     for (final s in agentServices) {
       final a = s.agentDetails;
@@ -1039,6 +1070,8 @@ class ReservationDetailsPdfGenerator {
           numberOfRooms: room.numberOfRooms,
           roomRates: room.roomRates,
         );
+        totalSaleByRoomType[lineKey] =
+            (totalSaleByRoomType[lineKey] ?? Decimal.zero) + room.totalSale;
       }
     }
 
@@ -1058,10 +1091,8 @@ class ReservationDetailsPdfGenerator {
           current.mealPlan = 'Mixed';
         }
 
-        if (current.nightsSegmentKeys.add(stay.nightsSegmentKey)) {
-          current.totalNights += stay.nights;
-        }
-        current.roomTotalAcrossHotels += room.perRoomRoomTotal;
+        current.totalSaleAcrossBookings =
+            totalSaleByRoomType[lineKey] ?? Decimal.zero;
 
         for (var day = 0; day < stay.nights; day++) {
           final dateKey = _dateKey(stay.arrivalDate.add(Duration(days: day)));
@@ -1078,9 +1109,9 @@ class ReservationDetailsPdfGenerator {
           : a.roomsPerDay.values.reduce(max);
       final paxDisplay = max(1, qtyDisplay * paxPerRoom);
 
-      final paxPerRoomDecimal = Decimal.fromInt(max(1, paxPerRoom));
-      final baseRatePerPax = (a.roomTotalAcrossHotels / paxPerRoomDecimal)
-          .toDecimal(scaleOnInfinitePrecision: 6);
+      final baseRatePerPax =
+          (a.totalSaleAcrossBookings / Decimal.fromInt(max(1, paxDisplay)))
+              .toDecimal(scaleOnInfinitePrecision: 6);
       final rateWithAddOns = (baseRatePerPax + additionalPerPax).round(
         scale: 2,
       );
@@ -1090,7 +1121,7 @@ class ReservationDetailsPdfGenerator {
         roomType: a.roomType,
         mealPlan: a.mealPlan,
         qty: qtyDisplay,
-        nights: a.totalNights,
+        nights: totalHotelNights,
         pax: paxDisplay,
         ratePerPax: rateWithAddOns,
         total: totalWithAddOns,
@@ -1271,10 +1302,8 @@ class _RoomLineAccumulator {
 
   final String roomType;
   String mealPlan;
-  int totalNights = 0;
-  final Set<String> nightsSegmentKeys = {};
   final Map<int, int> roomsPerDay = {};
-  Decimal roomTotalAcrossHotels = Decimal.parse('0');
+  Decimal totalSaleAcrossBookings = Decimal.zero;
 }
 
 class _HotelSegmentLine {

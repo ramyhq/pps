@@ -13,6 +13,7 @@ class CreateAgentReservationPayloadDto {
     required this.hotelId,
     required this.hotelName,
     required this.hotelCity,
+    required this.hotelLocation,
     required this.supplierId,
     required this.supplierName,
     required this.selectedRoomType,
@@ -35,6 +36,7 @@ class CreateAgentReservationPayloadDto {
       hotelId: draft.hotelId,
       hotelName: draft.hotelName,
       hotelCity: draft.hotelCity,
+      hotelLocation: draft.hotelLocation,
       supplierId: draft.supplierId,
       supplierName: draft.supplierName,
       selectedRoomType: draft.selectedRoomType,
@@ -62,6 +64,7 @@ class CreateAgentReservationPayloadDto {
   final int? hotelId;
   final String? hotelName;
   final String? hotelCity;
+  final String? hotelLocation;
   final int? supplierId;
   final String? supplierName;
   final String? selectedRoomType;

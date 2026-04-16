@@ -1,0 +1,53 @@
+[
+    {
+        "idx": 7,
+        "id": "7296cdd0-5823-4eaa-a647-19b3f3db1b53",
+        "reservation_no": 23,
+        "client_id": 820,
+        "guest_name": null,
+        "guest_nationality": null,
+        "client_option_date": "2026-04-12 09:36:00.173+00",
+        "created_at": "2026-04-12 07:28:32.056861+00",
+        "rms_invoice_no": null
+    }
+]
+
+
+[
+    {
+        "idx": 21,
+        "id": "ad8ce922-859d-4822-adf2-39be1f77b2f5",
+        "reservation_id": "7296cdd0-5823-4eaa-a647-19b3f3db1b53",
+        "service_no": 3,
+        "service_type": "general",
+        "display_no": "23-3",
+        "total_sale": "84600.00",
+        "total_cost": "0.00",
+        "payload": "{\"notes\": null, \"endDate\": \"2026-04-13T00:00:00.000\", \"quantity\": 100, \"totalCost\": \"0\", \"totalSale\": \"84600\", \"supplierId\": 156, \"costPerItem\": \"0\", \"description\": \"allll\", \"salePerItem\": \"846\", \"serviceName\": \"TAIF TOUR\", \"dateOfService\": \"2026-04-12T00:00:00.000\", \"providerRemarks\": null, \"termsAndConditions\": \"Standard\"}",
+        "created_at": "2026-04-12 07:36:20.794623+00"
+    },
+    {٩
+        "idx": 22,
+        "id": "e0146d25-402d-40e5-853d-5b954a94b82b",
+        "reservation_id": "7296cdd0-5823-4eaa-a647-19b3f3db1b53",
+        "service_no": 2,
+        "service_type": "agent",
+        "display_no": "23-2",
+        "total_sale": "75000.00",
+        "total_cost": "0.00",
+        "payload": "{\"hotelId\": 353, \"totalPax\": 105, \"hotelCity\": null, \"hotelName\": \"179 - Fayrouz Season\", \"roomRates\": [{\"date\": \"2026-04-12T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"700\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}, {\"date\": \"2026-04-13T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"700\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}, {\"date\": \"2026-04-14T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"700\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}, {\"date\": \"2026-04-15T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"700\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}], \"totalCost\": \"0\", \"totalSale\": \"75000\", \"supplierId\": 254, \"arrivalDate\": \"2026-04-12T00:00:00.000\", \"isManualRate\": false, \"roomsSummary\": [{\"pax\": 2, \"totalRn\": 4, \"mealPlan\": \"FB\", \"roomType\": \"Double\", \"totalCost\": \"0\", \"totalSale\": \"2400\", \"numberOfRooms\": 1}, {\"pax\": 3, \"totalRn\": 4, \"mealPlan\": \"FB\", \"roomType\": \"Triple\", \"totalCost\": \"0\", \"totalSale\": \"2600\", \"numberOfRooms\": 1}, {\"pax\": 100, \"totalRn\": 100, \"mealPlan\": \"FB\", \"roomType\": \"Quad\", \"totalCost\": \"0\", \"totalSale\": \"70000\", \"numberOfRooms\": 25}], \"supplierName\": \"407 - سهل للخدمات ارضية (Ground Handling)\", \"departureDate\": \"2026-04-16T00:00:00.000\", \"hotelLocation\": \"Makkah\", \"selectedMealPlan\": \"FB\", \"selectedRoomType\": \"Quad\", \"roomsSummaryRates\": [[{\"date\": \"2026-04-12T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"600\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}, {\"date\": \"2026-04-13T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"600\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}, {\"date\": \"2026-04-14T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"600\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}, {\"date\": \"2026-04-15T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"600\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}], [{\"date\": \"2026-04-12T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"650\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}, {\"date\": \"2026-04-13T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"650\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}, {\"date\": \"2026-04-14T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"650\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}, {\"date\": \"2026-04-15T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"650\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}], [{\"date\": \"2026-04-12T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"700\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}, {\"date\": \"2026-04-13T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"700\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}, {\"date\": \"2026-04-14T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"700\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}, {\"date\": \"2026-04-15T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"700\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}]], \"isPricesWithoutVat\": false}",
+        "created_at": "2026-04-12 07:35:42.426265+00"
+    },
+    {
+        "idx": 23,
+        "id": "a3fcb61a-96da-4058-9abf-4a5f2bb05fd0",
+        "reservation_id": "7296cdd0-5823-4eaa-a647-19b3f3db1b53",
+        "service_no": 1,
+        "service_type": "agent",
+        "display_no": "23-1",
+        "total_sale": "58725.00",
+        "total_cost": "0.00",
+        "payload": "{\"hotelId\": 307, \"totalPax\": 105, \"hotelCity\": null, \"hotelName\": \"133 - Alalami Hotel Company\", \"roomRates\": [{\"date\": \"2026-02-15T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"640\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}, {\"date\": \"2026-02-16T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"640\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}, {\"date\": \"2026-02-17T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"640\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}], \"totalCost\": \"0\", \"totalSale\": \"58725\", \"supplierId\": 254, \"arrivalDate\": \"2026-02-15T00:00:00.000\", \"isManualRate\": false, \"roomsSummary\": [{\"pax\": 2, \"totalRn\": 3, \"mealPlan\": \"FB\", \"roomType\": \"Double\", \"totalCost\": \"0\", \"totalSale\": \"1920\", \"numberOfRooms\": 1}, {\"pax\": 3, \"totalRn\": 3, \"mealPlan\": \"FB\", \"roomType\": \"Triple\", \"totalCost\": \"0\", \"totalSale\": \"2055\", \"numberOfRooms\": 1}, {\"pax\": 100, \"totalRn\": 75, \"mealPlan\": \"FB\", \"roomType\": \"Quad\", \"totalCost\": \"0\", \"totalSale\": \"54750\", \"numberOfRooms\": 25}], \"supplierName\": \"407 - سهل للخدمات ارضية (Ground Handling)\", \"departureDate\": \"2026-02-18T00:00:00.000\", \"hotelLocation\": \"Madinah\", \"selectedMealPlan\": \"FB\", \"selectedRoomType\": \"Double\", \"roomsSummaryRates\": [[{\"date\": \"2026-02-15T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"640\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}, {\"date\": \"2026-02-16T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"640\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}, {\"date\": \"2026-02-17T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"640\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}], [{\"date\": \"2026-02-15T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"685\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}, {\"date\": \"2026-02-16T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"685\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}, {\"date\": \"2026-02-17T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"685\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}], [{\"date\": \"2026-02-15T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"730\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}, {\"date\": \"2026-02-16T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"730\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}, {\"date\": \"2026-02-17T00:00:00.000\", \"costRoom\": \"\", \"saleRoom\": \"730\", \"costMealPerPax\": \"\", \"saleMealPerPax\": \"\"}]], \"isPricesWithoutVat\": false}",
+        "created_at": "2026-04-12 07:28:32.500343+00"
+    }
+]

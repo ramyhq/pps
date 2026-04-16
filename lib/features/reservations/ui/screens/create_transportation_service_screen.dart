@@ -40,6 +40,7 @@ class _CreateTransportationServiceScreenState
   String? _reservationId;
   int? _reservationNo;
   bool _isSaving = false;
+  bool _isInitialLoading = false;
 
   int? _selectedSupplierId;
   String? _selectedSupplierLabel;
@@ -106,97 +107,123 @@ class _CreateTransportationServiceScreenState
     _trips.add(_TripFormData(index: 1));
     _reservationId = widget.reservationId;
     final serviceId = widget.serviceId;
-    if (serviceId != null && serviceId.trim().isNotEmpty) {
+    final reservationId = widget.reservationId;
+    final shouldLoad =
+        (serviceId != null && serviceId.trim().isNotEmpty) ||
+        (reservationId != null && reservationId.trim().isNotEmpty);
+    if (shouldLoad) {
+      _isInitialLoading = true;
       Future<void>.microtask(() async {
         try {
           final repository = ref.read(reservationsRepositoryProvider);
-          final draft = await ref
-              .read(reservationsRepositoryProvider)
-              .fetchTransportationServiceDraft(serviceId);
-          if (!mounted) {
-            return;
-          }
-          String? supplierLabel;
-          final supplierId = draft.supplierId;
-          if (supplierId != null) {
-            final cached =
-                ref.read(reservationSuppliersProvider).value ?? const [];
-            supplierLabel = cached
-                .where((s) => s.id == supplierId)
-                .map((s) => s.label)
-                .cast<String?>()
-                .firstWhere((label) => label != null, orElse: () => null);
-            supplierLabel ??= (await repository.listSuppliers())
-                .where((s) => s.id == supplierId)
-                .map((s) => s.label)
-                .cast<String?>()
-                .firstWhere((label) => label != null, orElse: () => null);
-          }
-          setState(() {
-            _routeType = _RouteType.values.firstWhere(
-              (t) => t.name == draft.routeType,
-              orElse: () => _RouteType.custom,
+          if (serviceId != null && serviceId.trim().isNotEmpty) {
+            final draft = await repository.fetchTransportationServiceDraft(
+              serviceId,
             );
-            _pricingPerTrip = draft.pricingPerTrip;
-            _serviceRoute = draft.serviceRoute;
-            _selectedSupplierId = draft.supplierId;
-            _selectedSupplierLabel = draft.supplierName ?? supplierLabel;
-            _selectedTermsAndConditions =
-                draft.termsAndConditions ?? 'Standard';
-            _providerOptionDate = draft.providerOptionDate;
-            _transactionNotesController.text = draft.transactionNotes ?? '';
-            _providerRemarksController.text = draft.providerRemarks ?? '';
-            if (draft.trips.isNotEmpty) {
-              _salePerItemController.text = draft.trips.first.salePerItem
-                  .toString();
-              _costPerItemController.text = draft.trips.first.costPerItem
-                  .toString();
+            if (!mounted) {
+              return;
             }
-            for (final trip in _trips) {
-              trip.dispose();
+            String? supplierLabel;
+            final supplierId = draft.supplierId;
+            if (supplierId != null) {
+              final cached =
+                  ref.read(reservationSuppliersProvider).value ?? const [];
+              supplierLabel = cached
+                  .where((s) => s.id == supplierId)
+                  .map((s) => s.label)
+                  .cast<String?>()
+                  .firstWhere((label) => label != null, orElse: () => null);
+              supplierLabel ??= (await repository.listSuppliers())
+                  .where((s) => s.id == supplierId)
+                  .map((s) => s.label)
+                  .cast<String?>()
+                  .firstWhere((label) => label != null, orElse: () => null);
             }
-            _trips.clear();
-            for (var i = 0; i < draft.trips.length; i++) {
-              final source = draft.trips[i];
-              final form = _TripFormData(index: i + 1)
-                ..type = source.type
-                ..fromDestination = source.fromDestination
-                ..toDestination = source.toDestination
-                ..vehicle = source.vehicle
-                ..date = source.date;
-              form.timeController.text = source.time;
-              form.quantityController.text = source.quantity.toString();
-              form.paxController.text = source.pax.toString();
-              form.notesController.text = source.notes ?? '';
-              form.salePerItemController.text = source.salePerItem.toString();
-              form.costPerItemController.text = source.costPerItem.toString();
-              _trips.add(form);
+            setState(() {
+              _routeType = _RouteType.values.firstWhere(
+                (t) => t.name == draft.routeType,
+                orElse: () => _RouteType.custom,
+              );
+              _pricingPerTrip = draft.pricingPerTrip;
+              _serviceRoute = draft.serviceRoute;
+              _selectedSupplierId = draft.supplierId;
+              _selectedSupplierLabel = draft.supplierName ?? supplierLabel;
+              _selectedTermsAndConditions =
+                  draft.termsAndConditions ?? 'Standard';
+              _providerOptionDate = draft.providerOptionDate;
+              _transactionNotesController.text = draft.transactionNotes ?? '';
+              _providerRemarksController.text = draft.providerRemarks ?? '';
+              if (draft.trips.isNotEmpty) {
+                _salePerItemController.text = draft.trips.first.salePerItem
+                    .toString();
+                _costPerItemController.text = draft.trips.first.costPerItem
+                    .toString();
+              }
+              for (final trip in _trips) {
+                trip.dispose();
+              }
+              _trips.clear();
+              for (var i = 0; i < draft.trips.length; i++) {
+                final source = draft.trips[i];
+                final form = _TripFormData(index: i + 1)
+                  ..type = source.type
+                  ..fromDestination = source.fromDestination
+                  ..toDestination = source.toDestination
+                  ..vehicle = source.vehicle
+                  ..date = source.date;
+                form.timeController.text = source.time;
+                form.quantityController.text = source.quantity.toString();
+                form.paxController.text = source.pax.toString();
+                form.notesController.text = source.notes ?? '';
+                form.salePerItemController.text = source.salePerItem.toString();
+                form.costPerItemController.text = source.costPerItem.toString();
+                _trips.add(form);
+              }
+              if (_trips.isEmpty) {
+                _trips.add(_TripFormData(index: 1));
+              }
+            });
+          }
+          if (reservationId != null && reservationId.trim().isNotEmpty) {
+            final details = await repository.fetchReservationDetails(
+              reservationId,
+            );
+            if (!mounted) {
+              return;
             }
-            if (_trips.isEmpty) {
-              _trips.add(_TripFormData(index: 1));
-            }
-          });
-        } catch (_) {}
-      });
-    }
-    final reservationId = widget.reservationId;
-    if (reservationId != null) {
-      Future<void>.microtask(() async {
-        try {
-          final details = await ref
-              .read(reservationsRepositoryProvider)
-              .fetchReservationDetails(reservationId);
+            setState(() {
+              _selectedClientId = details.order.client.id;
+              _clientOptionDate =
+                  details.order.clientOptionDate ?? DateTime.now();
+              _guestNameController.text = details.order.guestName ?? '';
+              _reservationNo = details.order.reservationNo;
+            });
+          }
           if (!mounted) {
             return;
           }
-          setState(() {
-            _selectedClientId = details.order.client.id;
-            _clientOptionDate =
-                details.order.clientOptionDate ?? DateTime.now();
-            _guestNameController.text = details.order.guestName ?? '';
-            _reservationNo = details.order.reservationNo;
-          });
-        } catch (_) {}
+          setState(() => _isInitialLoading = false);
+        } catch (e) {
+          if (!mounted) {
+            return;
+          }
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(e.toString())));
+          setState(() => _isInitialLoading = false);
+          final router = GoRouter.maybeOf(context);
+          if (router != null) {
+            if (router.canPop()) {
+              router.pop();
+            } else {
+              router.go('/reservations');
+            }
+            return;
+          }
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          }
+        }
       });
     }
   }
@@ -250,6 +277,7 @@ class _CreateTransportationServiceScreenState
                 : _guestNameController.text.trim(),
             guestNationality: null,
             clientOptionDate: _clientOptionDate,
+            partyPaxManual: null,
           ),
         );
         reservationId = createdOrder.id;
@@ -267,6 +295,7 @@ class _CreateTransportationServiceScreenState
               : _guestNameController.text.trim(),
           guestNationality: null,
           clientOptionDate: _clientOptionDate,
+          partyPaxManual: null,
         );
       }
 
@@ -429,40 +458,60 @@ class _CreateTransportationServiceScreenState
 
   @override
   Widget build(BuildContext context) {
+    final isBlocking = _isInitialLoading || _isSaving;
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(
-          CreateTransportationServiceScreen._pagePadding,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTitleSection(),
-            const SizedBox(
-              height: CreateTransportationServiceScreen._sectionGap,
-            ),
-            Text(
-              'Reservation number : ${_reservationNo ?? '-'}',
-              style: const TextStyle(
-                fontSize: AppFontSizes.title13,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+      body: Stack(
+        children: [
+          AbsorbPointer(
+            absorbing: isBlocking,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(
+                CreateTransportationServiceScreen._pagePadding,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTitleSection(),
+                  const SizedBox(
+                    height: CreateTransportationServiceScreen._sectionGap,
+                  ),
+                  Text(
+                    'Reservation number : ${_reservationNo ?? '-'}',
+                    style: const TextStyle(
+                      fontSize: AppFontSizes.title13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.s12),
+                  _buildReservationDetailsCard(),
+                  const SizedBox(
+                    height: CreateTransportationServiceScreen._sectionGap,
+                  ),
+                  _buildServiceDetailsCard(),
+                  const SizedBox(
+                    height: CreateTransportationServiceScreen._sectionGap,
+                  ),
+                  _buildBottomActions(),
+                  const SizedBox(height: AppSpacing.s40),
+                ],
               ),
             ),
-            const SizedBox(height: AppSpacing.s12),
-            _buildReservationDetailsCard(),
-            const SizedBox(
-              height: CreateTransportationServiceScreen._sectionGap,
+          ),
+          if (isBlocking)
+            Positioned.fill(
+              child: Stack(
+                children: [
+                  ModalBarrier(
+                    dismissible: false,
+                    color: Colors.black.withValues(alpha: 0.18),
+                  ),
+                  const Center(child: CircularProgressIndicator()),
+                ],
+              ),
             ),
-            _buildServiceDetailsCard(),
-            const SizedBox(
-              height: CreateTransportationServiceScreen._sectionGap,
-            ),
-            _buildBottomActions(),
-            const SizedBox(height: AppSpacing.s40),
-          ],
-        ),
+        ],
       ),
     );
   }

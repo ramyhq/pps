@@ -471,6 +471,7 @@ class ReservationsRepositoryImpl implements ReservationsRepository {
               hotelId: agent.hotelId,
               hotelName: agent.hotelName,
               hotelCity: resolvedCity,
+              hotelLocation: agent.hotelLocation,
               supplierId: agent.supplierId,
               supplierName: agent.supplierName,
               selectedRoomType: agent.selectedRoomType,
@@ -515,6 +516,9 @@ class ReservationsRepositoryImpl implements ReservationsRepository {
     required String? guestNationality,
     required DateTime? clientOptionDate,
     String? rmsInvoiceNo,
+    bool setRmsInvoiceNo = false,
+    int? partyPaxManual,
+    bool setPartyPaxManual = false,
   }) async {
     try {
       final updated = await _remoteDataSource.updateReservationMainInfo(
@@ -524,6 +528,9 @@ class ReservationsRepositoryImpl implements ReservationsRepository {
         guestNationality: guestNationality,
         clientOptionDateIso: clientOptionDate?.toIso8601String(),
         rmsInvoiceNo: rmsInvoiceNo,
+        setRmsInvoiceNo: setRmsInvoiceNo,
+        partyPaxManual: partyPaxManual,
+        setPartyPaxManual: setPartyPaxManual,
       );
       return _mapOrder(updated);
     } on PostgrestException catch (error) {
@@ -606,6 +613,9 @@ class ReservationsRepositoryImpl implements ReservationsRepository {
       guestNationality: row['guest_nationality'] as String?,
       clientOptionDate: clientOptionDate,
       rmsInvoiceNo: rmsInvoiceNo,
+      partyPaxManual: int.tryParse(
+        (row['party_pax_manual'] ?? row['manual_party_pax'])?.toString() ?? '',
+      ),
       createdAt: createdAt,
     );
   }
@@ -791,6 +801,7 @@ class ReservationsRepositoryImpl implements ReservationsRepository {
       hotelId: dto.hotelId,
       hotelName: dto.hotelName,
       hotelCity: dto.hotelCity,
+      hotelLocation: dto.hotelLocation,
       supplierId: dto.supplierId,
       supplierName: dto.supplierName,
       selectedRoomType: dto.selectedRoomType,

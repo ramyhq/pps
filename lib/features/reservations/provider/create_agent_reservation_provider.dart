@@ -228,6 +228,7 @@ class CreateAgentReservationNotifier
       hotelId: draft.hotelId,
       hotelName: draft.hotelName,
       hotelCity: draft.hotelCity,
+      hotelLocation: draft.hotelLocation,
       supplierId: draft.supplierId,
       supplierName: draft.supplierName,
       selectedRoomType: null,
@@ -283,6 +284,7 @@ class CreateAgentReservationNotifier
       hotelId: null,
       hotelName: null,
       hotelCity: null,
+      hotelLocation: null,
       supplierId: null,
       supplierName: null,
       selectedRoomType: null,
@@ -323,6 +325,13 @@ class CreateAgentReservationNotifier
       hotelId: hotelId,
       hotelName: hotelName,
       hotelCity: hotelCity,
+    );
+  }
+
+  void setHotelLocation(String? value) {
+    final next = value?.trim();
+    state = state.copyWith(
+      hotelLocation: next == null || next.isEmpty ? null : next,
     );
   }
 
@@ -657,6 +666,7 @@ class CreateAgentReservationNotifier
             guestName: state.guestName,
             guestNationality: state.guestNationality,
             clientOptionDate: state.clientOptionDate,
+            partyPaxManual: null,
           ),
         );
         reservationId = createdOrder.id;
@@ -1058,6 +1068,7 @@ class CreateAgentReservationNotifier
       hotelId: source.hotelId,
       hotelName: source.hotelName,
       hotelCity: source.hotelCity,
+      hotelLocation: source.hotelLocation,
       supplierId: source.supplierId,
       supplierName: source.supplierName,
       selectedRoomType: source.selectedRoomType,
@@ -1133,6 +1144,7 @@ class CreateAgentReservationNotifier
       clearHotelId: true,
       clearHotelName: true,
       clearHotelCity: true,
+      clearHotelLocation: true,
       clearSupplierId: true,
       clearSupplierName: true,
       selectedRoomType: null,
@@ -1164,6 +1176,7 @@ class CreateAgentReservationState {
     required this.hotelId,
     required this.hotelName,
     required this.hotelCity,
+    required this.hotelLocation,
     required this.supplierId,
     required this.supplierName,
     required this.selectedRoomType,
@@ -1198,6 +1211,7 @@ class CreateAgentReservationState {
       hotelId: null,
       hotelName: null,
       hotelCity: null,
+      hotelLocation: null,
       supplierId: null,
       supplierName: null,
       selectedRoomType: null,
@@ -1229,6 +1243,7 @@ class CreateAgentReservationState {
   final int? hotelId;
   final String? hotelName;
   final String? hotelCity;
+  final String? hotelLocation;
   final int? supplierId;
   final String? supplierName;
   final String? selectedRoomType;
@@ -1298,6 +1313,8 @@ class CreateAgentReservationState {
     bool clearHotelName = false,
     String? hotelCity,
     bool clearHotelCity = false,
+    String? hotelLocation,
+    bool clearHotelLocation = false,
     int? supplierId,
     bool clearSupplierId = false,
     String? supplierName,
@@ -1351,6 +1368,9 @@ class CreateAgentReservationState {
       hotelId: clearHotelId ? null : hotelId ?? this.hotelId,
       hotelName: clearHotelName ? null : hotelName ?? this.hotelName,
       hotelCity: clearHotelCity ? null : hotelCity ?? this.hotelCity,
+      hotelLocation: clearHotelLocation
+          ? null
+          : hotelLocation ?? this.hotelLocation,
       supplierId: clearSupplierId ? null : supplierId ?? this.supplierId,
       supplierName: clearSupplierName
           ? null

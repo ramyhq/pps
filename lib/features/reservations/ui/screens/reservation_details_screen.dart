@@ -20,19 +20,29 @@ import 'package:pps/features/reservations/data/models/transportation_service_dra
 import 'package:pps/features/reservations/provider/reservations_data_providers.dart';
 import 'package:pps/features/reservations/ui/utils/reservation_details_calculations.dart';
 import 'package:pps/features/reservations/ui/utils/reservation_details_pdf_generator.dart';
+import 'package:pps/features/reservations/ui/utils/reservation_details_pdf_generator_2.dart';
 
-class ReservationDetailsScreen extends ConsumerWidget {
+class ReservationDetailsScreen extends ConsumerStatefulWidget {
   const ReservationDetailsScreen({super.key, required this.reservationId});
 
   final String? reservationId;
 
+  @override
+  ConsumerState<ReservationDetailsScreen> createState() =>
+      _ReservationDetailsScreenState();
+}
+
+class _ReservationDetailsScreenState
+    extends ConsumerState<ReservationDetailsScreen> {
   static const double _labelFontSize = AppFontSizes.label11;
   static const double _valueFontSize = AppFontSizes.body12;
   static const _dateFormat = 'dd/MM/yyyy';
 
+  ReservationDetails? _cachedDetails;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final id = reservationId;
+  Widget build(BuildContext context) {
+    final id = widget.reservationId;
     if (id == null || id.trim().isEmpty) {
       return const Scaffold(
         backgroundColor: Colors.transparent,
@@ -41,52 +51,87 @@ class ReservationDetailsScreen extends ConsumerWidget {
     }
 
     final detailsAsync = ref.watch(reservationDetailsProvider(id));
+    ref.listen<AsyncValue<ReservationDetails>>(reservationDetailsProvider(id), (
+      previous,
+      next,
+    ) {
+      final value = next.asData?.value;
+      if (value != null) {
+        if (mounted) {
+          setState(() => _cachedDetails = value);
+        }
+      }
+      if (next.hasError && previous?.hasError != true && context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(next.error.toString())));
+        if (GoRouter.of(context).canPop()) {
+          context.pop();
+        } else {
+          context.go('/reservations');
+        }
+      }
+    });
+
+    final details = detailsAsync.asData?.value ?? _cachedDetails;
+    final isBlocking = detailsAsync.isLoading;
 
     return Scaffold(
       backgroundColor: AppColors.light,
-      body: SelectionArea(
-        child: detailsAsync.when(
-          data: (details) {
-            return SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.s16,
-                AppSpacing.s12,
-                AppSpacing.s16,
-                AppSpacing.s16,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      body: Stack(
+        children: [
+          SelectionArea(
+            child: AbsorbPointer(
+              absorbing: isBlocking,
+              child: details == null
+                  ? Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.s16,
+                        AppSpacing.s12,
+                        AppSpacing.s16,
+                        AppSpacing.s16,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [_buildToolbar(context, ref, id, null)],
+                      ),
+                    )
+                  : SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.s16,
+                        AppSpacing.s12,
+                        AppSpacing.s16,
+                        AppSpacing.s16,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildToolbar(context, ref, id, details),
+                          const SizedBox(height: AppSpacing.s14),
+                          _buildMainCard(
+                            context,
+                            ref,
+                            details.order,
+                            details.services,
+                          ),
+                        ],
+                      ),
+                    ),
+            ),
+          ),
+          if (isBlocking)
+            Positioned.fill(
+              child: Stack(
                 children: [
-                  _buildToolbar(context, ref, id, details),
-                  const SizedBox(height: AppSpacing.s14),
-                  _buildMainCard(context, ref, details.order, details.services),
-                ],
-              ),
-            );
-          },
-          error: (error, _) {
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.s16,
-                AppSpacing.s12,
-                AppSpacing.s16,
-                AppSpacing.s16,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildToolbar(context, ref, id, null),
-                  const SizedBox(height: AppSpacing.s8),
-                  Text(
-                    error.toString(),
-                    style: const TextStyle(color: AppColors.danger),
+                  ModalBarrier(
+                    dismissible: false,
+                    color: Colors.black.withValues(alpha: 0.18),
                   ),
+                  const Center(child: CircularProgressIndicator()),
                 ],
               ),
-            );
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-        ),
+            ),
+        ],
       ),
     );
   }
@@ -179,7 +224,44 @@ class ReservationDetailsScreen extends ConsumerWidget {
                     await _printReservationPdf(context, payload);
                     return;
                   }
-                  await _showRmsInvoiceBeforePrintDialog(context, ref, payload);
+                  await _showRmsInvoiceBeforePrintDialog(
+                    context,
+                    ref,
+                    payload,
+                    onPrint: _printReservationPdf,
+                  );
+                  return;
+                case _ReservationToolbarAction.print2:
+                  final payload = details;
+                  if (payload == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text(AppStrings.print2)),
+                    );
+                    return;
+                  }
+                  final rmsText = (payload.order.rmsInvoiceNo ?? '').trim();
+                  if (rmsText.isNotEmpty) {
+                    await _printReservationPdf2(context, payload);
+                    return;
+                  }
+                  await _showRmsInvoiceBeforePrintDialog(
+                    context,
+                    ref,
+                    payload,
+                    onPrint: _printReservationPdf2,
+                  );
+                  return;
+                case _ReservationToolbarAction.guide:
+                  if (!context.mounted) {
+                    return;
+                  }
+                  await _showCalculationsGuideDialog(context);
+                  return;
+                case _ReservationToolbarAction.printUsage:
+                  if (!context.mounted) {
+                    return;
+                  }
+                  await _showPrintUsageDialog(context);
                   return;
                 case _ReservationToolbarAction.delete:
                   await _confirmDeleteReservationOrder(context, ref, id);
@@ -190,9 +272,26 @@ class ReservationDetailsScreen extends ConsumerWidget {
           entries: const [
             AppDropMenuEntry.action(
               value: _ReservationToolbarAction.print,
-              label: AppStrings.print,
+              label: AppStrings.print1Summary,
               icon: Icons.print_outlined,
               isDanger: true,
+            ),
+            AppDropMenuEntry.action(
+              value: _ReservationToolbarAction.print2,
+              label: AppStrings.print2Summary,
+              icon: Icons.print_outlined,
+              isDanger: true,
+            ),
+            AppDropMenuEntry.divider(),
+            AppDropMenuEntry.action(
+              value: _ReservationToolbarAction.printUsage,
+              label: AppStrings.printUsageTitle,
+              icon: Icons.help_outline,
+            ),
+            AppDropMenuEntry.action(
+              value: _ReservationToolbarAction.guide,
+              label: AppStrings.calculationsGuide,
+              icon: Icons.info_outline,
             ),
             AppDropMenuEntry.action(
               value: _ReservationToolbarAction.delete,
@@ -420,8 +519,12 @@ class ReservationDetailsScreen extends ConsumerWidget {
           Align(
             alignment: Alignment.centerRight,
             child: IconButton(
-              onPressed: () =>
-                  _showEditReservationMainInfoDialog(context, ref, order),
+              onPressed: () => _showEditReservationMainInfoDialog(
+                context,
+                ref,
+                order,
+                services,
+              ),
               icon: const Icon(Icons.edit, color: AppColors.primary, size: 16),
               tooltip: AppStrings.editInfoTooltip,
               constraints: const BoxConstraints(),
@@ -436,8 +539,9 @@ class ReservationDetailsScreen extends ConsumerWidget {
                   constraints.maxWidth >= AppBreakpoints.detailsDesktop;
               if (isDesktop) {
                 const gap = AppSpacing.s12;
+                const leftInset = AppSpacing.s12;
                 final colWidth =
-                    (constraints.maxWidth - (gap * 3)).clamp(
+                    (constraints.maxWidth - leftInset - (gap * 3)).clamp(
                       0.0,
                       double.infinity,
                     ) /
@@ -449,7 +553,7 @@ class ReservationDetailsScreen extends ConsumerWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(width: AppSpacing.s12),
+                        const SizedBox(width: leftInset),
 
                         SizedBox(
                           width: colWidth,
@@ -481,7 +585,7 @@ class ReservationDetailsScreen extends ConsumerWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(width: AppSpacing.s12),
+                        const SizedBox(width: leftInset),
 
                         SizedBox(
                           width: colWidth,
@@ -505,6 +609,23 @@ class ReservationDetailsScreen extends ConsumerWidget {
                             AppStrings.rmsInvoiceNo,
                             rmsInvoiceText,
                             indicatorDotColor: AppColors.primary,
+                            indicatorMessage:
+                                AppStrings.rmsInvoiceIndicatorTooltip,
+                            emphasizeValue: true,
+                          ),
+                        ),
+                        const SizedBox(width: gap),
+                        SizedBox(
+                          width: colWidth,
+                          child: _buildMainInfoItem(
+                            AppStrings.partyPaxManual,
+                            order.partyPaxManual?.toString() ?? '-',
+                            indicatorDotColor:
+                                _hasPartyPaxMismatch(order, services)
+                                ? AppColors.danger
+                                : null,
+                            indicatorMessage:
+                                AppStrings.partyPaxManualIndicatorTooltip,
                             emphasizeValue: true,
                           ),
                         ),
@@ -573,6 +694,20 @@ class ReservationDetailsScreen extends ConsumerWidget {
                       AppStrings.rmsInvoiceNo,
                       rmsInvoiceText,
                       indicatorDotColor: AppColors.primary,
+                      indicatorMessage: AppStrings.rmsInvoiceIndicatorTooltip,
+                      emphasizeValue: true,
+                    ),
+                  ),
+                  SizedBox(
+                    width: clampWidth(ReservationDetailsLayout.mainInfoToWidth),
+                    child: _buildMainInfoItem(
+                      AppStrings.partyPaxManual,
+                      order.partyPaxManual?.toString() ?? '-',
+                      indicatorDotColor: _hasPartyPaxMismatch(order, services)
+                          ? AppColors.danger
+                          : null,
+                      indicatorMessage:
+                          AppStrings.partyPaxManualIndicatorTooltip,
                       emphasizeValue: true,
                     ),
                   ),
@@ -589,6 +724,7 @@ class ReservationDetailsScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     ReservationOrder order,
+    List<ReservationServiceSummary> services,
   ) async {
     final repository = ref.read(reservationsRepositoryProvider);
     late final List<Client> clients;
@@ -609,6 +745,9 @@ class ReservationDetailsScreen extends ConsumerWidget {
     final guestNameController = TextEditingController(text: order.guestName);
     final rmsInvoiceController = TextEditingController(
       text: order.rmsInvoiceNo,
+    );
+    final partyPaxController = TextEditingController(
+      text: order.partyPaxManual?.toString() ?? '',
     );
 
     final format = DateFormat(_dateFormat);
@@ -666,6 +805,55 @@ class ReservationDetailsScreen extends ConsumerWidget {
               setState(() => isSaving = true);
               try {
                 final entered = rmsInvoiceController.text.trim();
+                final rawParty = partyPaxController.text.trim();
+                final parsedParty = int.tryParse(rawParty);
+                final partyPaxManual = (parsedParty == null || parsedParty <= 0)
+                    ? null
+                    : parsedParty;
+                if (partyPaxManual != null) {
+                  final mismatchLines = _partyPaxMismatchLines(
+                    partyPaxManual,
+                    services,
+                  );
+                  if (mismatchLines.isNotEmpty && dialogContext.mounted) {
+                    final shouldContinue = await AppDialog.show<bool>(
+                      context: dialogContext,
+                      barrierDismissible: false,
+                      title: const Text(AppStrings.partyPaxMismatchTitle),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${AppStrings.partyPaxMismatchBodyPrefix} ${partyPaxManual.toString()}',
+                          ),
+                          const SizedBox(height: AppSpacing.s10),
+                          for (final line in mismatchLines) Text('- $line'),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () =>
+                              Navigator.of(dialogContext).pop(false),
+                          child: const Text(AppStrings.fixNow),
+                        ),
+                        ElevatedButton(
+                          onPressed: () =>
+                              Navigator.of(dialogContext).pop(true),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                          ),
+                          child: const Text(AppStrings.continueAnyway),
+                        ),
+                      ],
+                    );
+                    if (shouldContinue != true) {
+                      setState(() => isSaving = false);
+                      return;
+                    }
+                  }
+                }
                 final updated = await repository.updateReservationMainInfo(
                   reservationId: order.id,
                   clientId: selectedClientId,
@@ -675,6 +863,9 @@ class ReservationDetailsScreen extends ConsumerWidget {
                   guestNationality: order.guestNationality,
                   clientOptionDate: optionDate,
                   rmsInvoiceNo: entered.isEmpty ? null : entered,
+                  setRmsInvoiceNo: true,
+                  partyPaxManual: partyPaxManual,
+                  setPartyPaxManual: true,
                 );
                 if (entered.isNotEmpty &&
                     (updated.rmsInvoiceNo ?? '').trim() != entered &&
@@ -798,6 +989,12 @@ class ReservationDetailsScreen extends ConsumerWidget {
                                     ? ReservationDetailsLayout
                                           .editRmsInvoiceWidthMd
                                     : maxWidth;
+                                final partyPaxWidth =
+                                    maxWidth >= AppBreakpoints.dialogLg
+                                    ? ReservationDetailsLayout.editDateWidthLg
+                                    : maxWidth >= AppBreakpoints.dialogMd
+                                    ? ReservationDetailsLayout.editDateWidthMd
+                                    : maxWidth;
 
                                 final isRow =
                                     maxWidth >=
@@ -805,7 +1002,8 @@ class ReservationDetailsScreen extends ConsumerWidget {
                                         guestWidth +
                                         dateWidth +
                                         rmsInvoiceWidth +
-                                        (gap * 3));
+                                        partyPaxWidth +
+                                        (gap * 4));
 
                                 final fieldClient = SizedBox(
                                   width: clientWidth,
@@ -873,6 +1071,24 @@ class ReservationDetailsScreen extends ConsumerWidget {
                                   ),
                                 );
 
+                                final fieldPartyPax = SizedBox(
+                                  width: partyPaxWidth,
+                                  child: TextField(
+                                    controller: partyPaxController,
+                                    inputFormatters: [
+                                      ArabicDigitsToEnglishInputFormatter(),
+                                    ],
+                                    decoration:
+                                        decoration(
+                                          AppStrings.partyPaxManual,
+                                        ).copyWith(
+                                          hintText:
+                                              AppStrings.partyPaxManualHint,
+                                        ),
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                );
+
                                 if (isRow) {
                                   return Row(
                                     crossAxisAlignment:
@@ -885,6 +1101,8 @@ class ReservationDetailsScreen extends ConsumerWidget {
                                       fieldDate,
                                       const SizedBox(width: gap),
                                       fieldRmsInvoice,
+                                      const SizedBox(width: gap),
+                                      fieldPartyPax,
                                     ],
                                   );
                                 }
@@ -897,6 +1115,7 @@ class ReservationDetailsScreen extends ConsumerWidget {
                                     fieldGuest,
                                     fieldDate,
                                     fieldRmsInvoice,
+                                    fieldPartyPax,
                                   ],
                                 );
                               },
@@ -995,6 +1214,7 @@ class ReservationDetailsScreen extends ConsumerWidget {
     guestNameController.dispose();
     optionDateController.dispose();
     rmsInvoiceController.dispose();
+    partyPaxController.dispose();
   }
 
   Future<void> _printReservationPdf(
@@ -1014,11 +1234,29 @@ class ReservationDetailsScreen extends ConsumerWidget {
     }
   }
 
+  Future<void> _printReservationPdf2(
+    BuildContext context,
+    ReservationDetails details,
+  ) async {
+    try {
+      final bytes = await ReservationDetailsPdfGenerator2.buildPdf(details);
+      await Printing.layoutPdf(onLayout: (format) async => bytes);
+    } catch (e) {
+      if (!context.mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
+  }
+
   Future<void> _showRmsInvoiceBeforePrintDialog(
     BuildContext context,
     WidgetRef ref,
-    ReservationDetails details,
-  ) async {
+    ReservationDetails details, {
+    required Future<void> Function(BuildContext, ReservationDetails) onPrint,
+  }) async {
     final order = details.order;
     final repository = ref.read(reservationsRepositoryProvider);
 
@@ -1066,6 +1304,8 @@ class ReservationDetailsScreen extends ConsumerWidget {
                   guestNationality: order.guestNationality,
                   clientOptionDate: order.clientOptionDate,
                   rmsInvoiceNo: entered.isEmpty ? null : entered,
+                  setRmsInvoiceNo: true,
+                  partyPaxManual: order.partyPaxManual,
                 );
                 if (entered.isNotEmpty &&
                     (updated.rmsInvoiceNo ?? '').trim() != entered &&
@@ -1089,6 +1329,7 @@ class ReservationDetailsScreen extends ConsumerWidget {
                         rmsInvoiceNo: entered.isEmpty
                             ? updated.rmsInvoiceNo
                             : entered,
+                        partyPaxManual: updated.partyPaxManual,
                         createdAt: updated.createdAt,
                       );
                 ref.invalidate(reservationDetailsProvider(order.id));
@@ -1300,11 +1541,11 @@ class ReservationDetailsScreen extends ConsumerWidget {
       case _RmsInvoicePrintAction.cancel:
         return;
       case _RmsInvoicePrintAction.continueOnly:
-        await _printReservationPdf(context, details);
+        await onPrint(context, details);
         return;
       case _RmsInvoicePrintAction.saveAndPrint:
         final orderToPrint = updatedOrder ?? details.order;
-        await _printReservationPdf(
+        await onPrint(
           context,
           ReservationDetails(order: orderToPrint, services: details.services),
         );
@@ -1355,7 +1596,13 @@ class ReservationDetailsScreen extends ConsumerWidget {
                 : Column(
                     children: [
                       for (final service in services) ...[
-                        _buildServiceAccordion(context, ref, order, service),
+                        _buildServiceAccordion(
+                          context,
+                          ref,
+                          order,
+                          service,
+                          services,
+                        ),
                         const SizedBox(height: AppSpacing.s8),
                       ],
                     ],
@@ -1371,6 +1618,7 @@ class ReservationDetailsScreen extends ConsumerWidget {
     WidgetRef ref,
     ReservationOrder order,
     ReservationServiceSummary service,
+    List<ReservationServiceSummary> services,
   ) {
     late final String title;
     final tag = '(#${service.displayNo})';
@@ -1378,6 +1626,73 @@ class ReservationDetailsScreen extends ConsumerWidget {
     late final Widget summary;
     late final Widget details;
     String? typePillText;
+    String? secondaryPillText;
+    Color? secondaryPillColor;
+    String? secondaryPillWarningMessage;
+    Color? indicatorDotColor;
+    String? indicatorDotMessage;
+
+    String? locationCodeForAgent(AgentReservationDraft? agent) {
+      final rawLocation = agent?.hotelLocation?.trim().toLowerCase();
+      final rawCity = agent?.hotelCity?.trim().toLowerCase();
+      final isMed =
+          rawLocation == AppStrings.madinah.toLowerCase() ||
+          rawLocation == AppStrings.med.toLowerCase() ||
+          rawLocation == 'المدينة' ||
+          rawLocation == 'المدينه' ||
+          rawLocation == 'مدينه' ||
+          rawLocation == 'مدينة' ||
+          (rawLocation != null &&
+              (rawLocation.contains('med') || rawLocation.contains('madin'))) ||
+          (rawLocation == null &&
+              rawCity != null &&
+              (rawCity.contains('med') || rawCity.contains('madin')));
+      final isMak =
+          rawLocation == AppStrings.makkah.toLowerCase() ||
+          rawLocation == AppStrings.mak.toLowerCase() ||
+          rawLocation == 'مكة' ||
+          rawLocation == 'مكه' ||
+          (rawLocation == null &&
+              rawCity != null &&
+              (rawCity.contains('makk') || rawCity.contains('mak')));
+      if (isMed) {
+        return AppStrings.med;
+      }
+      if (isMak) {
+        return AppStrings.mak;
+      }
+      return null;
+    }
+
+    Map<String, int> locationSegmentPaxTotals() {
+      final totals = <String, int>{};
+      for (final s in services) {
+        if (s.type != ReservationServiceType.agent) {
+          continue;
+        }
+        final agent = s.agentDetails;
+        final code = locationCodeForAgent(agent);
+        if (code == null) {
+          continue;
+        }
+        final pax = agent?.totalPax ?? 0;
+        if (pax <= 0) {
+          continue;
+        }
+        totals[code] = (totals[code] ?? 0) + pax;
+      }
+      return totals;
+    }
+
+    final manualPartyPax = order.partyPaxManual;
+    final locationTotals = locationSegmentPaxTotals();
+    final hasManual = manualPartyPax != null && manualPartyPax > 0;
+    final medTotal = locationTotals[AppStrings.med] ?? 0;
+    final makTotal = locationTotals[AppStrings.mak] ?? 0;
+    final warnLowerLocation =
+        (!hasManual && medTotal > 0 && makTotal > 0 && medTotal != makTotal)
+        ? (medTotal < makTotal ? AppStrings.med : AppStrings.mak)
+        : null;
 
     switch (service.type) {
       case ReservationServiceType.transportation:
@@ -1435,6 +1750,31 @@ class ReservationDetailsScreen extends ConsumerWidget {
         final agent = service.agentDetails;
         title = _serviceTitle(service);
         typePillText = AppStrings.agentDirect;
+        final rawLocation = agent?.hotelLocation?.trim().toLowerCase();
+        final rawCity = agent?.hotelCity?.trim().toLowerCase();
+        final isMed =
+            rawLocation == AppStrings.madinah.toLowerCase() ||
+            rawLocation == AppStrings.med.toLowerCase() ||
+            rawLocation == 'مدينة' ||
+            rawLocation == 'المدينة' ||
+            (rawLocation == null &&
+                rawCity != null &&
+                (rawCity.contains('med') || rawCity.contains('madin')));
+        final isMak =
+            rawLocation == AppStrings.makkah.toLowerCase() ||
+            rawLocation == AppStrings.mak.toLowerCase() ||
+            rawLocation == 'مكة' ||
+            rawLocation == 'مكه' ||
+            (rawLocation == null &&
+                rawCity != null &&
+                (rawCity.contains('makk') || rawCity.contains('mak')));
+        if (isMed) {
+          secondaryPillText = AppStrings.med;
+          secondaryPillColor = AppColors.actionGreen;
+        } else if (isMak) {
+          secondaryPillText = AppStrings.mak;
+          secondaryPillColor = AppColors.dangerAccent;
+        }
         summary = Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
 
@@ -1496,7 +1836,45 @@ class ReservationDetailsScreen extends ConsumerWidget {
             },
           ),
         );
-        details = _buildHotelDirectServiceBody(service, order);
+        details = _buildHotelDirectServiceBody(service, order, services);
+        final locCode = locationCodeForAgent(agent);
+        final locationPax = locCode == null ? null : locationTotals[locCode];
+        final hasLocationMismatchWithManual =
+            hasManual &&
+            locCode != null &&
+            (locationPax ?? 0) > 0 &&
+            locationPax != manualPartyPax;
+        final hasLowerLocationMismatch =
+            !hasManual &&
+            warnLowerLocation != null &&
+            locCode != null &&
+            locCode == warnLowerLocation;
+        if (hasLocationMismatchWithManual || hasLowerLocationMismatch) {
+          indicatorDotColor = AppColors.danger;
+          indicatorDotMessage = AppStrings.warningIndicatorDefaultTooltip;
+        }
+        if (secondaryPillText != null) {
+          if (hasLocationMismatchWithManual) {
+            secondaryPillWarningMessage = AppStrings.locationPaxMismatchTemplate
+                .replaceAll('{place}', secondaryPillText)
+                .replaceAll('{locationPax}', locationPax.toString())
+                .replaceAll('{manualPax}', manualPartyPax.toString());
+          } else if (hasLowerLocationMismatch) {
+            final otherCode = warnLowerLocation == AppStrings.med
+                ? AppStrings.mak
+                : AppStrings.med;
+            final otherPax = locationTotals[otherCode] ?? 0;
+            secondaryPillWarningMessage = AppStrings
+                .locationPaxDifferenceTemplate
+                .replaceAll('{place}', secondaryPillText)
+                .replaceAll('{placePax}', locationPax.toString())
+                .replaceAll('{otherPlace}', otherCode)
+                .replaceAll('{otherPax}', otherPax.toString());
+          }
+          if (secondaryPillWarningMessage != null) {
+            indicatorDotMessage = secondaryPillWarningMessage;
+          }
+        }
       case ReservationServiceType.general:
         final general = service.generalDetails;
         title = _serviceTitle(service);
@@ -1525,6 +1903,22 @@ class ReservationDetailsScreen extends ConsumerWidget {
                     child: _buildServiceInfoColumn(
                       AppStrings.quantity,
                       (general?.quantity ?? 1).toString(),
+                      warningMessage:
+                          (manualPartyPax != null &&
+                              manualPartyPax > 0 &&
+                              general != null &&
+                              general.quantity > 0 &&
+                              general.quantity != manualPartyPax)
+                          ? AppStrings.generalQtyMismatchTemplate
+                                .replaceAll(
+                                  '{qty}',
+                                  general.quantity.toString(),
+                                )
+                                .replaceAll(
+                                  '{manualPax}',
+                                  manualPartyPax.toString(),
+                                )
+                          : null,
                     ),
                   ),
                   SizedBox(
@@ -1568,6 +1962,11 @@ class ReservationDetailsScreen extends ConsumerWidget {
       tag: tag,
       icon: _serviceIcon(service.type),
       typePillText: typePillText,
+      secondaryPillText: secondaryPillText,
+      secondaryPillColor: secondaryPillColor,
+      secondaryPillWarningMessage: secondaryPillWarningMessage,
+      indicatorDotColor: indicatorDotColor,
+      indicatorDotMessage: indicatorDotMessage,
       summary: summary,
       details: details,
       initiallyExpanded: true,
@@ -1676,11 +2075,120 @@ class ReservationDetailsScreen extends ConsumerWidget {
   Widget _buildHotelDirectServiceBody(
     ReservationServiceSummary service,
     ReservationOrder order,
+    List<ReservationServiceSummary> services,
   ) {
     final agent = service.agentDetails;
+    final manual = order.partyPaxManual;
+    final location = agent?.hotelLocation?.trim();
+    final city = agent?.hotelCity?.trim();
+    final place = (location != null && location.isNotEmpty)
+        ? location
+        : (city != null && city.isNotEmpty ? city : AppStrings.hotel);
+    final hasManual = manual != null && manual > 0;
+
+    String? locationCodeForAgent(AgentReservationDraft? agent) {
+      final rawLocation = agent?.hotelLocation?.trim().toLowerCase();
+      final rawCity = agent?.hotelCity?.trim().toLowerCase();
+      final isMed =
+          rawLocation == AppStrings.madinah.toLowerCase() ||
+          rawLocation == AppStrings.med.toLowerCase() ||
+          rawLocation == 'المدينة' ||
+          rawLocation == 'المدينه' ||
+          rawLocation == 'مدينه' ||
+          rawLocation == 'مدينة' ||
+          (rawLocation != null &&
+              (rawLocation.contains('med') || rawLocation.contains('madin'))) ||
+          (rawLocation == null &&
+              rawCity != null &&
+              (rawCity.contains('med') || rawCity.contains('madin')));
+      final isMak =
+          rawLocation == AppStrings.makkah.toLowerCase() ||
+          rawLocation == AppStrings.mak.toLowerCase() ||
+          rawLocation == 'مكة' ||
+          rawLocation == 'مكه' ||
+          (rawLocation == null &&
+              rawCity != null &&
+              (rawCity.contains('makk') || rawCity.contains('mak')));
+      if (isMed) {
+        return AppStrings.med;
+      }
+      if (isMak) {
+        return AppStrings.mak;
+      }
+      return null;
+    }
+
+    Map<String, int> locationTotals() {
+      final totals = <String, int>{};
+      for (final s in services) {
+        if (s.type != ReservationServiceType.agent) {
+          continue;
+        }
+        final code = locationCodeForAgent(s.agentDetails);
+        if (code == null) {
+          continue;
+        }
+        final pax = s.agentDetails?.totalPax ?? 0;
+        if (pax <= 0) {
+          continue;
+        }
+        totals[code] = (totals[code] ?? 0) + pax;
+      }
+      return totals;
+    }
+
+    String? paxWarningMessage;
+    final code = locationCodeForAgent(agent);
+    final totals = locationTotals();
+    final locationPax = code == null ? null : totals[code];
+    final medTotal = totals[AppStrings.med] ?? 0;
+    final makTotal = totals[AppStrings.mak] ?? 0;
+    final warnLowerLocation =
+        (!hasManual && medTotal > 0 && makTotal > 0 && medTotal != makTotal)
+        ? (medTotal < makTotal ? AppStrings.med : AppStrings.mak)
+        : null;
+
+    final shouldWarnForThisService = hasManual
+        ? (code != null && (locationPax ?? 0) > 0 && locationPax != manual)
+        : (warnLowerLocation != null && code == warnLowerLocation);
+
+    if (shouldWarnForThisService) {
+      if (hasManual) {
+        paxWarningMessage = AppStrings.locationPaxMismatchTemplate
+            .replaceAll('{place}', place)
+            .replaceAll('{locationPax}', (locationPax ?? 0).toString())
+            .replaceAll('{manualPax}', manual.toString());
+      } else {
+        final otherCode = warnLowerLocation == AppStrings.med
+            ? AppStrings.mak
+            : AppStrings.med;
+        final otherPax = totals[otherCode] ?? 0;
+        paxWarningMessage = AppStrings.locationPaxDifferenceTemplate
+            .replaceAll('{place}', place)
+            .replaceAll('{placePax}', (locationPax ?? 0).toString())
+            .replaceAll('{otherPlace}', otherCode)
+            .replaceAll('{otherPax}', otherPax.toString());
+      }
+    }
+
+    final paxMessage = paxWarningMessage;
+    final hasMismatch = paxMessage != null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (hasMismatch) ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+            child: Text(
+              paxMessage,
+              style: const TextStyle(
+                color: AppColors.danger,
+                fontSize: AppFontSizes.body12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
         _buildHotelReservationsTable(service),
         const Padding(
           padding: EdgeInsets.symmetric(vertical: 6),
@@ -1699,6 +2207,7 @@ class ReservationDetailsScreen extends ConsumerWidget {
                   child: _buildServiceInfoColumn(
                     AppStrings.pax,
                     agent == null ? '-' : agent.totalPax.toString(),
+                    warningMessage: paxWarningMessage,
                   ),
                 ),
                 SizedBox(
@@ -2320,6 +2829,7 @@ class ReservationDetailsScreen extends ConsumerWidget {
     String value, {
     IconData? icon,
     IconData? actionIcon,
+    String? warningMessage,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2338,7 +2848,10 @@ class ReservationDetailsScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 13, color: AppColors.textSecondary),
+              Tooltip(
+                message: label,
+                child: Icon(icon, size: 13, color: AppColors.textSecondary),
+              ),
               const SizedBox(width: 4),
             ],
             Flexible(
@@ -2354,9 +2867,26 @@ class ReservationDetailsScreen extends ConsumerWidget {
                 ),
               ),
             ),
+            if (warningMessage != null) ...[
+              const SizedBox(width: 6),
+              Tooltip(
+                message: warningMessage,
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: AppColors.danger,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            ],
             if (actionIcon != null) ...[
               const SizedBox(width: 6),
-              Icon(actionIcon, size: 14, color: AppColors.primary),
+              Tooltip(
+                message: label,
+                child: Icon(actionIcon, size: 14, color: AppColors.primary),
+              ),
             ],
           ],
         ),
@@ -2526,6 +3056,8 @@ class ReservationDetailsScreen extends ConsumerWidget {
     IconData? icon,
     bool isIcon = false,
     Color? indicatorDotColor,
+    String? indicatorMessage,
+    String? iconMessage,
     bool emphasizeValue = false,
   }) {
     return Column(
@@ -2544,18 +3076,26 @@ class ReservationDetailsScreen extends ConsumerWidget {
             ),
             if (indicatorDotColor != null) ...[
               const SizedBox(width: 6),
-              Container(
-                width: 7,
-                height: 7,
-                decoration: BoxDecoration(
-                  color: indicatorDotColor,
-                  shape: BoxShape.circle,
+              Tooltip(
+                message:
+                    indicatorMessage ??
+                    AppStrings.warningIndicatorDefaultTooltip,
+                child: Container(
+                  width: 7,
+                  height: 7,
+                  decoration: BoxDecoration(
+                    color: indicatorDotColor,
+                    shape: BoxShape.circle,
+                  ),
                 ),
               ),
             ],
             if (icon != null) ...[
               const SizedBox(width: 4),
-              Icon(icon, size: 12, color: AppColors.success),
+              Tooltip(
+                message: iconMessage ?? label,
+                child: Icon(icon, size: 12, color: AppColors.success),
+              ),
             ],
           ],
         ),
@@ -2578,6 +3118,98 @@ class ReservationDetailsScreen extends ConsumerWidget {
               height: 1.1,
             ),
           ),
+      ],
+    );
+  }
+
+  bool _hasPartyPaxMismatch(
+    ReservationOrder order,
+    List<ReservationServiceSummary> services,
+  ) {
+    final manual = order.partyPaxManual;
+    if (manual == null || manual <= 0) {
+      return false;
+    }
+    for (final s in services) {
+      if (s.type != ReservationServiceType.agent) {
+        continue;
+      }
+      final p = s.agentDetails?.totalPax ?? 0;
+      if (p > 0 && p != manual) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  List<String> _partyPaxMismatchLines(
+    int manual,
+    List<ReservationServiceSummary> services,
+  ) {
+    final lines = <String>[];
+    for (final s in services) {
+      if (s.type != ReservationServiceType.agent) {
+        continue;
+      }
+      final a = s.agentDetails;
+      if (a == null) {
+        continue;
+      }
+      final p = a.totalPax;
+      if (p <= 0 || p == manual) {
+        continue;
+      }
+      final location = a.hotelLocation?.trim();
+      final city = a.hotelCity?.trim();
+      final place = (location != null && location.isNotEmpty)
+          ? location
+          : (city != null && city.isNotEmpty ? city : AppStrings.hotel);
+      final hotelName = a.hotelName?.trim().isNotEmpty == true
+          ? a.hotelName!.trim()
+          : AppStrings.hotel;
+      lines.add('$place — $hotelName — $p');
+    }
+    return lines;
+  }
+
+  Future<void> _showCalculationsGuideDialog(BuildContext context) {
+    return AppDialog.show<void>(
+      context: context,
+      title: const Text(AppStrings.calculationsGuide),
+      content: const SingleChildScrollView(
+        child: Text(AppStrings.calculationsGuideBody),
+      ),
+      actions: [
+        Builder(
+          builder: (dialogContext) {
+            return TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text(AppStrings.close),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Future<void> _showPrintUsageDialog(BuildContext context) {
+    return AppDialog.show<void>(
+      context: context,
+      title: const Text(AppStrings.printUsageTitle),
+      content: const SingleChildScrollView(
+        child: Text(AppStrings.printUsageBody),
+      ),
+      maxWidth: 640,
+      barrierDismissible: false,
+      actions: [
+        Builder(
+          builder: (dialogContext) {
+            return TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text(AppStrings.close),
+            );
+          },
+        ),
       ],
     );
   }
@@ -2903,7 +3535,7 @@ class _TriangleDownPainter extends CustomPainter {
   }
 }
 
-enum _ReservationToolbarAction { print, delete }
+enum _ReservationToolbarAction { print, print2, printUsage, guide, delete }
 
 enum _ServiceAction { print, attachments, delete }
 
@@ -3032,6 +3664,11 @@ class _ServiceAccordionCard extends StatefulWidget {
     required this.tag,
     required this.icon,
     this.typePillText,
+    this.secondaryPillText,
+    this.secondaryPillColor,
+    this.secondaryPillWarningMessage,
+    this.indicatorDotColor,
+    this.indicatorDotMessage,
     required this.summary,
     required this.details,
     this.initiallyExpanded = true,
@@ -3043,6 +3680,11 @@ class _ServiceAccordionCard extends StatefulWidget {
   final String tag;
   final IconData icon;
   final String? typePillText;
+  final String? secondaryPillText;
+  final Color? secondaryPillColor;
+  final String? secondaryPillWarningMessage;
+  final Color? indicatorDotColor;
+  final String? indicatorDotMessage;
   final Widget summary;
   final Widget details;
   final bool initiallyExpanded;
@@ -3125,25 +3767,90 @@ class _ServiceAccordionCardState extends State<_ServiceAccordionCard> {
                       ),
                       if (widget.typePillText != null) ...[
                         const SizedBox(width: AppSpacing.s8),
-                        Container(
-                          height: AppHeights.chip16,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.s6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.info.withValues(
-                              alpha: AppAlphas.surface15,
+                        Tooltip(
+                          message: widget.typePillText!,
+                          child: Container(
+                            height: AppHeights.chip16,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.s6,
                             ),
-                            borderRadius: BorderRadius.circular(AppRadii.r3),
+                            decoration: BoxDecoration(
+                              color: AppColors.info.withValues(
+                                alpha: AppAlphas.surface15,
+                              ),
+                              borderRadius: BorderRadius.circular(AppRadii.r3),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              widget.typePillText!,
+                              style: const TextStyle(
+                                color: AppColors.info,
+                                fontSize: AppFontSizes.badge10,
+                                fontWeight: FontWeight.w600,
+                                height: 1.0,
+                              ),
+                            ),
                           ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            widget.typePillText!,
-                            style: const TextStyle(
-                              color: AppColors.info,
-                              fontSize: AppFontSizes.badge10,
-                              fontWeight: FontWeight.w600,
-                              height: 1.0,
+                        ),
+                      ],
+                      if (widget.secondaryPillText != null &&
+                          widget.secondaryPillColor != null) ...[
+                        const SizedBox(width: AppSpacing.s8),
+                        Tooltip(
+                          message:
+                              widget.secondaryPillWarningMessage ??
+                              widget.secondaryPillText!,
+                          child: Container(
+                            height: AppHeights.chip16,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.s6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: widget.secondaryPillColor!.withValues(
+                                alpha: AppAlphas.surface15,
+                              ),
+                              borderRadius: BorderRadius.circular(AppRadii.r3),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              widget.secondaryPillText!,
+                              style: TextStyle(
+                                color: widget.secondaryPillColor!,
+                                fontSize: AppFontSizes.badge10,
+                                fontWeight: FontWeight.w600,
+                                height: 1.0,
+                              ),
+                            ),
+                          ),
+                        ),
+                        if (widget.secondaryPillWarningMessage != null) ...[
+                          const SizedBox(width: 6),
+                          Tooltip(
+                            message: widget.secondaryPillWarningMessage!,
+                            child: Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                color: AppColors.danger,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                      if (widget.indicatorDotColor != null &&
+                          widget.secondaryPillWarningMessage == null) ...[
+                        const SizedBox(width: AppSpacing.s8),
+                        Tooltip(
+                          message:
+                              widget.indicatorDotMessage ??
+                              AppStrings.warningIndicatorDefaultTooltip,
+                          child: Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: widget.indicatorDotColor,
+                              shape: BoxShape.circle,
                             ),
                           ),
                         ),
@@ -3631,7 +4338,7 @@ class _TripLabelValue extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            fontSize: ReservationDetailsScreen._labelFontSize,
+            fontSize: AppFontSizes.label11,
             fontWeight: FontWeight.w700,
             color: AppColors.textPrimary,
             height: 1.0,
@@ -3641,7 +4348,7 @@ class _TripLabelValue extends StatelessWidget {
         Text(
           value,
           style: TextStyle(
-            fontSize: ReservationDetailsScreen._valueFontSize,
+            fontSize: AppFontSizes.body12,
             fontWeight: FontWeight.w500,
             color: value == '-'
                 ? AppColors.textSecondary
