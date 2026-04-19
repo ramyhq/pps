@@ -7,7 +7,6 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:pps/core/constants/app_strings.dart';
-import 'package:pps/features/reservations/data/models/agent_reservation_draft.dart';
 import 'package:pps/features/reservations/data/models/reservation_details.dart';
 import 'package:pps/features/reservations/data/models/reservation_order.dart';
 import 'package:pps/features/reservations/data/models/reservation_service.dart';
@@ -56,21 +55,38 @@ class ReservationDetailsPdfGenerator2 {
         .where((s) => s.type == ReservationServiceType.general)
         .toList();
 
+    final totalHotelNights = _totalHotelNightsForTopTable(agentServices);
+    final addOnsDivisor = _addOnsPartyPaxDivisor(
+      manualPartyPax: details.order.partyPaxManual,
+      agentServices: agentServices,
+    );
+    final isManualAddOnsDivisor =
+        (details.order.partyPaxManual ?? 0) == addOnsDivisor &&
+        addOnsDivisor > 0;
+    final totalAddOnsSale = _sumMoney([
+      ...generalServices.map((s) => s.totalSale),
+      ...transportationServices.map((s) => s.totalSale),
+    ]);
+
     final additionalPerPax = _additionalPerPax(
       manualPartyPax: details.order.partyPaxManual,
       agentServices: agentServices,
       transportationServices: transportationServices,
       generalServices: generalServices,
     );
-    final totalHotelNights = _totalHotelNightsForTopTable(agentServices);
+    final additionalPerPaxPerNight = (addOnsDivisor > 0 && totalHotelNights > 0)
+        ? (totalAddOnsSale /
+                  (Decimal.fromInt(addOnsDivisor) *
+                      Decimal.fromInt(totalHotelNights)))
+              .toDecimal(scaleOnInfinitePrecision: 6)
+        : Decimal.zero;
     final roomLines = _roomLines(
       agentServices,
-      additionalPerPax,
+      additionalPerPaxPerNight,
+      addOnsDivisor,
       totalHotelNights,
     );
-    final totalSale = roomLines.isEmpty
-        ? _sumMoney(details.services.map((s) => s.totalSale))
-        : _sumMoney(roomLines.map((l) => l.total));
+    final totalSale = _sumMoney(details.services.map((s) => s.totalSale));
 
     doc.addPage(
       pw.MultiPage(
@@ -106,6 +122,23 @@ class ReservationDetailsPdfGenerator2 {
                   style: const pw.TextStyle(fontSize: 11),
                 ),
               ],
+            ),
+          ),
+          pw.SizedBox(height: 2),
+          pw.Align(
+            alignment: pw.Alignment.centerRight,
+            child: pw.Text(
+              isManualAddOnsDivisor
+                  ? 'Add-ons divisor: Manual Pax ($addOnsDivisor)'
+                  : 'Add-ons divisor: Qty Pax ($addOnsDivisor)',
+              style: const pw.TextStyle(fontSize: 9),
+            ),
+          ),
+          pw.Align(
+            alignment: pw.Alignment.centerRight,
+            child: pw.Text(
+              'Add-ons / Pax / Night: ${_formatMoney(additionalPerPaxPerNight)}',
+              style: const pw.TextStyle(fontSize: 9),
             ),
           ),
           pw.SizedBox(height: 12),
@@ -584,11 +617,10 @@ class ReservationDetailsPdfGenerator2 {
       if (a == null) {
         continue;
       }
-      final hotelKey = (a.hotelId ?? a.hotelName ?? '').toString().trim();
       final locationKey = _hotelLocationKey(a.hotelLocation, a.hotelCity);
       final nights = max(0, a.departureDate.difference(a.arrivalDate).inDays);
       final key =
-          '${hotelKey}__${locationKey ?? ''}__${a.arrivalDate.millisecondsSinceEpoch}__${a.departureDate.millisecondsSinceEpoch}';
+          '${locationKey ?? ''}__${a.arrivalDate.millisecondsSinceEpoch}__${a.departureDate.millisecondsSinceEpoch}';
       acc.putIfAbsent(key, () => nights);
     }
 
@@ -1033,107 +1065,204 @@ class ReservationDetailsPdfGenerator2 {
 
   static List<_RoomLine> _roomLines(
     List<ReservationServiceSummary> agentServices,
-    Decimal additionalPerPax,
+    Decimal additionalPerPaxPerNight,
+    int addOnsDivisor,
     int totalHotelNights,
   ) {
-    final totalSaleByRoomType = <String, Decimal>{};
-    final stays = <String, _RoomStayAccumulator>{};
+    final segments = <String, _RoomSegmentAccumulator>{};
     for (final s in agentServices) {
       final a = s.agentDetails;
       if (a == null) {
         continue;
       }
-      final hotelKey = (a.hotelId ?? a.hotelName ?? '').toString().trim();
-      final supplierKey = (a.supplierId ?? '').toString().trim();
-      final locationKey = _hotelLocationKey(a.hotelLocation, a.hotelCity) ?? '';
-      final stayKey =
-          '${hotelKey}__${supplierKey}__${a.arrivalDate.millisecondsSinceEpoch}__${a.departureDate.millisecondsSinceEpoch}__$locationKey';
-      final nightsSegmentKey =
-          '${hotelKey}__${a.arrivalDate.millisecondsSinceEpoch}__${a.departureDate.millisecondsSinceEpoch}__$locationKey';
-
-      final stay = stays.putIfAbsent(
-        stayKey,
-        () => _RoomStayAccumulator(
+      final locationCode =
+          _hotelLocationKey(a.hotelLocation, a.hotelCity) ?? '';
+      final segmentKey =
+          '${locationCode.trim()}__${a.arrivalDate.millisecondsSinceEpoch}__${a.departureDate.millisecondsSinceEpoch}';
+      final seg = segments.putIfAbsent(
+        segmentKey,
+        () => _RoomSegmentAccumulator(
+          locationCode: locationCode,
           arrivalDate: a.arrivalDate,
           departureDate: a.departureDate,
-          fallbackRoomRates: a.roomRates,
-          nightsSegmentKey: nightsSegmentKey,
         ),
       );
 
       for (final room in a.roomsSummary) {
-        final lineKey = room.roomType;
-        stay.updateRoom(
-          key: lineKey,
-          roomType: room.roomType,
-          mealPlan: room.mealPlan,
-          numberOfRooms: room.numberOfRooms,
-          roomRates: room.roomRates,
-        );
-        totalSaleByRoomType[lineKey] =
-            (totalSaleByRoomType[lineKey] ?? Decimal.zero) + room.totalSale;
-      }
-    }
-
-    final Map<String, _RoomLineAccumulator> acc = {};
-    for (final stay in stays.values) {
-      for (final e in stay.rooms.entries) {
-        final lineKey = e.key;
-        final room = e.value;
-        final current = acc.putIfAbsent(
-          lineKey,
-          () => _RoomLineAccumulator(
+        final acc = seg.rooms.putIfAbsent(
+          room.roomType,
+          () => _RoomSegmentRoomAccumulator(
             roomType: room.roomType,
             mealPlan: room.mealPlan,
           ),
         );
-        if (current.mealPlan != room.mealPlan) {
-          current.mealPlan = 'Mixed';
+        if (acc.mealPlan != room.mealPlan) {
+          acc.mealPlan = 'Mixed';
+        }
+        acc.qty += room.numberOfRooms;
+        acc.totalSale += room.totalSale;
+      }
+    }
+
+    if (totalHotelNights > 0 && addOnsDivisor > 0) {
+      for (final seg in segments.values) {
+        final segNights = seg.nights;
+        if (segNights <= 0) {
+          continue;
+        }
+        final segAddOnsTotal =
+            additionalPerPaxPerNight *
+            Decimal.fromInt(addOnsDivisor) *
+            Decimal.fromInt(segNights);
+
+        final segTotalSale = seg.rooms.values.fold<Decimal>(
+          Decimal.zero,
+          (sum, r) => sum + r.totalSale,
+        );
+        if (segTotalSale > Decimal.zero) {
+          for (final room in seg.rooms.values) {
+            if (room.totalSale <= Decimal.zero) {
+              continue;
+            }
+            room.addOnsTotal += (segAddOnsTotal * room.totalSale / segTotalSale)
+                .toDecimal(scaleOnInfinitePrecision: 6);
+          }
+          continue;
         }
 
-        current.totalSaleAcrossBookings =
-            totalSaleByRoomType[lineKey] ?? Decimal.zero;
-
-        for (var day = 0; day < stay.nights; day++) {
-          final dateKey = _dateKey(stay.arrivalDate.add(Duration(days: day)));
-          final existing = current.roomsPerDay[dateKey] ?? 0;
-          current.roomsPerDay[dateKey] = existing + room.numberOfRooms;
+        final segTotalQty = seg.rooms.values.fold<int>(
+          0,
+          (sum, r) => sum + max(0, r.qty),
+        );
+        if (segTotalQty <= 0) {
+          continue;
+        }
+        for (final room in seg.rooms.values) {
+          if (room.qty <= 0) {
+            continue;
+          }
+          room.addOnsTotal +=
+              (segAddOnsTotal *
+                      Decimal.fromInt(room.qty) /
+                      Decimal.fromInt(segTotalQty))
+                  .toDecimal(scaleOnInfinitePrecision: 6);
         }
       }
     }
 
-    final lines = acc.values.map((a) {
-      final paxPerRoom = _paxPerRoomForRoomType(a.roomType);
-      final qtyDisplay = a.roomsPerDay.values.isEmpty
-          ? 0
-          : a.roomsPerDay.values.reduce(max);
-      final paxDisplay = max(1, qtyDisplay * paxPerRoom);
+    final byRoomType = <String, List<_RoomSegmentRoomLine>>{};
+    for (final seg in segments.values) {
+      for (final room in seg.rooms.values) {
+        if (room.qty <= 0) {
+          continue;
+        }
+        byRoomType
+            .putIfAbsent(room.roomType, () => [])
+            .add(
+              _RoomSegmentRoomLine(
+                roomType: room.roomType,
+                mealPlan: room.mealPlan,
+                qty: room.qty,
+                nights: seg.nights,
+                locationCode: seg.locationCode,
+                totalSale: room.totalSale,
+                addOnsTotal: room.addOnsTotal,
+              ),
+            );
+      }
+    }
 
-      final baseRatePerPax =
-          (a.totalSaleAcrossBookings / Decimal.fromInt(max(1, paxDisplay)))
-              .toDecimal(scaleOnInfinitePrecision: 6);
-      final rateWithAddOns = (baseRatePerPax + additionalPerPax).round(
-        scale: 2,
-      );
-      final totalWithAddOns = (rateWithAddOns * Decimal.fromInt(paxDisplay))
-          .round(scale: 2);
-      return _RoomLine(
-        roomType: a.roomType,
-        mealPlan: a.mealPlan,
-        qty: qtyDisplay,
-        nights: totalHotelNights,
-        pax: paxDisplay,
-        ratePerPax: rateWithAddOns,
-        total: totalWithAddOns,
-      );
-    }).toList()..sort((a, b) => a.roomType.compareTo(b.roomType));
+    final lines = <_RoomLine>[];
+    for (final entry in byRoomType.entries) {
+      final roomType = entry.key;
+      final segmentsForType = entry.value;
+      segmentsForType.sort((a, b) {
+        final byLocation = _locationSortOrder(
+          a.locationCode,
+        ).compareTo(_locationSortOrder(b.locationCode));
+        if (byLocation != 0) {
+          return byLocation;
+        }
+        return a.nights.compareTo(b.nights);
+      });
 
+      final canMergeAcrossSegments =
+          segmentsForType.length > 1 &&
+          segmentsForType.every((s) => s.qty == segmentsForType.first.qty);
+
+      if (canMergeAcrossSegments) {
+        final mergedMealPlan = _mergeMealPlans(segmentsForType);
+        final mergedQty = segmentsForType.first.qty;
+        final mergedTotalSale = segmentsForType.fold<Decimal>(
+          Decimal.zero,
+          (sum, s) => sum + s.totalSale,
+        );
+        final mergedAddOnsTotal = segmentsForType.fold<Decimal>(
+          Decimal.zero,
+          (sum, s) => sum + s.addOnsTotal,
+        );
+
+        final paxPerRoom = _paxPerRoomForRoomType(roomType);
+        final paxDisplay = max(1, mergedQty * paxPerRoom);
+        final baseRatePerPax =
+            (mergedTotalSale / Decimal.fromInt(max(1, paxDisplay))).toDecimal(
+              scaleOnInfinitePrecision: 6,
+            );
+        final lineAddOnsPerPax =
+            (mergedAddOnsTotal / Decimal.fromInt(max(1, paxDisplay))).toDecimal(
+              scaleOnInfinitePrecision: 6,
+            );
+        final rateWithAddOns = (baseRatePerPax + lineAddOnsPerPax).round(
+          scale: 2,
+        );
+        final totalWithAddOns = (rateWithAddOns * Decimal.fromInt(paxDisplay))
+            .round(scale: 2);
+        lines.add(
+          _RoomLine(
+            roomType: roomType,
+            mealPlan: mergedMealPlan,
+            qty: mergedQty,
+            nights: totalHotelNights,
+            pax: paxDisplay,
+            ratePerPax: rateWithAddOns,
+            total: totalWithAddOns,
+          ),
+        );
+      } else {
+        for (final segRoom in segmentsForType) {
+          final displayRoomType = segRoom.locationCode.trim().isEmpty
+              ? segRoom.roomType
+              : '${segRoom.roomType} (${segRoom.locationCode.trim()})';
+          final paxPerRoom = _paxPerRoomForRoomType(segRoom.roomType);
+          final paxDisplay = max(1, segRoom.qty * paxPerRoom);
+          final baseRatePerPax =
+              (segRoom.totalSale / Decimal.fromInt(max(1, paxDisplay)))
+                  .toDecimal(scaleOnInfinitePrecision: 6);
+          final lineAddOnsPerPax =
+              (segRoom.addOnsTotal / Decimal.fromInt(max(1, paxDisplay)))
+                  .toDecimal(scaleOnInfinitePrecision: 6);
+          final rateWithAddOns = (baseRatePerPax + lineAddOnsPerPax).round(
+            scale: 2,
+          );
+          final totalWithAddOns = (rateWithAddOns * Decimal.fromInt(paxDisplay))
+              .round(scale: 2);
+          lines.add(
+            _RoomLine(
+              roomType: displayRoomType,
+              mealPlan: segRoom.mealPlan,
+              qty: segRoom.qty,
+              nights: segRoom.nights,
+              pax: paxDisplay,
+              ratePerPax: rateWithAddOns,
+              total: totalWithAddOns,
+            ),
+          );
+        }
+      }
+    }
+
+    lines.sort(_compareRoomLines);
     return lines;
-  }
-
-  static int _dateKey(DateTime date) {
-    final d = DateTime(date.year, date.month, date.day);
-    return d.millisecondsSinceEpoch;
   }
 
   static String? _hotelLocationKey(String? rawLocation, String? rawCity) {
@@ -1170,7 +1299,10 @@ class ReservationDetailsPdfGenerator2 {
     required List<ReservationServiceSummary> transportationServices,
     required List<ReservationServiceSummary> generalServices,
   }) {
-    final hotelPartyPax = manualPartyPax ?? _hotelPartyPax(agentServices);
+    final hotelPartyPax = _addOnsPartyPaxDivisor(
+      manualPartyPax: manualPartyPax,
+      agentServices: agentServices,
+    );
     if (hotelPartyPax <= 0) {
       return Decimal.zero;
     }
@@ -1183,6 +1315,37 @@ class ReservationDetailsPdfGenerator2 {
     return (totalAddOnsSale / Decimal.fromInt(hotelPartyPax)).toDecimal(
       scaleOnInfinitePrecision: 6,
     );
+  }
+
+  static int _addOnsPartyPaxDivisor({
+    required int? manualPartyPax,
+    required List<ReservationServiceSummary> agentServices,
+  }) {
+    final manual = manualPartyPax ?? 0;
+    if (manual > 0) {
+      return manual;
+    }
+
+    var maxFromRooms = 0;
+    for (final s in agentServices) {
+      final a = s.agentDetails;
+      if (a == null) {
+        continue;
+      }
+      var segmentPax = 0;
+      for (final room in a.roomsSummary) {
+        final paxPerRoom = _paxPerRoomForRoomType(room.roomType);
+        segmentPax += max(0, room.numberOfRooms) * max(1, paxPerRoom);
+      }
+      if (segmentPax > maxFromRooms) {
+        maxFromRooms = segmentPax;
+      }
+    }
+    if (maxFromRooms > 0) {
+      return maxFromRooms;
+    }
+
+    return _hotelPartyPax(agentServices);
   }
 
   static int _hotelPartyPax(List<ReservationServiceSummary> agentServices) {
@@ -1203,6 +1366,9 @@ class ReservationDetailsPdfGenerator2 {
 
   static int _paxPerRoomForRoomType(String roomType) {
     final normalized = roomType.trim().toLowerCase();
+    if (normalized == 'single' || normalized == 'sgl' || normalized == 'sng') {
+      return 1;
+    }
     if (normalized == 'triple' || normalized == 'trip') {
       return 3;
     }
@@ -1213,6 +1379,93 @@ class ReservationDetailsPdfGenerator2 {
       return 5;
     }
     return 2;
+  }
+
+  static int _locationSortOrder(String raw) {
+    final normalized = raw.trim().toUpperCase();
+    if (normalized == AppStrings.med) {
+      return 0;
+    }
+    if (normalized == AppStrings.mak) {
+      return 1;
+    }
+    return 2;
+  }
+
+  static String _baseRoomType(String raw) {
+    final trimmed = raw.trim();
+    final idx = trimmed.indexOf(' (');
+    if (idx <= 0) {
+      return trimmed;
+    }
+    return trimmed.substring(0, idx).trim();
+  }
+
+  static String _extractLocationCode(String raw) {
+    final trimmed = raw.trim();
+    final start = trimmed.indexOf('(');
+    final end = trimmed.indexOf(')');
+    if (start < 0 || end <= start) {
+      return '';
+    }
+    return trimmed.substring(start + 1, end).trim();
+  }
+
+  static int _roomTypeSortOrder(String rawRoomType) {
+    final normalized = rawRoomType.trim().toLowerCase();
+    if (normalized == 'single' || normalized == 'sgl' || normalized == 'sng') {
+      return 1;
+    }
+    if (normalized == 'double' || normalized == 'dbl') {
+      return 2;
+    }
+    if (normalized == 'triple' || normalized == 'trip') {
+      return 3;
+    }
+    if (normalized == 'quad') {
+      return 4;
+    }
+    if (normalized == 'quent' || normalized == 'quint') {
+      return 5;
+    }
+    return 99;
+  }
+
+  static int _compareRoomLines(_RoomLine a, _RoomLine b) {
+    final baseA = _baseRoomType(a.roomType);
+    final baseB = _baseRoomType(b.roomType);
+    final byOrder = _roomTypeSortOrder(
+      baseA,
+    ).compareTo(_roomTypeSortOrder(baseB));
+    if (byOrder != 0) {
+      return byOrder;
+    }
+    final byType = baseA.compareTo(baseB);
+    if (byType != 0) {
+      return byType;
+    }
+    final locA = _extractLocationCode(a.roomType);
+    final locB = _extractLocationCode(b.roomType);
+    final byLoc = _locationSortOrder(locA).compareTo(_locationSortOrder(locB));
+    if (byLoc != 0) {
+      return byLoc;
+    }
+    final byMeal = a.mealPlan.compareTo(b.mealPlan);
+    if (byMeal != 0) {
+      return byMeal;
+    }
+    return a.nights.compareTo(b.nights);
+  }
+
+  static String _mergeMealPlans(List<_RoomSegmentRoomLine> segmentsForType) {
+    var mealPlan = segmentsForType.first.mealPlan;
+    for (final s in segmentsForType.skip(1)) {
+      if (mealPlan != s.mealPlan) {
+        mealPlan = 'Mixed';
+        break;
+      }
+    }
+    return mealPlan;
   }
 
   static String _formatDate(DateTime? date) {
@@ -1297,13 +1550,49 @@ class _RoomLine {
   final Decimal total;
 }
 
-class _RoomLineAccumulator {
-  _RoomLineAccumulator({required this.roomType, required this.mealPlan});
+class _RoomSegmentAccumulator {
+  _RoomSegmentAccumulator({
+    required this.locationCode,
+    required this.arrivalDate,
+    required this.departureDate,
+  });
+
+  final String locationCode;
+  final DateTime arrivalDate;
+  final DateTime departureDate;
+  final Map<String, _RoomSegmentRoomAccumulator> rooms = {};
+
+  int get nights => max(0, departureDate.difference(arrivalDate).inDays);
+}
+
+class _RoomSegmentRoomAccumulator {
+  _RoomSegmentRoomAccumulator({required this.roomType, required this.mealPlan});
 
   final String roomType;
   String mealPlan;
-  final Map<int, int> roomsPerDay = {};
-  Decimal totalSaleAcrossBookings = Decimal.zero;
+  int qty = 0;
+  Decimal totalSale = Decimal.zero;
+  Decimal addOnsTotal = Decimal.zero;
+}
+
+class _RoomSegmentRoomLine {
+  const _RoomSegmentRoomLine({
+    required this.roomType,
+    required this.mealPlan,
+    required this.qty,
+    required this.nights,
+    required this.locationCode,
+    required this.totalSale,
+    required this.addOnsTotal,
+  });
+
+  final String roomType;
+  final String mealPlan;
+  final int qty;
+  final int nights;
+  final String locationCode;
+  final Decimal totalSale;
+  final Decimal addOnsTotal;
 }
 
 class _HotelSegmentLine {
@@ -1322,93 +1611,6 @@ class _HotelSegmentLine {
   final DateTime arrivalDate;
   final DateTime departureDate;
   final int nights;
-}
-
-class _RoomStayRoomEntry {
-  _RoomStayRoomEntry({
-    required this.roomType,
-    required this.mealPlan,
-    required this.numberOfRooms,
-    required this.perRoomRoomTotal,
-    required this.roomsByMealPlan,
-  });
-
-  final String roomType;
-  String mealPlan;
-  int numberOfRooms;
-  Decimal perRoomRoomTotal;
-  final Map<String, int> roomsByMealPlan;
-}
-
-class _RoomStayAccumulator {
-  _RoomStayAccumulator({
-    required this.arrivalDate,
-    required this.departureDate,
-    required this.fallbackRoomRates,
-    required this.nightsSegmentKey,
-  });
-
-  final DateTime arrivalDate;
-  final DateTime departureDate;
-  final List<AgentReservationRoomRate> fallbackRoomRates;
-  final String nightsSegmentKey;
-
-  final Map<String, _RoomStayRoomEntry> rooms = {};
-
-  int get nights => max(0, departureDate.difference(arrivalDate).inDays);
-
-  void updateRoom({
-    required String key,
-    required String roomType,
-    required String mealPlan,
-    required int numberOfRooms,
-    required List<AgentReservationRoomRate> roomRates,
-  }) {
-    final existing = rooms[key];
-    final normalizedMealPlan = mealPlan.trim().isEmpty ? '-' : mealPlan.trim();
-    final nextRoomsByMealPlan = <String, int>{...?existing?.roomsByMealPlan};
-    final currentForMealPlan = nextRoomsByMealPlan[normalizedMealPlan] ?? 0;
-    nextRoomsByMealPlan[normalizedMealPlan] = max(
-      currentForMealPlan,
-      numberOfRooms,
-    );
-
-    var totalRooms = 0;
-    for (final v in nextRoomsByMealPlan.values) {
-      totalRooms += v;
-    }
-    final displayMealPlan = nextRoomsByMealPlan.length == 1
-        ? nextRoomsByMealPlan.keys.first
-        : 'Mixed';
-
-    final ratesToUse = roomRates.isNotEmpty ? roomRates : fallbackRoomRates;
-    var perRoomRoomTotal = Decimal.zero;
-    for (final r in ratesToUse) {
-      final normalized = r.saleRoom.trim().replaceAll(',', '');
-      perRoomRoomTotal += Decimal.tryParse(normalized) ?? Decimal.zero;
-    }
-
-    if (existing == null) {
-      rooms[key] = _RoomStayRoomEntry(
-        roomType: roomType,
-        mealPlan: displayMealPlan,
-        numberOfRooms: totalRooms,
-        perRoomRoomTotal: perRoomRoomTotal,
-        roomsByMealPlan: nextRoomsByMealPlan,
-      );
-      return;
-    }
-
-    existing.mealPlan = displayMealPlan;
-    existing.numberOfRooms = totalRooms;
-    existing.roomsByMealPlan
-      ..clear()
-      ..addAll(nextRoomsByMealPlan);
-    existing.perRoomRoomTotal =
-        existing.perRoomRoomTotal.compareTo(perRoomRoomTotal) >= 0
-        ? existing.perRoomRoomTotal
-        : perRoomRoomTotal;
-  }
 }
 
 const String _cancellationText =

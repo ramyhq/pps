@@ -62,10 +62,15 @@ class ReservationDetailsPdfGenerator {
       transportationServices: transportationServices,
       generalServices: generalServices,
     );
+    final addOnsDivisor = _addOnsPartyPaxDivisor(
+      manualPartyPax: details.order.partyPaxManual,
+      agentServices: agentServices,
+    );
+    final isManualAddOnsDivisor =
+        (details.order.partyPaxManual ?? 0) == addOnsDivisor &&
+        addOnsDivisor > 0;
     final roomLines = _roomLines(agentServices, additionalPerPax);
-    final totalSale = roomLines.isEmpty
-        ? _sumMoney(details.services.map((s) => s.totalSale))
-        : _sumMoney(roomLines.map((l) => l.total));
+    final totalSale = _sumMoney(details.services.map((s) => s.totalSale));
 
     doc.addPage(
       pw.MultiPage(
@@ -101,6 +106,16 @@ class ReservationDetailsPdfGenerator {
                   style: const pw.TextStyle(fontSize: 11),
                 ),
               ],
+            ),
+          ),
+          pw.SizedBox(height: 2),
+          pw.Align(
+            alignment: pw.Alignment.centerRight,
+            child: pw.Text(
+              isManualAddOnsDivisor
+                  ? 'Add-ons divisor: Manual Pax ($addOnsDivisor)'
+                  : 'Add-ons divisor: Qty Pax ($addOnsDivisor)',
+              style: const pw.TextStyle(fontSize: 9),
             ),
           ),
           pw.SizedBox(height: 12),
@@ -1095,7 +1110,7 @@ class ReservationDetailsPdfGenerator {
         ratePerPax: rateWithAddOns,
         total: totalWithAddOns,
       );
-    }).toList()..sort((a, b) => a.roomType.compareTo(b.roomType));
+    }).toList()..sort(_compareRoomLines);
 
     return lines;
   }
@@ -1139,7 +1154,10 @@ class ReservationDetailsPdfGenerator {
     required List<ReservationServiceSummary> transportationServices,
     required List<ReservationServiceSummary> generalServices,
   }) {
-    final hotelPartyPax = manualPartyPax ?? _hotelPartyPax(agentServices);
+    final hotelPartyPax = _addOnsPartyPaxDivisor(
+      manualPartyPax: manualPartyPax,
+      agentServices: agentServices,
+    );
     if (hotelPartyPax <= 0) {
       return Decimal.zero;
     }
@@ -1152,6 +1170,37 @@ class ReservationDetailsPdfGenerator {
     return (totalAddOnsSale / Decimal.fromInt(hotelPartyPax)).toDecimal(
       scaleOnInfinitePrecision: 6,
     );
+  }
+
+  static int _addOnsPartyPaxDivisor({
+    required int? manualPartyPax,
+    required List<ReservationServiceSummary> agentServices,
+  }) {
+    final manual = manualPartyPax ?? 0;
+    if (manual > 0) {
+      return manual;
+    }
+
+    var maxFromRooms = 0;
+    for (final s in agentServices) {
+      final a = s.agentDetails;
+      if (a == null) {
+        continue;
+      }
+      var segmentPax = 0;
+      for (final room in a.roomsSummary) {
+        final paxPerRoom = _paxPerRoomForRoomType(room.roomType);
+        segmentPax += max(0, room.numberOfRooms) * max(1, paxPerRoom);
+      }
+      if (segmentPax > maxFromRooms) {
+        maxFromRooms = segmentPax;
+      }
+    }
+    if (maxFromRooms > 0) {
+      return maxFromRooms;
+    }
+
+    return _hotelPartyPax(agentServices);
   }
 
   static int _hotelPartyPax(List<ReservationServiceSummary> agentServices) {
@@ -1172,6 +1221,9 @@ class ReservationDetailsPdfGenerator {
 
   static int _paxPerRoomForRoomType(String roomType) {
     final normalized = roomType.trim().toLowerCase();
+    if (normalized == 'single' || normalized == 'sgl' || normalized == 'sng') {
+      return 1;
+    }
     if (normalized == 'triple' || normalized == 'trip') {
       return 3;
     }
@@ -1182,6 +1234,44 @@ class ReservationDetailsPdfGenerator {
       return 5;
     }
     return 2;
+  }
+
+  static int _roomTypeSortOrder(String rawRoomType) {
+    final normalized = rawRoomType.trim().toLowerCase();
+    if (normalized == 'single' || normalized == 'sgl' || normalized == 'sng') {
+      return 1;
+    }
+    if (normalized == 'double' || normalized == 'dbl') {
+      return 2;
+    }
+    if (normalized == 'triple' || normalized == 'trip') {
+      return 3;
+    }
+    if (normalized == 'quad') {
+      return 4;
+    }
+    if (normalized == 'quent' || normalized == 'quint') {
+      return 5;
+    }
+    return 99;
+  }
+
+  static int _compareRoomLines(_RoomLine a, _RoomLine b) {
+    final byOrder = _roomTypeSortOrder(
+      a.roomType,
+    ).compareTo(_roomTypeSortOrder(b.roomType));
+    if (byOrder != 0) {
+      return byOrder;
+    }
+    final byType = a.roomType.compareTo(b.roomType);
+    if (byType != 0) {
+      return byType;
+    }
+    final byMeal = a.mealPlan.compareTo(b.mealPlan);
+    if (byMeal != 0) {
+      return byMeal;
+    }
+    return a.nights.compareTo(b.nights);
   }
 
   static String _formatDate(DateTime? date) {

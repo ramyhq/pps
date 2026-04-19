@@ -219,6 +219,12 @@ class _ReservationDetailsScreenState
                     );
                     return;
                   }
+                  final print1Diffs = <String>[];
+                  final canUsePrint1 = _canUsePrintSimple(payload, print1Diffs);
+                  if (!canUsePrint1) {
+                    await _showPrint1SimpleBlockedDialog(context, print1Diffs);
+                    return;
+                  }
                   final rmsText = (payload.order.rmsInvoiceNo ?? '').trim();
                   if (rmsText.isNotEmpty) {
                     await _printReservationPdf(context, payload);
@@ -3207,6 +3213,164 @@ class _ReservationDetailsScreenState
             return TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
               child: const Text(AppStrings.close),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  bool _canUsePrintSimple(ReservationDetails details, List<String> diffs) {
+    final agentServices = details.services.where(
+      (s) => s.type == ReservationServiceType.agent,
+    );
+
+    final med = <String, int>{};
+    final mak = <String, int>{};
+
+    for (final s in agentServices) {
+      final a = s.agentDetails;
+      if (a == null) {
+        continue;
+      }
+      final locationCode = _normalizeHotelLocationKey(
+        a.hotelLocation,
+        a.hotelCity,
+      );
+      if (locationCode == null) {
+        continue;
+      }
+      final target = locationCode == AppStrings.med
+          ? med
+          : (locationCode == AppStrings.mak ? mak : null);
+      if (target == null) {
+        continue;
+      }
+      for (final room in a.roomsSummary) {
+        final t = room.roomType.trim();
+        if (t.isEmpty) {
+          continue;
+        }
+        final qty = room.numberOfRooms;
+        if (qty <= 0) {
+          continue;
+        }
+        target[t] = (target[t] ?? 0) + qty;
+      }
+    }
+
+    final hasMed = med.values.any((v) => v > 0);
+    final hasMak = mak.values.any((v) => v > 0);
+    if (!hasMed || !hasMak) {
+      return true;
+    }
+
+    final roomTypes = <String>{...med.keys, ...mak.keys}.toList()
+      ..sort((a, b) {
+        final byOrder = _roomTypeSortOrder(a).compareTo(_roomTypeSortOrder(b));
+        if (byOrder != 0) {
+          return byOrder;
+        }
+        return a.compareTo(b);
+      });
+
+    for (final t in roomTypes) {
+      final medQty = med[t] ?? 0;
+      final makQty = mak[t] ?? 0;
+      if (medQty != makQty) {
+        diffs.add('$t: MED=$medQty, MAK=$makQty');
+      }
+    }
+
+    return diffs.isEmpty;
+  }
+
+  int _roomTypeSortOrder(String rawRoomType) {
+    final normalized = rawRoomType.trim().toLowerCase();
+    if (normalized == 'single' || normalized == 'sgl' || normalized == 'sng') {
+      return 1;
+    }
+    if (normalized == 'double' || normalized == 'dbl') {
+      return 2;
+    }
+    if (normalized == 'triple' || normalized == 'trip') {
+      return 3;
+    }
+    if (normalized == 'quad') {
+      return 4;
+    }
+    if (normalized == 'quent' || normalized == 'quint') {
+      return 5;
+    }
+    return 99;
+  }
+
+  String? _normalizeHotelLocationKey(String? rawLocation, String? rawCity) {
+    final normalizedLocation = rawLocation?.trim().toLowerCase();
+    if (normalizedLocation == 'med' ||
+        normalizedLocation == 'madinah' ||
+        normalizedLocation == 'مدينة' ||
+        normalizedLocation == 'المدينة') {
+      return AppStrings.med;
+    }
+    if (normalizedLocation == 'mak' ||
+        normalizedLocation == 'makkah' ||
+        normalizedLocation == 'مكة' ||
+        normalizedLocation == 'مكه') {
+      return AppStrings.mak;
+    }
+
+    final normalizedCity = rawCity?.trim().toLowerCase();
+    if (normalizedCity == null || normalizedCity.isEmpty) {
+      return null;
+    }
+    if (normalizedCity.contains('med') || normalizedCity.contains('madin')) {
+      return AppStrings.med;
+    }
+    if (normalizedCity.contains('makk') || normalizedCity.contains('mak')) {
+      return AppStrings.mak;
+    }
+    return null;
+  }
+
+  Future<void> _showPrint1SimpleBlockedDialog(
+    BuildContext context,
+    List<String> diffLines,
+  ) {
+    final body = StringBuffer()
+      ..write(AppStrings.print1SimpleBlockedBodyIntro)
+      ..writeAll(diffLines.map((l) => '• $l\n'))
+      ..write('\n')
+      ..write('استخدم Print 2 — Mix detailed في الحالة دي.');
+
+    return AppDialog.show<void>(
+      context: context,
+      title: const Text(AppStrings.print1SimpleBlockedTitle),
+      content: SingleChildScrollView(child: Text(body.toString())),
+      maxWidth: 640,
+      barrierDismissible: false,
+      actions: [
+        Builder(
+          builder: (dialogContext) {
+            return TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                Future(() async {
+                  if (!context.mounted) {
+                    return;
+                  }
+                  await _showPrintUsageDialog(context);
+                });
+              },
+              child: const Text(AppStrings.more),
+            );
+          },
+        ),
+        Builder(
+          builder: (dialogContext) {
+            return ElevatedButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text(AppStrings.ok),
             );
           },
         ),

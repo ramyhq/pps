@@ -223,69 +223,136 @@ class AppStrings {
   static const creatorLabel = 'Creator:';
   static const dateLabel = 'Date:';
 
+  static const ok = 'OK';
+  static const more = 'المزيد';
+
   static const actions = 'Actions';
   static const addAgentDirect = 'Add Agent Direct';
   static const addGeneral = 'Add General';
   static const addTransport = 'Add Transport';
   static const print = 'Print';
-  static const print2 = 'Print 2';
-  static const print1Summary = 'Print 1 — Invoice (Standard)';
-  static const print2Summary = 'Print 2 — Invoice (Excel rate)';
-  static const printUsageTitle = 'شرح استخدام Print 1 و Print 2';
-  static const printUsageBody =
-      'هشرح لك الموضوع كأنك أول مرة تستخدم النظام:\n'
+  static const print2 = 'Print 2 — Mix detailed';
+  static const print1Summary = 'Print 1 — Simple';
+  static const print2Summary = 'Print 2 — Mix detailed';
+  static const printUsageTitle =
+      'شرح استخدام Print 1 (Simple) و Print 2 (Mix detailed)';
+  static const printUsageBodyAr =
+      'هشرح لك الموضوع كأنك أول مرة تستخدم النظام (بالعربي البسيط):\n'
       '\n'
       '1) يعني إيه (Qty / Nights / PAX)؟\n'
-      '- Qty: عدد الغرف (الكمية).\n'
+      '- Qty: عدد الغرف.\n'
       '- Nights: عدد الليالي.\n'
       '- PAX: عدد الأشخاص اللي الحساب بيتوزع عليهم.\n'
       '\n'
-      '2) أهم قاعدة في الفاتورة (علشان ما تغلطش)\n'
-      '- الفندق بيتحسب على نوع الغرفة (Double / Triple / Quad ...).\n'
-      '- الإضافات (General + Transportation) بيتوزعوا على عدد الأشخاص (PAX).\n'
+      '2) أهم قاعدة في الفاتورة\n'
+      '- إجمالي الفاتورة (Total) = مجموع Total sale لكل الخدمات في الحجز.\n'
+      '- جدول الغرف في الـ PDF وظيفته يشرح التوزيع، لكن رقم Total النهائي لازم يطابق الفاتورة.\n'
       '\n'
       '3) Party Pax (Manual) ده إيه؟\n'
-      '- ده رقم اختياري إنت بتكتبه بنفسك.\n'
-      '- الهدف منه تقول للنظام: (عدد المسافرين الحقيقي كام؟).\n'
-      '- لو كتبته: النظام بيستخدمه لتوزيع الإضافات على الشخص.\n'
-      '- لو ما كتبتهوش: النظام بياخد أكبر PAX موجود في سيجمنتات الفنادق.\n'
+      '- رقم اختياري إنت بتكتبه بنفسك.\n'
+      '- المقصود منه: عدد المسافرين الحقيقي.\n'
+      '- لو كتبته: بيتستخدم لتوزيع الإضافات (Add-ons) فقط.\n'
+      '- لو ما كتبتهوش: النظام بيستخدم Qty Pax (محسوبة من توزيع الغرف) علشان يوزع الإضافات.\n'
       '\n'
       '4) النقطة الحمرا جنب Party Pax (Manual) معناها إيه؟\n'
-      '- معناها فيه سيجمنت فندق PAX بتاعه مختلف عن الرقم اللي إنت كاتبه.\n'
-      '- مثال: إنت كاتب 105، وسيجمنت مكة مكتوب فيه 103.\n'
-      '- ساعتها لازم تراجع: هل فعلاً عدد المسافرين اتغير؟ ولا فيه إدخال غلط؟\n'
+      '- معناها فيه اختلاف بين PAX الفعلي داخل سيجمنتات الفنادق وبين الرقم اللي إنت كاتبه.\n'
+      '- مثال: إنت كاتب 105، وسيجمنت مكة طالع 107.\n'
       '\n'
-      '5) Print 1 بيعمل إيه؟ (Standard)\n'
-      '- ده الطباعة الأساسية.\n'
-      '- بيحافظ على طريقة الحساب الحالية في Rate/Pax.\n'
-      '- بيحسب (Add-ons / Pax) من (General + Transportation) ويقسمهم على Party Pax.\n'
-      '- وبعدين يضيفهم على Rate/Pax النهائي.\n'
+      '5) Print 1 — Simple بيستخدم إمتى؟\n'
+      '- لما توزيع الغرف ثابت بين MED و MAK.\n'
+      '- شرطه: مجموع Qty لكل نوع غرفة في MED لازم يساوي مجموع Qty لنفس النوع في MAK.\n'
+      '- لو الشرط مش متحقق: Print 1 بيرفض وبيقولك استخدم Print 2.\n'
+      '- Qty في Print 1 = أكبر عدد غرف ظهر في أي يوم (Max) بعد تجميع الأيام.\n'
       '\n'
-      '6) Print 2 بيعمل إيه؟ (Excel rate)\n'
-      '- ده طباعة بديلة مفيدة لو بتراجع الأرقام بطريقة Excel.\n'
-      '- بيحسب Rate/Pax للفنادق من Total Sale لكل سيجمنت/حجز، وبعد كده يضيف Add-ons / Pax.\n'
+      '6) Print 2 — Mix detailed بيستخدم إمتى؟\n'
+      '- لما توزيع الغرف مختلف بين المدن أو الفترات.\n'
+      '- بيقسم صفوف الغرف حسب (المدينة + فترة التواريخ) وقت اختلاف التوزيع.\n'
+      '- لو نفس نوع الغرفة له نفس Qty في المدينة ومكة: ممكن يطلع صف واحد.\n'
       '\n'
-      '7) طريقة استخدام صحيحة خطوة بخطوة\n'
-      '- افتح الحجز اللي عايز تعدله.\n'
-      '- اكتب Party Pax (Manual) لو عايز تثبت عدد المسافرين الحقيقي.\n'
-      '- لو ظهرت نقطة حمرا: افتح السيجمنتات وراجع PAX.\n'
-      '- بعد ما تتأكد، اطبع Print 1 أو Print 2 حسب اللي محتاجه.\n'
+      '7) توزيع الإضافات في Print 2 (آخر تحديث)\n'
+      '- الإضافات (General + Transportation) بتتوزع على الليالي علشان ما تتضاعفش بين المدن لنفس المجموعة.\n'
+      '- النظام بيطلع لك داخل الـ PDF: Add-ons divisor (Manual أو Qty Pax) + Add-ons / Pax / Night.\n'
       '\n'
-      'ملحوظة مهمة:\n'
-      '- لو البيانات لسه بتتحمل، هتشوف Loading على الشاشة ومش هتقدر تعمل أي تعديل.\n'
-      '- لو التحميل فشل، النظام بيرجعك تلقائي علشان ما تحفظش على بيانات قديمة.';
+      'معلومة مهمة عن "Qty اللي بيبان ضعف":\n'
+      '- Print 1 ما بيفصلش حسب المدينة، ولو عندك سيجمنتين بنفس التواريخ (overlap) لنفس نوع الغرفة، Qty في اليوم ده بيتجمع وممكن يبان أكبر.\n'
+      '- Manual Pax مش بيغير Qty بتاع الغرف، هو بيأثر على توزيع الإضافات فقط.\n';
+  static const printUsageBodyEn =
+      'Quick guide (English):\n'
+      '\n'
+      '1) What do (Qty / Nights / PAX) mean?\n'
+      '- Qty: number of rooms.\n'
+      '- Nights: number of nights.\n'
+      '- PAX: number of people the calculation is distributed over.\n'
+      '\n'
+      '2) Main invoice rule\n'
+      '- Invoice Total = sum of Total Sale across all reservation services.\n'
+      '- The PDF room table explains distribution, but the final Total must match the invoice.\n'
+      '\n'
+      '3) What is Party Pax (Manual)?\n'
+      '- Optional number representing the real travelers count.\n'
+      '- If entered: used to distribute Add-ons only.\n'
+      '- If not entered: the system uses Qty Pax (derived from rooms) to distribute Add-ons.\n'
+      '\n'
+      '4) Red indicator next to Party Pax (Manual)\n'
+      '- Means some hotel segments have a different PAX than the manual value.\n'
+      '- Example: manual 105 but Makkah segment calculates 107.\n'
+      '\n'
+      '5) When to use Print 1 — Simple\n'
+      '- When room distribution is stable between MED and MAK.\n'
+      '- Condition: sum of Qty per room type in MED must equal sum of Qty for the same type in MAK.\n'
+      '- If the condition fails: Print 1 is blocked and you should use Print 2.\n'
+      '- Qty in Print 1 = maximum rooms on any day (Max) after merging days.\n'
+      '\n'
+      '6) When to use Print 2 — Mix detailed\n'
+      '- When room distribution differs by city/date range.\n'
+      '- Rows split by (city + date range) when distribution differs.\n'
+      '\n'
+      '7) Add-ons distribution in Print 2 (latest)\n'
+      '- Add-ons (General + Transportation) are distributed by nights to avoid double counting across cities for the same travelers.\n'
+      '- The PDF shows: Add-ons divisor (Manual or Qty Pax) and Add-ons / Pax / Night.\n';
+  static const printUsageBody = printUsageBodyAr;
   static const calculationsGuide = 'Guide — How totals are calculated';
-  static const calculationsGuideBody =
-      'Print 1:\n'
-      '- Add-ons / Pax = (Total Sale of General + Transportation) / Party Pax\n'
-      '- Party Pax = Party Pax (Manual) if entered, otherwise the maximum hotel Party Pax.\n'
+  static const calculationsGuideBodyAr =
+      'Print 1 — Simple:\n'
+      '- Qty = أكبر عدد غرف ظهر في أي يوم (Max) بعد تجميع الأيام لكل نوع غرفة.\n'
+      '- Nights = مجموع الليالي بدون تكرار لنفس الفترة داخل نفس السيجمنت.\n'
+      '- PAX# = Qty × Pax/Room (Single=1, Double=2, Triple=3, Quad=4, Quint=5).\n'
+      '- Add-ons / Pax = (إجمالي General + Transportation) ÷ Party Pax.\n'
+      '- Party Pax = Manual لو موجود (>0) وإلا Qty Pax (محسوبة من توزيع الغرف).\n'
       '\n'
-      'Print 2:\n'
-      '- Calculates hotel Rate/Pax per room type from hotel Total Sale, then adds Add-ons / Pax.\n'
+      'Print 2 — Mix detailed:\n'
+      '- صفوف الغرف بتتفصل حسب (المدينة + فترة التواريخ) عند اختلاف التوزيع.\n'
+      '- Add-ons بتتوزع على الليالي لتجنب تضاعفها بين المدن لنفس المجموعة.\n'
+      '- Total النهائي في الـ PDF = إجمالي الفاتورة (مجموع totalSale لكل الخدمات).\n';
+  static const calculationsGuideBody =
+      'Print 1 — Simple:\n'
+      '- Qty (display) = Max rooms per day after merging hotel segments.\n'
+      '- PAX# = Qty × Pax/Room (Double=2, Triple=3, Quad=4, Quint=5).\n'
+      '- Add-ons / Pax = (Total Sale of General + Transportation) / Party Pax.\n'
+      '- Party Pax = Party Pax (Manual) if entered, otherwise Qty Pax derived from rooms.\n'
+      '\n'
+      'Print 2 — Mix detailed:\n'
+      '- If hotel distribution differs by city/date segment, rows split by (city + date range).\n'
+      '- If a room type keeps the same Qty across segments, it stays as a single row.\n'
+      '- Add-ons are distributed by nights to avoid double counting across cities.\n'
+      '- Final PDF Total equals the invoice total (sum of services.totalSale).\n'
       '\n'
       'Party Pax (Manual):\n'
       '- Optional number you enter to represent the real travelers count.\n'
       '- If any hotel segment has different PAX, the system shows a red warning dot.';
+
+  static const print1SimpleBlockedTitle = 'Print 1 — Simple is not available';
+  static const print1SimpleBlockedBodyIntro =
+      'لا يمكن استخدام Print 1 — Simple لأن توزيع الغرف مختلف بين المدينة ومكة.\n'
+      '\n'
+      'الشرط لاستخدام Print 1:\n'
+      '- مجموع Qty لكل نوع غرفة في MED لازم يساوي مجموع Qty لنفس النوع في MAK.\n'
+      '\n'
+      'مثال سريع:\n'
+      '- Quad: MED=25 و MAK=25 → ينفع Print 1.\n'
+      '- Quad: MED=25 و MAK=20 → لازم Print 2.\n'
+      '\n'
+      'الاختلافات الحالية:\n';
   static const partyPaxManual = 'Party Pax (Manual)';
   static const partyPaxManualHint =
       'Optional. Used to validate hotel segments and distribute add-ons.';

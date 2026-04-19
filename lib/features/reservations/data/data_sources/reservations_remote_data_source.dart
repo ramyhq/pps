@@ -22,7 +22,7 @@ class ReservationsRemoteDataSource {
     final rows = await client
         .from('clients')
         .select('id,name,code')
-        .order('id');
+        .order('name');
     return (rows as List<dynamic>)
         .map((row) => Map<String, dynamic>.from(row as Map))
         .toList(growable: false);
@@ -34,7 +34,10 @@ class ReservationsRemoteDataSource {
     final selectColumns = citySelectPart == null
         ? 'id,name,code'
         : 'id,name,code,$citySelectPart';
-    final rows = await client.from('hotels').select(selectColumns).order('id');
+    final rows = await client
+        .from('hotels')
+        .select(selectColumns)
+        .order('name');
     return (rows as List<dynamic>)
         .map((row) => Map<String, dynamic>.from(row as Map))
         .toList(growable: false);
@@ -72,7 +75,7 @@ class ReservationsRemoteDataSource {
 
   Future<List<Map<String, dynamic>>> listSuppliers() async {
     final client = _requireClient();
-    final rows = await client.from('suppliers').select().order('id');
+    final rows = await client.from('suppliers').select().order('name');
     return (rows as List<dynamic>)
         .map((row) => Map<String, dynamic>.from(row as Map))
         .toList(growable: false);

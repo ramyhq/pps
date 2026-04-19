@@ -163,9 +163,7 @@ class _HoverNumericStepperWrapperState
                   borderRadius: BorderRadius.horizontal(
                     right: Radius.circular(3),
                   ),
-                  border: Border(
-                    left: BorderSide(color: Color(0xFFD5DEEE)),
-                  ),
+                  border: Border(left: BorderSide(color: Color(0xFFD5DEEE))),
                 ),
                 child: Material(
                   color: Colors.transparent,
@@ -415,6 +413,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
   final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
   late TextEditingController _searchController;
+  final FocusNode _searchFocusNode = FocusNode();
   String? _selectedValue;
 
   @override
@@ -436,6 +435,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
   void dispose() {
     _removeOverlay();
     _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -460,21 +460,224 @@ class _CustomDropdownState extends State<CustomDropdown> {
     _searchController.clear();
     _overlayEntry = _createOverlayEntry();
     Overlay.of(context).insert(_overlayEntry!);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _overlayEntry == null || !widget.searchable) {
+        return;
+      }
+      _searchFocusNode.requestFocus();
+    });
   }
 
   void _removeOverlay() {
     _overlayEntry?.remove();
     _overlayEntry = null;
+    _searchFocusNode.unfocus();
+  }
+
+  String _normalizeSearchText(String text) {
+    final normalizedDigits = ArabicDigitsToEnglishInputFormatter._normalize(
+      text.trim(),
+    );
+    if (normalizedDigits.isEmpty) {
+      return '';
+    }
+
+    final buffer = StringBuffer();
+    for (final rune in normalizedDigits.toLowerCase().runes) {
+      if (rune == 0x0640) {
+        continue;
+      }
+      if ((rune >= 0x064B && rune <= 0x065F) ||
+          rune == 0x0670 ||
+          (rune >= 0x06D6 && rune <= 0x06ED)) {
+        continue;
+      }
+
+      final char = String.fromCharCode(rune);
+      final mapped = switch (char) {
+        'أ' || 'إ' || 'آ' => 'ا',
+        'ى' => 'ي',
+        _ => char,
+      };
+
+      final mappedRune = mapped.runes.first;
+      final isAsciiDigit = mappedRune >= 0x30 && mappedRune <= 0x39;
+      final isLatinLetter = mappedRune >= 0x61 && mappedRune <= 0x7A;
+      final isArabicLetter = mappedRune >= 0x0600 && mappedRune <= 0x06FF;
+
+      if (isAsciiDigit || isLatinLetter || isArabicLetter) {
+        buffer.write(mapped);
+      } else {
+        buffer.write(' ');
+      }
+    }
+
+    return buffer.toString().replaceAll(RegExp(r'\s+'), ' ').trim();
+  }
+
+  bool _isSubsequence(String query, String text) {
+    if (query.isEmpty) {
+      return true;
+    }
+    var queryIndex = 0;
+    for (final rune in text.runes) {
+      if (queryIndex >= query.length) {
+        return true;
+      }
+      if (String.fromCharCode(rune) == query[queryIndex]) {
+        queryIndex++;
+      }
+    }
+    return queryIndex >= query.length;
+  }
+
+  int _levenshteinDistance(String a, String b) {
+    if (a == b) {
+      return 0;
+    }
+    if (a.isEmpty) {
+      return b.length;
+    }
+    if (b.isEmpty) {
+      return a.length;
+    }
+    if (a.length > 64 || b.length > 64) {
+      return 999;
+    }
+
+    final previousRow = List<int>.generate(b.length + 1, (i) => i);
+    final currentRow = List<int>.filled(b.length + 1, 0);
+    for (var i = 0; i < a.length; i++) {
+      currentRow[0] = i + 1;
+      final aChar = a.codeUnitAt(i);
+      for (var j = 0; j < b.length; j++) {
+        final cost = aChar == b.codeUnitAt(j) ? 0 : 1;
+        final deletion = previousRow[j + 1] + 1;
+        final insertion = currentRow[j] + 1;
+        final substitution = previousRow[j] + cost;
+        var next = deletion;
+        if (insertion < next) {
+          next = insertion;
+        }
+        if (substitution < next) {
+          next = substitution;
+        }
+        currentRow[j + 1] = next;
+      }
+      for (var j = 0; j < currentRow.length; j++) {
+        previousRow[j] = currentRow[j];
+      }
+    }
+    return previousRow.last;
+  }
+
+  bool _tokenMatches(String queryToken, String textToken) {
+    if (textToken.contains(queryToken)) {
+      return true;
+    }
+    if (_isSubsequence(queryToken, textToken)) {
+      return true;
+    }
+
+    final distance = _levenshteinDistance(queryToken, textToken);
+    final threshold = switch (queryToken.length) {
+      <= 3 => 0,
+      <= 5 => 1,
+      <= 8 => 2,
+      _ => 3,
+    };
+    return distance <= threshold;
+  }
+
+  bool _fuzzyMatches(String query, String item) {
+    final normalizedQuery = _normalizeSearchText(query);
+    if (normalizedQuery.isEmpty) {
+      return true;
+    }
+    final normalizedItem = _normalizeSearchText(item);
+    if (normalizedItem.contains(normalizedQuery)) {
+      return true;
+    }
+
+    final queryTokens = normalizedQuery.split(' ').where((t) => t.isNotEmpty);
+    final itemTokens = normalizedItem.split(' ').where((t) => t.isNotEmpty);
+    for (final q in queryTokens) {
+      final hasMatch = itemTokens.any((t) => _tokenMatches(q, t));
+      if (!hasMatch) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  int _matchScore(String query, String item) {
+    final normalizedQuery = _normalizeSearchText(query);
+    final normalizedItem = _normalizeSearchText(item);
+    if (normalizedQuery.isEmpty) {
+      return 0;
+    }
+    if (normalizedItem.contains(normalizedQuery)) {
+      return 0;
+    }
+    final queryTokens = normalizedQuery.split(' ').where((t) => t.isNotEmpty);
+    final itemTokens = normalizedItem.split(' ').where((t) => t.isNotEmpty);
+    var score = 2;
+    for (final q in queryTokens) {
+      var best = 3;
+      for (final t in itemTokens) {
+        if (t.contains(q)) {
+          best = 0;
+          break;
+        }
+        if (_isSubsequence(q, t)) {
+          if (best > 1) {
+            best = 1;
+          }
+        } else {
+          final distance = _levenshteinDistance(q, t);
+          if (distance < best) {
+            best = distance;
+          }
+        }
+      }
+      if (best > score) {
+        score = best;
+      }
+    }
+    return score;
   }
 
   List<String> _filteredItems() {
-    final query = _searchController.text.trim().toLowerCase();
+    final query = _searchController.text;
     if (query.isEmpty) {
       return widget.items;
     }
-    return widget.items
-        .where((item) => item.toLowerCase().contains(query))
-        .toList(growable: false);
+
+    final matches = <({String item, int score, String normalized})>[];
+    for (final item in widget.items) {
+      if (!_fuzzyMatches(query, item)) {
+        continue;
+      }
+      matches.add((
+        item: item,
+        score: _matchScore(query, item),
+        normalized: _normalizeSearchText(item),
+      ));
+    }
+
+    matches.sort((a, b) {
+      final byScore = a.score.compareTo(b.score);
+      if (byScore != 0) {
+        return byScore;
+      }
+      final byText = a.normalized.compareTo(b.normalized);
+      if (byText != 0) {
+        return byText;
+      }
+      return a.item.compareTo(b.item);
+    });
+
+    return matches.map((m) => m.item).toList(growable: false);
   }
 
   OverlayEntry _createOverlayEntry() {
@@ -531,7 +734,11 @@ class _CustomDropdownState extends State<CustomDropdown> {
                                   height: AppHeights.dropdownSearch30,
                                   child: TextField(
                                     controller: _searchController,
+                                    focusNode: _searchFocusNode,
                                     autofocus: true,
+                                    inputFormatters: [
+                                      ArabicDigitsToEnglishInputFormatter(),
+                                    ],
                                     onChanged: (_) => setOverlayState(() {}),
                                     style: const TextStyle(
                                       fontSize: AppFontSizes.body12,
