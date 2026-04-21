@@ -10,6 +10,7 @@ import 'package:pps/core/constants/app_strings.dart';
 import 'package:pps/core/widgets/app_dialog.dart';
 import 'package:pps/core/widgets/custom_form_fields.dart';
 import 'package:pps/l10n/app_localizations.dart';
+import 'package:pps/features/reservations/data/models/reservation_service.dart';
 import 'package:pps/features/reservations/provider/create_agent_reservation_provider.dart';
 import 'package:pps/features/reservations/provider/reservations_data_providers.dart';
 
@@ -94,31 +95,6 @@ class _CreateAgentReservationScreenState
       _selectedHotelId = null;
       _selectedSupplierId = null;
     }
-    Future<void>(() {
-      if (!mounted) {
-        return;
-      }
-      final notifier = ref.read(createAgentReservationProvider.notifier);
-      final serviceId = widget.serviceId;
-      final isEditingService = serviceId != null && serviceId.trim().isNotEmpty;
-      if (!isEditingService) {
-        notifier.startNewServiceEntry();
-        _selectedHotelId = null;
-        _selectedSupplierId = null;
-        _resetRoomEntryUi();
-      } else if (widget.reservationId == null) {
-        notifier.startNewReservation();
-      }
-      final currentState = ref.read(createAgentReservationProvider);
-      _setNightsText(currentState.nightsCount);
-      notifier.setReservationContext(
-        reservationId: widget.reservationId,
-        reservationNo: currentState.reservationNo,
-        clientId: currentState.selectedClientId,
-        clientOptionDate: currentState.clientOptionDate,
-        guestName: currentState.guestName,
-      );
-    });
     _nightsSyncSubscription = ref.listenManual<CreateAgentReservationState>(
       createAgentReservationProvider,
       (previous, next) {
@@ -141,53 +117,107 @@ class _CreateAgentReservationScreenState
         (editingServiceId != null && editingServiceId.trim().isNotEmpty);
     if (shouldLoad) {
       _isInitialLoading = true;
-      Future<void>.microtask(() async {
-        try {
-          if (reservationId != null && reservationId.trim().isNotEmpty) {
-            final details = await ref
-                .read(reservationsRepositoryProvider)
-                .fetchReservationDetails(reservationId);
-            if (!mounted) {
-              return;
-            }
-            ref
-                .read(createAgentReservationProvider.notifier)
-                .setReservationContext(
-                  reservationId: reservationId,
-                  reservationNo: details.order.reservationNo,
-                  clientId: details.order.client.id,
-                  clientOptionDate: details.order.clientOptionDate,
-                  guestName: details.order.guestName,
-                );
-            _guestNameController.text = details.order.guestName ?? '';
-          }
-          if (editingServiceId != null && editingServiceId.trim().isNotEmpty) {
-            final draft = await ref
-                .read(reservationsRepositoryProvider)
-                .fetchAgentServiceDraft(editingServiceId);
-            if (!mounted) {
-              return;
-            }
-            ref
-                .read(createAgentReservationProvider.notifier)
-                .startEditingService(serviceId: editingServiceId, draft: draft);
-            _guestNameController.text =
-                ref.read(createAgentReservationProvider).guestName ?? '';
-            _selectedHotelId = draft.hotelId;
-            _selectedSupplierId = draft.supplierId;
-            _setNightsText(
-              ref.read(createAgentReservationProvider).nightsCount,
-            );
-            _resetRoomEntryUi();
-          }
+    }
+    Future<void>(() async {
+      if (!mounted) {
+        return;
+      }
+      try {
+        final notifier = ref.read(createAgentReservationProvider.notifier);
+        final serviceId = widget.serviceId;
+        final isEditingService =
+            serviceId != null && serviceId.trim().isNotEmpty;
+        String? serviceDisplayNoFromDetails;
+        if (!isEditingService) {
+          notifier.startNewServiceEntry();
+          _selectedHotelId = null;
+          _selectedSupplierId = null;
+          _resetRoomEntryUi();
+        } else if (widget.reservationId == null) {
+          notifier.startNewReservation();
+        }
+        final currentState = ref.read(createAgentReservationProvider);
+        _setNightsText(currentState.nightsCount);
+        notifier.setReservationContext(
+          reservationId: widget.reservationId,
+          reservationNo: currentState.reservationNo,
+          clientId: currentState.selectedClientId,
+          clientOptionDate: currentState.clientOptionDate,
+          guestName: currentState.guestName,
+        );
+
+        if (reservationId != null && reservationId.trim().isNotEmpty) {
+          final details = await ref
+              .read(reservationsRepositoryProvider)
+              .fetchReservationDetails(reservationId);
           if (!mounted) {
             return;
           }
+          final editingId = editingServiceId?.trim();
+          if (editingId != null && editingId.isNotEmpty) {
+            final match = details.services
+                .where((s) => s.id == editingId)
+                .toList(growable: false);
+            if (match.isNotEmpty) {
+              serviceDisplayNoFromDetails = match.first.displayNo;
+            }
+          }
+          ref
+              .read(createAgentReservationProvider.notifier)
+              .setReservationContext(
+                reservationId: reservationId,
+                reservationNo: details.order.reservationNo,
+                clientId: details.order.client.id,
+                clientOptionDate: details.order.clientOptionDate,
+                guestName: details.order.guestName,
+              );
+          _guestNameController.text = details.order.guestName ?? '';
+          if (!isEditingService) {
+            final latestDeparture = _latestAgentDepartureDate(details.services);
+            if (latestDeparture != null) {
+              ref
+                  .read(createAgentReservationProvider.notifier)
+                  .applySuggestedArrivalDate(
+                    latestDeparture.add(const Duration(days: 1)),
+                  );
+            }
+          }
+        }
+
+        if (editingServiceId != null && editingServiceId.trim().isNotEmpty) {
+          final draft = await ref
+              .read(reservationsRepositoryProvider)
+              .fetchAgentServiceDraft(editingServiceId);
+          if (!mounted) {
+            return;
+          }
+          ref
+              .read(createAgentReservationProvider.notifier)
+              .startEditingService(serviceId: editingServiceId, draft: draft);
+          if (serviceDisplayNoFromDetails != null) {
+            ref
+                .read(createAgentReservationProvider.notifier)
+                .setServiceDisplayNo(serviceDisplayNoFromDetails);
+          }
+          _guestNameController.text =
+              ref.read(createAgentReservationProvider).guestName ?? '';
+          _selectedHotelId = draft.hotelId;
+          _selectedSupplierId = draft.supplierId;
+          _setNightsText(ref.read(createAgentReservationProvider).nightsCount);
+          _resetRoomEntryUi();
+        }
+
+        if (!mounted) {
+          return;
+        }
+        if (shouldLoad) {
           setState(() => _isInitialLoading = false);
-        } catch (e) {
-          if (!mounted) {
-            return;
-          }
+        }
+      } catch (e) {
+        if (!mounted) {
+          return;
+        }
+        if (shouldLoad) {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(e.toString())));
@@ -205,8 +235,8 @@ class _CreateAgentReservationScreenState
             Navigator.of(context).pop();
           }
         }
-      });
-    }
+      }
+    });
   }
 
   @override
@@ -223,6 +253,25 @@ class _CreateAgentReservationScreenState
     _costRoomApplyController.dispose();
     _costMealPerPaxApplyController.dispose();
     super.dispose();
+  }
+
+  DateTime? _latestAgentDepartureDate(
+    List<ReservationServiceSummary> services,
+  ) {
+    DateTime? latest;
+    for (final service in services) {
+      if (service.type != ReservationServiceType.agent) {
+        continue;
+      }
+      final departure = service.agentDetails?.departureDate;
+      if (departure == null) {
+        continue;
+      }
+      if (latest == null || departure.isAfter(latest)) {
+        latest = departure;
+      }
+    }
+    return latest;
   }
 
   void _onArrivalDateChanged(DateTime date) {
@@ -770,6 +819,38 @@ class _CreateAgentReservationScreenState
   Future<String?> _saveReservationAndGetId({
     required bool clearForNewEntry,
   }) async {
+    final currentStateBeforeSave = ref.read(createAgentReservationProvider);
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    if (_selectedHotelId == null) {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Please select hotel.'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+      return null;
+    }
+    if (_selectedSupplierId == null) {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Please select supplier.'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+      return null;
+    }
+    final location = (currentStateBeforeSave.hotelLocation ?? '').trim();
+    if (location.isEmpty) {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Please select location.'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+      return null;
+    }
+
     final notifier = ref.read(createAgentReservationProvider.notifier);
     notifier.setGuestName(_guestNameController.text);
     notifier.setHotelSelection(
@@ -796,7 +877,6 @@ class _CreateAgentReservationScreenState
 
     final currentState = ref.read(createAgentReservationProvider);
     final l10n = AppLocalizations.of(context)!;
-    final messenger = ScaffoldMessenger.of(context);
     messenger.hideCurrentSnackBar();
     if (success) {
       final reservationId = currentState.lastSavedReservationId ?? '-';
@@ -964,51 +1044,78 @@ class _CreateAgentReservationScreenState
   Widget build(BuildContext context) {
     final state = ref.watch(createAgentReservationProvider);
     final isBlocking = _isInitialLoading || state.isSaving || _isRatesLoading;
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          AbsorbPointer(
-            absorbing: isBlocking,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.s16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildTitleSection(),
-                  const SizedBox(height: AppSpacing.s16),
-                  Text(
-                    'Res. ID : ${state.lastSavedServiceDisplayNo ?? '-'}',
-                    style: const TextStyle(
-                      fontSize: AppFontSizes.title13,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+    final reservationNo = state.reservationNo;
+    final serviceDisplayNo = state.lastSavedServiceDisplayNo?.trim();
+    final reservationNumber = reservationNo == null
+        ? '-'
+        : (serviceDisplayNo != null && serviceDisplayNo.isNotEmpty)
+        ? serviceDisplayNo.startsWith('$reservationNo-')
+              ? serviceDisplayNo
+              : '$reservationNo-$serviceDisplayNo'
+        : '$reservationNo';
+
+    final isEditing = widget.serviceId?.trim().isNotEmpty == true;
+    final title = reservationNo != null
+        ? isEditing
+              ? 'edit res. $reservationNo'
+              : state.reservationId != null
+              ? 'add res. $reservationNo'
+              : 'new res. $reservationNo'
+        : isEditing
+        ? 'edit res.'
+        : widget.reservationId?.trim().isNotEmpty == true
+        ? 'add res.'
+        : 'new res.';
+
+    return Title(
+      title: title,
+      color: Theme.of(context).colorScheme.primary,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Stack(
+          children: [
+            AbsorbPointer(
+              absorbing: isBlocking,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(AppSpacing.s16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildTitleSection(),
+                    const SizedBox(height: AppSpacing.s16),
+                    Text(
+                      'Reservation number: $reservationNumber',
+                      style: const TextStyle(
+                        fontSize: AppFontSizes.title13,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.s12),
-                  _buildReservationDetailsCard(state),
-                  const SizedBox(height: AppSpacing.s16),
-                  _buildRoomDetailsCard(state),
-                  const SizedBox(height: AppSpacing.s16),
-                  _buildBottomActions(state),
-                  const SizedBox(height: AppSpacing.s40),
-                ],
+                    const SizedBox(height: AppSpacing.s12),
+                    _buildReservationDetailsCard(state),
+                    const SizedBox(height: AppSpacing.s16),
+                    _buildRoomDetailsCard(state),
+                    const SizedBox(height: AppSpacing.s16),
+                    _buildBottomActions(state),
+                    const SizedBox(height: AppSpacing.s40),
+                  ],
+                ),
               ),
             ),
-          ),
-          if (isBlocking)
-            Positioned.fill(
-              child: Stack(
-                children: [
-                  ModalBarrier(
-                    dismissible: false,
-                    color: Colors.black.withValues(alpha: 0.18),
-                  ),
-                  const Center(child: CircularProgressIndicator()),
-                ],
+            if (isBlocking)
+              Positioned.fill(
+                child: Stack(
+                  children: [
+                    ModalBarrier(
+                      dismissible: false,
+                      color: Colors.black.withValues(alpha: 0.18),
+                    ),
+                    const Center(child: CircularProgressIndicator()),
+                  ],
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1069,6 +1176,10 @@ class _CreateAgentReservationScreenState
   }
 
   Widget _buildReservationDetailsCard(CreateAgentReservationState state) {
+    final isBlocking = _isInitialLoading || state.isSaving || _isRatesLoading;
+    final shouldAutoOpenArrival =
+        !isBlocking &&
+        (widget.serviceId == null || widget.serviceId!.trim().isEmpty);
     final clientsAsync = ref.watch(reservationClientsProvider);
     final clients = clientsAsync.value ?? const [];
     String? selectedClientLabel;
@@ -1186,9 +1297,7 @@ class _CreateAgentReservationScreenState
                               onChanged: _onArrivalDateChanged,
                               popupWidth: AppWidths.datePickerPopup,
                               startEmpty: false,
-                              autoOpen:
-                                  widget.reservationId == null &&
-                                  widget.serviceId == null,
+                              autoOpen: shouldAutoOpenArrival,
                             ),
                           ),
                           const SizedBox(width: AppSpacing.s12),
@@ -1223,9 +1332,7 @@ class _CreateAgentReservationScreenState
                               onChanged: _onArrivalDateChanged,
                               popupWidth: AppWidths.datePickerPopup,
                               startEmpty: false,
-                              autoOpen:
-                                  widget.reservationId == null &&
-                                  widget.serviceId == null,
+                              autoOpen: shouldAutoOpenArrival,
                             ),
                           ),
                           const SizedBox(width: AppSpacing.s12),
@@ -1380,6 +1487,7 @@ class _CreateAgentReservationScreenState
                             width: hotelWidth,
                             child: CustomDropdown(
                               label: 'Hotel',
+                              isRequired: true,
                               value: selectedHotelLabel,
                               items: hotelItems,
                               onChanged: (value) {
@@ -1407,6 +1515,7 @@ class _CreateAgentReservationScreenState
                             width: 160,
                             child: CustomDropdown(
                               label: AppStrings.location,
+                              isRequired: true,
                               value: selectedLocationLabel,
                               items: locationItems,
                               onChanged: (value) => ref
@@ -1423,6 +1532,7 @@ class _CreateAgentReservationScreenState
                           Expanded(
                             child: CustomDropdown(
                               label: 'Hotel',
+                              isRequired: true,
                               value: selectedHotelLabel,
                               items: hotelItems,
                               onChanged: (value) {
@@ -1454,6 +1564,7 @@ class _CreateAgentReservationScreenState
                           Expanded(
                             child: CustomDropdown(
                               label: AppStrings.location,
+                              isRequired: true,
                               value: selectedLocationLabel,
                               items: locationItems,
                               onChanged: (value) => ref
@@ -1472,6 +1583,7 @@ class _CreateAgentReservationScreenState
                             width: hotelWidth,
                             child: CustomDropdown(
                               label: 'Supplier',
+                              isRequired: true,
                               value: selectedSupplierLabel,
                               items: supplierItems,
                               onChanged: (value) {
@@ -1503,6 +1615,7 @@ class _CreateAgentReservationScreenState
                           Expanded(
                             child: CustomDropdown(
                               label: 'Supplier',
+                              isRequired: true,
                               value: selectedSupplierLabel,
                               items: supplierItems,
                               onChanged: (value) {
@@ -1653,6 +1766,7 @@ class _CreateAgentReservationScreenState
                         'No. of rooms',
                         controller: _numberOfRoomsController,
                         focusNode: _numberOfRoomsFocusNode,
+                        isRequired: true,
                       ),
                     ),
                     const SizedBox(width: AppSpacing.s8),
@@ -1662,6 +1776,7 @@ class _CreateAgentReservationScreenState
                         'Room type',
                         value: state.selectedRoomType,
                         items: CreateAgentReservationNotifier.roomTypeOptions,
+                        isRequired: true,
                         onChanged: (value) {
                           ref
                               .read(createAgentReservationProvider.notifier)
@@ -1676,6 +1791,7 @@ class _CreateAgentReservationScreenState
                         'Meal plan',
                         value: state.selectedMealPlan,
                         items: CreateAgentReservationNotifier.mealPlanOptions,
+                        isRequired: true,
                         onChanged: (value) {
                           ref
                               .read(createAgentReservationProvider.notifier)
@@ -2531,6 +2647,7 @@ class _CreateAgentReservationScreenState
     String label, {
     required TextEditingController controller,
     FocusNode? focusNode,
+    bool isRequired = false,
   }) {
     return CustomTextField(
       label: label,
@@ -2538,6 +2655,7 @@ class _CreateAgentReservationScreenState
       keyboardType: TextInputType.number,
       showStepper: true,
       inputFormatters: [ArabicDigitsToEnglishInputFormatter()],
+      isRequired: isRequired,
     );
   }
 
@@ -2545,10 +2663,12 @@ class _CreateAgentReservationScreenState
     String label, {
     required String? value,
     required List<String> items,
+    bool isRequired = false,
     required ValueChanged<String?> onChanged,
   }) {
     return CustomDropdown(
       label: label,
+      isRequired: isRequired,
       value: value,
       items: items,
       hint: 'Select $label',

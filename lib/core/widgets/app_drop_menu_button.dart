@@ -8,6 +8,7 @@ class AppDropMenuEntry<T> {
     required this.value,
     required this.label,
     this.icon,
+    this.trailing,
     this.isDanger = false,
   }) : type = AppDropMenuEntryType.action;
 
@@ -16,12 +17,14 @@ class AppDropMenuEntry<T> {
       value = null,
       label = null,
       icon = null,
+      trailing = null,
       isDanger = false;
 
   final AppDropMenuEntryType type;
   final T? value;
   final String? label;
   final IconData? icon;
+  final Widget? trailing;
   final bool isDanger;
 }
 
@@ -126,6 +129,7 @@ class _AppDropMenuButtonState<T> extends State<AppDropMenuButton<T>> {
               child: _AppDropMenuItem(
                 icon: entry.icon,
                 label: entry.label ?? '',
+                trailing: entry.trailing,
                 isDanger: entry.isDanger,
                 onTap: () {
                   final value = entry.value;
@@ -170,12 +174,14 @@ class _AppDropMenuItem extends StatefulWidget {
     required this.label,
     required this.onTap,
     this.icon,
+    this.trailing,
     this.isDanger = false,
   });
 
   final IconData? icon;
   final String label;
   final VoidCallback onTap;
+  final Widget? trailing;
   final bool isDanger;
 
   @override
@@ -225,6 +231,10 @@ class _AppDropMenuItemState extends State<_AppDropMenuItem> {
                     ),
                   ),
                 ),
+                if (widget.trailing != null) ...[
+                  const SizedBox(width: AppSpacing.s8),
+                  widget.trailing!,
+                ],
               ],
             ),
           ),

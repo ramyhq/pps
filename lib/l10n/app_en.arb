@@ -6,5 +6,6 @@
   "changeDatesTitle": "Change dates",
   "changeDatesMessage": "Changing arrival/departure dates or nights can reset room prices and you will need to re-enter them.",
   "errorRoomPricesReset": "Room prices were reset due to date/nights change. Please re-enter prices.",
-  "errorRoomPricesZero": "Room prices are 0. Please enter prices before saving."
+  "errorRoomPricesZero": "Room prices are 0. Please enter prices before saving.",
+  "printTotalsHintTooltip": "The PDF room table is meant to explain accommodation and add-ons distribution (accounting-friendly), but it may not be the best source for a 100% exact invoice total because:\n- Row-level rounding.\n- Row merge/split by city and date ranges.\n- Some services are not rooms (General/Transportation) but are included in the final total."
 }

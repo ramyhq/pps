@@ -944,6 +944,13 @@ class ReservationsRepositoryImpl implements ReservationsRepository {
     if (rawList is! List) {
       return null;
     }
+    final rawPricingPerTrip = payload['pricingPerTrip'];
+    final pricingPerTrip = rawPricingPerTrip is bool
+        ? rawPricingPerTrip
+        : rawPricingPerTrip?.toString() == 'true';
+    if (!pricingPerTrip) {
+      return null;
+    }
     var sale = Decimal.parse('0');
     var cost = Decimal.parse('0');
     var hasAny = false;
@@ -960,12 +967,10 @@ class ReservationsRepositoryImpl implements ReservationsRepository {
         map['costPerItem']?.toString() ?? '',
       );
       if (salePerItem != null) {
-        //CALCULATIONS إجمالي بيع Transportation من payload = جمع (salePerItem × quantity) لكل رحلة.
         sale += salePerItem * Decimal.fromInt(quantity);
         hasAny = true;
       }
       if (costPerItem != null) {
-        //CALCULATIONS إجمالي تكلفة Transportation من payload = جمع (costPerItem × quantity) لكل رحلة.
         cost += costPerItem * Decimal.fromInt(quantity);
         hasAny = true;
       }

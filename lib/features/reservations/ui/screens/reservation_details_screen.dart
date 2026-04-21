@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:decimal/decimal.dart';
+import 'dart:ui' as ui;
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:pps/core/constants/app_colors.dart';
@@ -21,6 +22,7 @@ import 'package:pps/features/reservations/provider/reservations_data_providers.d
 import 'package:pps/features/reservations/ui/utils/reservation_details_calculations.dart';
 import 'package:pps/features/reservations/ui/utils/reservation_details_pdf_generator.dart';
 import 'package:pps/features/reservations/ui/utils/reservation_details_pdf_generator_2.dart';
+import 'package:pps/l10n/app_localizations.dart';
 
 class ReservationDetailsScreen extends ConsumerStatefulWidget {
   const ReservationDetailsScreen({super.key, required this.reservationId});
@@ -76,62 +78,71 @@ class _ReservationDetailsScreenState
     final details = detailsAsync.asData?.value ?? _cachedDetails;
     final isBlocking = detailsAsync.isLoading;
 
-    return Scaffold(
-      backgroundColor: AppColors.light,
-      body: Stack(
-        children: [
-          SelectionArea(
-            child: AbsorbPointer(
-              absorbing: isBlocking,
-              child: details == null
-                  ? Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppSpacing.s16,
-                        AppSpacing.s12,
-                        AppSpacing.s16,
-                        AppSpacing.s16,
+    final reservationNo = details?.order.reservationNo;
+    final title = reservationNo != null
+        ? 'View res. $reservationNo'
+        : 'View res.';
+
+    return Title(
+      title: title,
+      color: Theme.of(context).colorScheme.primary,
+      child: Scaffold(
+        backgroundColor: AppColors.light,
+        body: Stack(
+          children: [
+            SelectionArea(
+              child: AbsorbPointer(
+                absorbing: isBlocking,
+                child: details == null
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.s16,
+                          AppSpacing.s12,
+                          AppSpacing.s16,
+                          AppSpacing.s16,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [_buildToolbar(context, ref, id, null)],
+                        ),
+                      )
+                    : SingleChildScrollView(
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.s16,
+                          AppSpacing.s12,
+                          AppSpacing.s16,
+                          AppSpacing.s16,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildToolbar(context, ref, id, details),
+                            const SizedBox(height: AppSpacing.s14),
+                            _buildMainCard(
+                              context,
+                              ref,
+                              details.order,
+                              details.services,
+                            ),
+                          ],
+                        ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [_buildToolbar(context, ref, id, null)],
-                      ),
-                    )
-                  : SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppSpacing.s16,
-                        AppSpacing.s12,
-                        AppSpacing.s16,
-                        AppSpacing.s16,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildToolbar(context, ref, id, details),
-                          const SizedBox(height: AppSpacing.s14),
-                          _buildMainCard(
-                            context,
-                            ref,
-                            details.order,
-                            details.services,
-                          ),
-                        ],
-                      ),
-                    ),
-            ),
-          ),
-          if (isBlocking)
-            Positioned.fill(
-              child: Stack(
-                children: [
-                  ModalBarrier(
-                    dismissible: false,
-                    color: Colors.black.withValues(alpha: 0.18),
-                  ),
-                  const Center(child: CircularProgressIndicator()),
-                ],
               ),
             ),
-        ],
+            if (isBlocking)
+              Positioned.fill(
+                child: Stack(
+                  children: [
+                    ModalBarrier(
+                      dismissible: false,
+                      color: Colors.black.withValues(alpha: 0.18),
+                    ),
+                    const Center(child: CircularProgressIndicator()),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -142,6 +153,10 @@ class _ReservationDetailsScreenState
     String id,
     ReservationDetails? details,
   ) {
+    final l10n = AppLocalizations.of(context);
+    final printTotalsTooltip =
+        l10n?.printTotalsHintTooltip ?? AppStrings.printTotalsHintTooltipEn;
+
     return Row(
       children: [
         const Column(
@@ -258,6 +273,81 @@ class _ReservationDetailsScreenState
                   );
                   return;
                 case _ReservationToolbarAction.guide:
+                case _ReservationToolbarAction.printUsage:
+                case _ReservationToolbarAction.delete:
+                  return;
+              }
+            }();
+          },
+          menuExtraWidth: 120,
+          menuMinWidth: 220,
+          menuMaxWidth: 280,
+          entries: [
+            const AppDropMenuEntry.action(
+              value: _ReservationToolbarAction.print,
+              label: AppStrings.print1Summary,
+              icon: Icons.print_outlined,
+              isDanger: true,
+            ),
+            AppDropMenuEntry.action(
+              value: _ReservationToolbarAction.print2,
+              label: AppStrings.print2Summary,
+              icon: Icons.print_outlined,
+              trailing: Tooltip(
+                message: printTotalsTooltip,
+                waitDuration: const Duration(milliseconds: 200),
+                child: const SizedBox(
+                  width: 10,
+                  height: 10,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: AppColors.warning,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+              ),
+              isDanger: true,
+            ),
+          ],
+          child: Container(
+            height: AppHeights.iconButton28,
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(AppRadii.r4),
+              border: Border.all(color: AppColors.primary),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.print_outlined,
+                  size: AppIconSizes.s14,
+                  color: AppColors.primary,
+                ),
+                SizedBox(width: AppSpacing.s6),
+                Text(
+                  AppStrings.print,
+                  style: TextStyle(
+                    fontSize: AppFontSizes.body12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
+                    height: 1.0,
+                  ),
+                ),
+                SizedBox(width: AppSpacing.s3),
+                _TriangleDownIcon(color: AppColors.primary),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: AppSpacing.s8),
+        AppDropMenuButton<_ReservationToolbarAction>(
+          onSelected: (action) {
+            () async {
+              switch (action) {
+                case _ReservationToolbarAction.guide:
                   if (!context.mounted) {
                     return;
                   }
@@ -269,6 +359,9 @@ class _ReservationDetailsScreenState
                   }
                   await _showPrintUsageDialog(context);
                   return;
+                case _ReservationToolbarAction.print:
+                case _ReservationToolbarAction.print2:
+                  return;
                 case _ReservationToolbarAction.delete:
                   await _confirmDeleteReservationOrder(context, ref, id);
                   return;
@@ -276,19 +369,6 @@ class _ReservationDetailsScreenState
             }();
           },
           entries: const [
-            AppDropMenuEntry.action(
-              value: _ReservationToolbarAction.print,
-              label: AppStrings.print1Summary,
-              icon: Icons.print_outlined,
-              isDanger: true,
-            ),
-            AppDropMenuEntry.action(
-              value: _ReservationToolbarAction.print2,
-              label: AppStrings.print2Summary,
-              icon: Icons.print_outlined,
-              isDanger: true,
-            ),
-            AppDropMenuEntry.divider(),
             AppDropMenuEntry.action(
               value: _ReservationToolbarAction.printUsage,
               label: AppStrings.printUsageTitle,
@@ -299,6 +379,7 @@ class _ReservationDetailsScreenState
               label: AppStrings.calculationsGuide,
               icon: Icons.info_outline,
             ),
+            AppDropMenuEntry.divider(),
             AppDropMenuEntry.action(
               value: _ReservationToolbarAction.delete,
               label: AppStrings.delete,
@@ -2789,6 +2870,8 @@ class _ReservationDetailsScreenState
 
   Widget _buildTripAccordion(ReservationServiceSummary service) {
     final trips = service.transportationDetails?.trips ?? const [];
+    final pricingPerTrip =
+        service.transportationDetails?.pricingPerTrip ?? true;
     if (trips.isEmpty) {
       return const _TripDetailsAccordionCard(
         tripTag: '(#T-1)',
@@ -2815,14 +2898,18 @@ class _ReservationDetailsScreenState
             vehicleText: _valueOrDash(trips[index].vehicle),
             qtyText: trips[index].quantity.toString(),
             paxText: trips[index].pax.toString(),
-            totalSale: _formatMoney(
-              //CALCULATIONS إجمالي بيع الرحلة = سعر البيع لكل مشوار × كمية هذه الرحلة.
-              trips[index].salePerItem * Decimal.fromInt(trips[index].quantity),
-            ),
-            totalCost: _formatMoney(
-              //CALCULATIONS إجمالي تكلفة الرحلة = سعر التكلفة لكل مشوار × كمية هذه الرحلة.
-              trips[index].costPerItem * Decimal.fromInt(trips[index].quantity),
-            ),
+            totalSale: pricingPerTrip
+                ? _formatMoney(
+                    trips[index].salePerItem *
+                        Decimal.fromInt(trips[index].quantity),
+                  )
+                : '-',
+            totalCost: pricingPerTrip
+                ? _formatMoney(
+                    trips[index].costPerItem *
+                        Decimal.fromInt(trips[index].quantity),
+                  )
+                : '-',
             notes: _valueOrDash(trips[index].notes),
           ),
         ],
@@ -3179,23 +3266,7 @@ class _ReservationDetailsScreenState
   }
 
   Future<void> _showCalculationsGuideDialog(BuildContext context) {
-    return AppDialog.show<void>(
-      context: context,
-      title: const Text(AppStrings.calculationsGuide),
-      content: const SingleChildScrollView(
-        child: Text(AppStrings.calculationsGuideBody),
-      ),
-      actions: [
-        Builder(
-          builder: (dialogContext) {
-            return TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text(AppStrings.close),
-            );
-          },
-        ),
-      ],
-    );
+    return _showPrintQaDialog(context);
   }
 
   Future<void> _showPrintUsageDialog(BuildContext context) {
@@ -3217,6 +3288,223 @@ class _ReservationDetailsScreenState
           },
         ),
       ],
+    );
+  }
+
+  Future<void> _showPrintQaDialog(BuildContext context) {
+    var isArabic = true;
+    Widget languageChip({
+      required String label,
+      required bool isSelected,
+      required VoidCallback onTap,
+    }) {
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppRadii.r8),
+          hoverColor: AppColors.primary.withValues(alpha: 0.06),
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 160),
+            curve: Curves.easeOut,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.s10,
+              vertical: AppSpacing.s6,
+            ),
+            decoration: BoxDecoration(
+              color: isSelected ? AppColors.primary : Colors.transparent,
+              borderRadius: BorderRadius.circular(AppRadii.r8),
+            ),
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: AppFontSizes.label11,
+                fontWeight: FontWeight.w700,
+                color: isSelected ? Colors.white : AppColors.textPrimary,
+                height: 1.0,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    Widget languageToggle({
+      required bool isArabicSelected,
+      required ValueChanged<bool> onChanged,
+    }) {
+      return Align(
+        alignment: Alignment.center,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: AppColors.light,
+            borderRadius: BorderRadius.circular(AppRadii.r12),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(3),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                languageChip(
+                  label: AppStrings.printQaLanguageAr,
+                  isSelected: isArabicSelected,
+                  onTap: () => onChanged(true),
+                ),
+                const SizedBox(width: AppSpacing.s6),
+                languageChip(
+                  label: AppStrings.printQaLanguageEn,
+                  isSelected: !isArabicSelected,
+                  onTap: () => onChanged(false),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    Widget qaTile({
+      required String question,
+      required String answer,
+      required TextAlign textAlign,
+    }) {
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(AppRadii.r12),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppRadii.r12),
+          child: ExpansionTile(
+            tilePadding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.s12,
+              vertical: AppSpacing.s4,
+            ),
+            childrenPadding: const EdgeInsets.fromLTRB(
+              AppSpacing.s12,
+              AppSpacing.s0,
+              AppSpacing.s12,
+              AppSpacing.s12,
+            ),
+            title: Text(
+              question,
+              textAlign: textAlign,
+              style: const TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: AppFontSizes.title13,
+              ),
+            ),
+            children: [
+              SelectableText(
+                answer,
+                textAlign: textAlign,
+                style: const TextStyle(
+                  fontSize: AppFontSizes.body12,
+                  height: 1.35,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            final textDirection = isArabic
+                ? ui.TextDirection.rtl
+                : ui.TextDirection.ltr;
+            final textAlign = isArabic ? TextAlign.right : TextAlign.left;
+
+            final q1 = isArabic
+                ? AppStrings.printQaQ1Ar
+                : AppStrings.printQaQ1En;
+            final a1 = isArabic
+                ? AppStrings.printQaA1Ar
+                : AppStrings.printQaA1En;
+            final q2 = isArabic
+                ? AppStrings.printQaQuestionAr
+                : AppStrings.printQaQuestionEn;
+            final a2 = isArabic
+                ? AppStrings.printQaAnswerAr
+                : AppStrings.printQaAnswerEn;
+            final q3 = isArabic
+                ? AppStrings.printQaQ3Ar
+                : AppStrings.printQaQ3En;
+            final a3 = isArabic
+                ? AppStrings.printQaA3Ar
+                : AppStrings.printQaA3En;
+
+            return Directionality(
+              textDirection: textDirection,
+              child: AppDialog(
+                title: const Text(AppStrings.calculationsGuide),
+                maxWidth: 720,
+                barrierDismissible: false,
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    languageToggle(
+                      isArabicSelected: isArabic,
+                      onChanged: (value) => setState(() => isArabic = value),
+                    ),
+                    const SizedBox(height: AppSpacing.s10),
+                    Flexible(
+                      child: SingleChildScrollView(
+                        child: Theme(
+                          data: Theme.of(
+                            context,
+                          ).copyWith(dividerColor: Colors.transparent),
+                          child: Column(
+                            children: [
+                              qaTile(
+                                question: q1,
+                                answer: a1,
+                                textAlign: textAlign,
+                              ),
+                              const SizedBox(height: AppSpacing.s6),
+                              qaTile(
+                                question: q2,
+                                answer: a2,
+                                textAlign: textAlign,
+                              ),
+                              const SizedBox(height: AppSpacing.s6),
+                              qaTile(
+                                question: q3,
+                                answer: a3,
+                                textAlign: textAlign,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                actions: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        child: const Text(AppStrings.printQaClose),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 

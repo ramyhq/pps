@@ -136,6 +136,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Room prices are 0. Please enter prices before saving.'**
   String get errorRoomPricesZero;
+
+  /// No description provided for @printTotalsHintTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'The PDF room table is meant to explain accommodation and add-ons distribution (accounting-friendly), but it may not be the best source for a 100% exact invoice total because:\n- Row-level rounding.\n- Row merge/split by city and date ranges.\n- Some services are not rooms (General/Transportation) but are included in the final total.'**
+  String get printTotalsHintTooltip;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

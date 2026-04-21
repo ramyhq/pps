@@ -301,6 +301,19 @@ class CreateAgentReservationNotifier
     state = _syncRoomRatesWithDates(next);
   }
 
+  void applySuggestedArrivalDate(DateTime date) {
+    final normalizedDate = DateTime(date.year, date.month, date.day);
+    final desiredNights = state.nightsCount > 0 ? state.nightsCount : 1;
+    onArrivalDateChanged(date: normalizedDate, desiredNights: desiredNights);
+  }
+
+  void setServiceDisplayNo(String? value) {
+    final next = value?.trim();
+    state = state.copyWith(
+      lastSavedServiceDisplayNo: next == null || next.isEmpty ? null : next,
+    );
+  }
+
   void setSelectedClientId(int? value) {
     state = state.copyWith(selectedClientId: value);
   }
@@ -638,15 +651,6 @@ class CreateAgentReservationNotifier
       );
       return false;
     }
-    final zero = Decimal.parse('0');
-    if (state.totalSale == zero && state.totalCost == zero) {
-      state = state.copyWith(
-        lastSaveError: 'errorRoomPricesZero',
-        clearLastSavedReservationId: true,
-        clearLastSavedServiceDisplayNo: true,
-      );
-      return false;
-    }
 
     state = state.copyWith(
       isSaving: true,
@@ -659,6 +663,7 @@ class CreateAgentReservationNotifier
 
     try {
       var reservationId = existingReservationId;
+      int? reservationNo = state.reservationNo;
       if (reservationId == null) {
         final createdOrder = await repository.createReservationOrder(
           CreateReservationOrderDraft(
@@ -670,6 +675,7 @@ class CreateAgentReservationNotifier
           ),
         );
         reservationId = createdOrder.id;
+        reservationNo = createdOrder.reservationNo;
       } else {
         await repository.updateReservationMainInfo(
           reservationId: reservationId,
@@ -693,6 +699,7 @@ class CreateAgentReservationNotifier
       var nextState = state.copyWith(
         isSaving: false,
         reservationId: reservationId,
+        reservationNo: reservationNo,
         lastSavedReservationId: reservationId,
         lastSavedServiceDisplayNo: savedService.displayNo,
         clearLastSaveError: true,

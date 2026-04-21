@@ -28,4 +28,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get errorRoomPricesZero => 'أسعار الغرف = 0. لا يمكن الحفظ قبل إدخال الأسعار.';
+
+  @override
+  String get printTotalsHintTooltip => 'جدول الغرف في الـ PDF هدفه يوضح توزيع السكن والإضافات (بشكل محاسبي)، لكنه مش دايمًا أفضل مصدر لحساب إجمالي الفاتورة بدقة 100% لأن:\n- التقريب على مستوى كل صف.\n- دمج/فصل الصفوف حسب المدينة والفترات.\n- في خدمات مش غرف (General/Transportation) لكنها داخلة في الإجمالي النهائي.';
 }

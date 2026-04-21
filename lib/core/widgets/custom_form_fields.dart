@@ -1035,6 +1035,18 @@ class _CustomDatePickerFieldState extends State<CustomDatePickerField> {
       }
       _visibleMonth = DateTime(visibleBase.year, visibleBase.month, 1);
     }
+    if (widget.autoOpen && !oldWidget.autoOpen && !_didAutoOpen) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) {
+          return;
+        }
+        if (_didAutoOpen) {
+          return;
+        }
+        _didAutoOpen = true;
+        _openOverlay();
+      });
+    }
   }
 
   @override

@@ -272,6 +272,7 @@ class AppStrings {
       '7) توزيع الإضافات في Print 2 (آخر تحديث)\n'
       '- الإضافات (General + Transportation) بتتوزع على الليالي علشان ما تتضاعفش بين المدن لنفس المجموعة.\n'
       '- النظام بيطلع لك داخل الـ PDF: Add-ons divisor (Manual أو Qty Pax) + Add-ons / Pax / Night.\n'
+      '- لو عايز مثال بالأرقام (Q&A): افتح زر Print Q&A جنب زر الطباعة.\n'
       '\n'
       'معلومة مهمة عن "Qty اللي بيبان ضعف":\n'
       '- Print 1 ما بيفصلش حسب المدينة، ولو عندك سيجمنتين بنفس التواريخ (overlap) لنفس نوع الغرفة، Qty في اليوم ده بيتجمع وممكن يبان أكبر.\n'
@@ -310,8 +311,151 @@ class AppStrings {
       '7) Add-ons distribution in Print 2 (latest)\n'
       '- Add-ons (General + Transportation) are distributed by nights to avoid double counting across cities for the same travelers.\n'
       '- The PDF shows: Add-ons divisor (Manual or Qty Pax) and Add-ons / Pax / Night.\n';
+
+  static const printTotalsHintTooltipEn =
+      'The PDF room table is meant to explain accommodation and add-ons distribution (accounting-friendly), but it may not be the best source for a 100% exact invoice total because:\n'
+      '- Row-level rounding.\n'
+      '- Row merge/split by city and date ranges.\n'
+      '- Some services are not rooms (General/Transportation) but are included in the final total.';
+
+  static const printQaTitleAr = 'Print — Q&A (Arabic/English)';
+  static const printQaTitleEn = 'Print — Q&A (Arabic/English)';
+  static const printQaLanguageAr = 'عربي';
+  static const printQaLanguageEn = 'English';
+  static const printQaClose = 'Close';
+  static const printQaQuestionAr =
+      'س: شرح توزيع Add-ons + معنى Total في الـ PDF + ليه ممكن مجموع الصفوف يختلف؟';
+  static const printQaQuestionEn =
+      'Q: Add-ons distribution + what “Total in the PDF = invoice total” means + why row totals may differ?';
+
+  static const printQaQ1Ar =
+      'س: ليه جدول الغرف في الـ PDF مش دايمًا أفضل مصدر لحساب إجمالي الفاتورة بدقة 100%؟';
+  static const printQaQ1En =
+      'Q: Why isn’t the PDF room table always the best source for a 100% exact invoice total?';
+  static const printQaA1Ar =
+      'جدول الغرف في الـ PDF هدفه يشرح توزيع السكن والإضافات “بشكل محاسبي مفهوم”، لكنه مش دايمًا أفضل مصدر لحساب إجمالي الفاتورة بدقة 100% بسبب:\n'
+      'Rounding على مستوى كل صف.\n'
+      'دمج/فصل الصفوف حسب المدينة والفترات.\n'
+      'بعض الخدمات مش “غرف” أصلاً (General/Transportation) وهي داخلة في الإجمالي النهائي.';
+  static const printQaA1En = printTotalsHintTooltipEn;
+
+  static const printQaQ3Ar =
+      'س: معنى “Total في الـ PDF = إجمالي الفاتورة” وهل ممكن مجموع Totals بتاعة الصفوف يختلف؟';
+  static const printQaQ3En =
+      'Q: What does “Total in the PDF = invoice total” mean, and can row totals differ?';
+  static const printQaA3Ar =
+      'معنى “Total في الـ PDF = إجمالي الفاتورة”\n'
+      '\n'
+      'المقصود إن الرقم الكبير اللي تحت (Total) في الـ PDF بقى يُحسب من:\n'
+      'sum(details.services.totalSale)\n'
+      'ده نفس اللي الشاشة بتعرضه كـ Total sale للحجز.\n'
+      'هل ممكن مجموع Totals بتاعة صفوف الجدول يختلف عن Total النهائي؟\n'
+      '\n'
+      'نعم، وده طبيعي للأسباب دي:\n'
+      'تقريب (Rounding): كل صف بيتقرب لوحده (Rate/Pax و Total)، فتجميع التقريبات ممكن يطلع فرق قروش/هللات/ريالات.\n'
+      'توزيع داخلي: إحنا بنوزع الإضافات على الصفوف بهدف “شرح وتوزيع”، مش بهدف إن كل صف بعد التقريب يطلع مجموعهم = الرقم النهائي حرفيًا.\n'
+      'عدم شمولية جدول الغرف: الجدول هو “تفصيل الفندق”، لكن الإجمالي النهائي شامل كل الخدمات (فندق + إضافات + أي خدمات أخرى).\n';
+  static const printQaA3En =
+      'What does “Total in the PDF = invoice total” mean?\n'
+      '\n'
+      'It means the large Total at the bottom of the PDF is computed from:\n'
+      'sum(details.services.totalSale)\n'
+      'Which is the same Total Sale shown on the reservation details screen.\n'
+      'Can the sum of row Totals differ from the final Total?\n'
+      '\n'
+      'Yes, and that is expected because:\n'
+      'Rounding: each row is rounded independently (Rate/Pax and Total), so rounding can accumulate small differences.\n'
+      'Internal distribution: rows are meant to explain distribution, not guarantee exact equality after rounding.\n'
+      'Room table coverage: the room table is hotel detail, while the final Total includes all services (hotel + add-ons + others).\n';
+
+  static const printQaAnswerAr =
+      '(شرح توزيع Add-ons ) تخيل إن عندك:\n'
+      '\n'
+      'TotalAddOns = إجمالي الإضافات (General + Transportation) = 84,600\n'
+      'ManualPax = 105\n'
+      'TotalNights = 7 (3 مدينة + 4 مكة)\n'
+      'بنقسم الإضافات على الليالي (علشان ما تتكرر بين المدن)\n'
+      'بنحسب قيمة “الإضافة للشخص في الليلة”:\n'
+      'AddOnsPerPaxPerNight = TotalAddOns / (ManualPax × TotalNights)\n'
+      '= 84,600 / (105 × 7)\n'
+      '= 115.10 تقريبًا\n'
+      'بعد كده كل سيجمنت ياخد نصيبه حسب لياليه\n'
+      'سيجمنت المدينة 3 ليالي:\n'
+      'SegmentAddOnsTotal = TotalAddOns × (3 / 7)\n'
+      'سيجمنت مكة 4 ليالي:\n'
+      'SegmentAddOnsTotal = TotalAddOns × (4 / 7)\n'
+      'جوا نفس السيجمنت بنوزع الإضافات على أنواع الغرف حسب “سهمها” من TotalSale\n'
+      'يعني لو داخل سيجمنت مكة:\n'
+      'Quad TotalSale = 56,000\n'
+      'Double TotalSale = 28,800\n'
+      'Triple TotalSale = 2,600\n'
+      'يبقى كل نوع غرفة ياخد نسبة من SegmentAddOnsTotal على قد “مساهمته” في TotalSale.\n'
+      'ده بيخلي التوزيع منطقي: الغرفة اللي عليها بيع أكبر تتحمل جزء أكبر من الإضافات داخل نفس السيجمنت.\n'
+      'بعد ما عرفنا الإضافة الإجمالية لكل نوع غرفة داخل السيجمنت\n'
+      'بنحولها لإضافة “لكل شخص” في الصف:\n'
+      'LineAddOnsPerPax = LineAddOnsTotal / PAX#\n'
+      'وبعدين:\n'
+      'Rate/Pax = BaseRatePerPax + LineAddOnsPerPax\n'
+      'TotalLine = Rate/Pax × PAX#\n'
+      'ليه ده يمنع تضاعف الإضافات؟\n'
+      '\n'
+      'لأن TotalAddOns اتقسم مرة واحدة على TotalNights، واتوزع بين المدينة ومكة بحسب الليالي، مش بحسب إنك عندك صفوف في مكانين.\n'
+      'معنى “Total في الـ PDF = إجمالي الفاتورة”\n'
+      '\n'
+      'المقصود إن الرقم الكبير اللي تحت (Total) في الـ PDF بقى يُحسب من:\n'
+      'sum(details.services.totalSale)\n'
+      'ده نفس اللي الشاشة بتعرضه كـ Total sale للحجز.\n'
+      'هل ممكن مجموع Totals بتاعة صفوف الجدول يختلف عن Total النهائي؟\n'
+      '\n'
+      'نعم، وده طبيعي للأسباب دي:\n'
+      'تقريب (Rounding): كل صف بيتقرب لوحده (Rate/Pax و Total)، فتجميع التقريبات ممكن يطلع فرق قروش/هللات/ريالات.\n'
+      'توزيع داخلي: إحنا بنوزع الإضافات على الصفوف بهدف “شرح وتوزيع”، مش بهدف إن كل صف بعد التقريب يطلع مجموعهم = الرقم النهائي حرفيًا.\n'
+      'عدم شمولية جدول الغرف: الجدول هو “تفصيل الفندق”، لكن الإجمالي النهائي شامل كل الخدمات (فندق + إضافات + أي خدمات أخرى).\n';
+
+  static const printQaAnswerEn =
+      '(Add-ons distribution example) Imagine you have:\n'
+      '\n'
+      'TotalAddOns = total add-ons (General + Transportation) = 84,600\n'
+      'ManualPax = 105\n'
+      'TotalNights = 7 (3 nights MED + 4 nights MAK)\n'
+      'We distribute add-ons by nights (so they do not get double-counted across cities)\n'
+      'We calculate “add-ons per pax per night”:\n'
+      'AddOnsPerPaxPerNight = TotalAddOns / (ManualPax × TotalNights)\n'
+      '= 84,600 / (105 × 7)\n'
+      '= ~115.10\n'
+      'Then each segment takes its share based on nights:\n'
+      'MED segment (3 nights):\n'
+      'SegmentAddOnsTotal = TotalAddOns × (3 / 7)\n'
+      'MAK segment (4 nights):\n'
+      'SegmentAddOnsTotal = TotalAddOns × (4 / 7)\n'
+      'Inside the same segment, we distribute add-ons across room types by their “share” of TotalSale\n'
+      'Example inside MAK segment:\n'
+      'Quad TotalSale = 56,000\n'
+      'Double TotalSale = 28,800\n'
+      'Triple TotalSale = 2,600\n'
+      'So each room type receives a proportion of SegmentAddOnsTotal based on its contribution to TotalSale.\n'
+      'This keeps the distribution intuitive: higher-priced room types carry a larger portion of add-ons within the same segment.\n'
+      'After we get the total add-ons for each row, we convert it to “per pax”:\n'
+      'LineAddOnsPerPax = LineAddOnsTotal / PAX#\n'
+      'Then:\n'
+      'Rate/Pax = BaseRatePerPax + LineAddOnsPerPax\n'
+      'TotalLine = Rate/Pax × PAX#\n'
+      'Why does this prevent double counting?\n'
+      '\n'
+      'Because TotalAddOns is allocated once across TotalNights, then split between MED and MAK by nights, not by having rows in two places.\n'
+      'What does “Total in the PDF = invoice total” mean?\n'
+      '\n'
+      'It means the large Total at the bottom of the PDF is computed from:\n'
+      'sum(details.services.totalSale)\n'
+      'Which is the same Total Sale shown on the reservation details screen.\n'
+      'Can the sum of row Totals differ from the final Total?\n'
+      '\n'
+      'Yes, and that is expected because:\n'
+      'Rounding: each row is rounded independently (Rate/Pax and Total), so rounding can accumulate small differences.\n'
+      'Internal distribution: rows are meant to explain distribution, not guarantee exact equality after rounding.\n'
+      'Room table coverage: the room table is hotel detail, while the final Total includes all services (hotel + add-ons + others).\n';
   static const printUsageBody = printUsageBodyAr;
-  static const calculationsGuide = 'Guide — How totals are calculated';
+  static const calculationsGuide = 'QA';
   static const calculationsGuideBodyAr =
       'Print 1 — Simple:\n'
       '- Qty = أكبر عدد غرف ظهر في أي يوم (Max) بعد تجميع الأيام لكل نوع غرفة.\n'

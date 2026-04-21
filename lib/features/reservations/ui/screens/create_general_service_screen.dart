@@ -40,6 +40,7 @@ class _CreateGeneralServiceScreenState
   bool _isInitialLoading = false;
   String? _reservationId;
   int? _reservationNo;
+  String? _serviceDisplayNo;
   int? _selectedSupplierId;
   String? _selectedSupplierLabel;
   String? _selectedServiceName;
@@ -136,12 +137,23 @@ class _CreateGeneralServiceScreenState
             if (!mounted) {
               return;
             }
+            final editingId = serviceId?.trim();
+            String? displayNo;
+            if (editingId != null && editingId.isNotEmpty) {
+              final match = details.services
+                  .where((s) => s.id == editingId)
+                  .toList(growable: false);
+              if (match.isNotEmpty) {
+                displayNo = match.first.displayNo;
+              }
+            }
             setState(() {
               _selectedClientId = details.order.client.id;
               _clientOptionDate =
                   details.order.clientOptionDate ?? DateTime.now();
               _guestNameController.text = details.order.guestName ?? '';
               _reservationNo = details.order.reservationNo;
+              _serviceDisplayNo = displayNo;
             });
           }
           if (!mounted) {
@@ -353,11 +365,38 @@ class _CreateGeneralServiceScreenState
         return;
       }
 
+      final quantityText = _quantityController.text.trim();
+      final quantityParsed = int.tryParse(quantityText);
+      if (quantityParsed == null || quantityParsed <= 0) {
+        messenger.showSnackBar(
+          const SnackBar(
+            content: Text('Please enter quantity before save.'),
+            backgroundColor: AppColors.danger,
+          ),
+        );
+        setState(() {
+          _isSaving = false;
+        });
+        return;
+      }
+
       final salePerItem = _parseDecimalInput(_saleController.text);
       if (salePerItem == null) {
         messenger.showSnackBar(
           const SnackBar(
             content: Text('Invalid sale value.'),
+            backgroundColor: AppColors.danger,
+          ),
+        );
+        setState(() {
+          _isSaving = false;
+        });
+        return;
+      }
+      if (salePerItem <= Decimal.zero) {
+        messenger.showSnackBar(
+          const SnackBar(
+            content: Text('Please enter sale before save.'),
             backgroundColor: AppColors.danger,
           ),
         );
@@ -380,7 +419,19 @@ class _CreateGeneralServiceScreenState
         });
         return;
       }
-      final quantity = _parseQuantityOrDefault(_quantityController.text);
+      if (costPerItem <= Decimal.zero) {
+        messenger.showSnackBar(
+          const SnackBar(
+            content: Text('Please enter cost before save.'),
+            backgroundColor: AppColors.danger,
+          ),
+        );
+        setState(() {
+          _isSaving = false;
+        });
+        return;
+      }
+      final quantity = quantityParsed;
       //CALCULATIONS إجمالي البيع للخدمة العامة = سعر البيع للوحدة × الكمية.
       final totalSale = salePerItem * Decimal.fromInt(quantity);
       //CALCULATIONS إجمالي التكلفة للخدمة العامة = سعر التكلفة للوحدة × الكمية.
@@ -407,7 +458,7 @@ class _CreateGeneralServiceScreenState
           ),
         );
       } else {
-        await repository.addGeneralService(
+        final saved = await repository.addGeneralService(
           reservationId: reservationId,
           draft: GeneralServiceDraft(
             dateOfService: _dateOfService,
@@ -427,6 +478,9 @@ class _CreateGeneralServiceScreenState
             notes: null,
           ),
         );
+        setState(() {
+          _serviceDisplayNo = saved.displayNo;
+        });
       }
 
       if (!mounted) {
@@ -454,59 +508,86 @@ class _CreateGeneralServiceScreenState
   @override
   Widget build(BuildContext context) {
     final isBlocking = _isInitialLoading || _isSaving;
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          AbsorbPointer(
-            absorbing: isBlocking,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(
-                CreateGeneralServiceScreen._pagePadding,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildTitleSection(),
-                  const SizedBox(
-                    height: CreateGeneralServiceScreen._sectionGap,
-                  ),
-                  Text(
-                    'Reservation number : ${_reservationNo ?? '-'}',
-                    style: const TextStyle(
-                      fontSize: AppFontSizes.title13,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+    final reservationNo = _reservationNo;
+    final serviceDisplayNo = _serviceDisplayNo?.trim();
+    final reservationNumber = reservationNo == null
+        ? '-'
+        : (serviceDisplayNo != null && serviceDisplayNo.isNotEmpty)
+        ? serviceDisplayNo.startsWith('$reservationNo-')
+              ? serviceDisplayNo
+              : '$reservationNo-$serviceDisplayNo'
+        : '$reservationNo';
+
+    final isEditing = widget.serviceId?.trim().isNotEmpty == true;
+    final title = reservationNo != null
+        ? isEditing
+              ? 'edit res. $reservationNo'
+              : _reservationId != null
+              ? 'add res. $reservationNo'
+              : 'new res. $reservationNo'
+        : isEditing
+        ? 'edit res.'
+        : widget.reservationId?.trim().isNotEmpty == true
+        ? 'add res.'
+        : 'new res.';
+
+    return Title(
+      title: title,
+      color: Theme.of(context).colorScheme.primary,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Stack(
+          children: [
+            AbsorbPointer(
+              absorbing: isBlocking,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(
+                  CreateGeneralServiceScreen._pagePadding,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildTitleSection(),
+                    const SizedBox(
+                      height: CreateGeneralServiceScreen._sectionGap,
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.s12),
-                  _buildReservationDetailsCard(),
-                  const SizedBox(
-                    height: CreateGeneralServiceScreen._sectionGap,
-                  ),
-                  _buildServiceDetailsCard(),
-                  const SizedBox(
-                    height: CreateGeneralServiceScreen._sectionGap,
-                  ),
-                  _buildBottomActions(),
-                  const SizedBox(height: AppSpacing.s40),
-                ],
+                    Text(
+                      'Reservation number: $reservationNumber',
+                      style: const TextStyle(
+                        fontSize: AppFontSizes.title13,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.s12),
+                    _buildReservationDetailsCard(),
+                    const SizedBox(
+                      height: CreateGeneralServiceScreen._sectionGap,
+                    ),
+                    _buildServiceDetailsCard(),
+                    const SizedBox(
+                      height: CreateGeneralServiceScreen._sectionGap,
+                    ),
+                    _buildBottomActions(),
+                    const SizedBox(height: AppSpacing.s40),
+                  ],
+                ),
               ),
             ),
-          ),
-          if (isBlocking)
-            Positioned.fill(
-              child: Stack(
-                children: [
-                  ModalBarrier(
-                    dismissible: false,
-                    color: Colors.black.withValues(alpha: 0.18),
-                  ),
-                  const Center(child: CircularProgressIndicator()),
-                ],
+            if (isBlocking)
+              Positioned.fill(
+                child: Stack(
+                  children: [
+                    ModalBarrier(
+                      dismissible: false,
+                      color: Colors.black.withValues(alpha: 0.18),
+                    ),
+                    const Center(child: CircularProgressIndicator()),
+                  ],
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1365,6 +1446,7 @@ class _ServiceDetailsCard extends StatelessWidget {
                             width: col2Width,
                             child: CustomDropdown(
                               label: 'Service',
+                              isRequired: true,
                               items: serviceItems,
                               value: selectedServiceName,
                               enabled: serviceItems.isNotEmpty,
@@ -1390,6 +1472,7 @@ class _ServiceDetailsCard extends StatelessWidget {
                             flex: 2,
                             child: CustomDropdown(
                               label: 'Service',
+                              isRequired: true,
                               items: serviceItems,
                               value: selectedServiceName,
                               enabled: serviceItems.isNotEmpty,
@@ -1445,6 +1528,7 @@ class _ServiceDetailsCard extends StatelessWidget {
                             width: col4Width,
                             child: CustomDropdown(
                               label: 'Supplier',
+                              isRequired: true,
                               items: supplierItems,
                               value: selectedSupplierLabel,
                               onChanged: onSupplierChanged,
@@ -1455,6 +1539,7 @@ class _ServiceDetailsCard extends StatelessWidget {
                             width: col1Width,
                             child: CustomTextField(
                               label: 'Quantity',
+                              isRequired: true,
                               controller: quantityController,
                               keyboardType: TextInputType.number,
                               showStepper: true,
@@ -1539,6 +1624,7 @@ class _ServiceDetailsCard extends StatelessWidget {
                             flex: 4,
                             child: CustomDropdown(
                               label: 'Supplier',
+                              isRequired: true,
                               items: supplierItems,
                               value: selectedSupplierLabel,
                               onChanged: onSupplierChanged,
@@ -1549,6 +1635,7 @@ class _ServiceDetailsCard extends StatelessWidget {
                             flex: 1,
                             child: CustomTextField(
                               label: 'Quantity',
+                              isRequired: true,
                               controller: quantityController,
                               keyboardType: TextInputType.number,
                               showStepper: true,
@@ -1640,6 +1727,7 @@ class _ServiceDetailsCard extends StatelessWidget {
                   children: [
                     CustomDropdown(
                       label: 'Service',
+                      isRequired: true,
                       items: serviceItems,
                       value: selectedServiceName,
                       enabled: serviceItems.isNotEmpty,
@@ -1669,6 +1757,7 @@ class _ServiceDetailsCard extends StatelessWidget {
                     SizedBox(height: sectionGap),
                     CustomDropdown(
                       label: 'Supplier',
+                      isRequired: true,
                       items: supplierItems,
                       value: selectedSupplierLabel,
                       onChanged: onSupplierChanged,
@@ -1676,6 +1765,7 @@ class _ServiceDetailsCard extends StatelessWidget {
                     SizedBox(height: sectionGap),
                     CustomTextField(
                       label: 'Quantity',
+                      isRequired: true,
                       controller: quantityController,
                       keyboardType: TextInputType.number,
                       showStepper: true,

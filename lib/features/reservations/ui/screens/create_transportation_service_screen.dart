@@ -39,6 +39,7 @@ class _CreateTransportationServiceScreenState
   DateTime _clientOptionDate = DateTime.now();
   String? _reservationId;
   int? _reservationNo;
+  String? _serviceDisplayNo;
   bool _isSaving = false;
   bool _isInitialLoading = false;
 
@@ -153,11 +154,16 @@ class _CreateTransportationServiceScreenState
               _providerOptionDate = draft.providerOptionDate;
               _transactionNotesController.text = draft.transactionNotes ?? '';
               _providerRemarksController.text = draft.providerRemarks ?? '';
-              if (draft.trips.isNotEmpty) {
-                _salePerItemController.text = draft.trips.first.salePerItem
-                    .toString();
-                _costPerItemController.text = draft.trips.first.costPerItem
-                    .toString();
+              if (draft.pricingPerTrip) {
+                if (draft.trips.isNotEmpty) {
+                  _salePerItemController.text = draft.trips.first.salePerItem
+                      .toString();
+                  _costPerItemController.text = draft.trips.first.costPerItem
+                      .toString();
+                }
+              } else {
+                _salePerItemController.text = draft.totalSale.toString();
+                _costPerItemController.text = draft.totalCost.toString();
               }
               for (final trip in _trips) {
                 trip.dispose();
@@ -191,12 +197,23 @@ class _CreateTransportationServiceScreenState
             if (!mounted) {
               return;
             }
+            final editingId = serviceId?.trim();
+            String? displayNo;
+            if (editingId != null && editingId.isNotEmpty) {
+              final match = details.services
+                  .where((s) => s.id == editingId)
+                  .toList(growable: false);
+              if (match.isNotEmpty) {
+                displayNo = match.first.displayNo;
+              }
+            }
             setState(() {
               _selectedClientId = details.order.client.id;
               _clientOptionDate =
                   details.order.clientOptionDate ?? DateTime.now();
               _guestNameController.text = details.order.guestName ?? '';
               _reservationNo = details.order.reservationNo;
+              _serviceDisplayNo = displayNo;
             });
           }
           if (!mounted) {
@@ -312,6 +329,69 @@ class _CreateTransportationServiceScreenState
         return;
       }
 
+      String? validationError;
+      if (_trips.isEmpty) {
+        validationError = 'Please add at least one trip before save.';
+      } else {
+        for (var i = 0; i < _trips.length; i++) {
+          final trip = _trips[i];
+          final tripNo = i + 1;
+          final from = trip.fromDestination?.trim() ?? '';
+          final to = trip.toDestination?.trim() ?? '';
+          final vehicle = trip.vehicle?.trim() ?? '';
+          final time = trip.timeController.text.trim();
+          final qty = int.tryParse(trip.quantityController.text.trim()) ?? 0;
+
+          if (from.isEmpty) {
+            validationError = 'Trip #$tripNo: Please select From.';
+            break;
+          }
+          if (to.isEmpty) {
+            validationError = 'Trip #$tripNo: Please select To.';
+            break;
+          }
+          if (time.isEmpty) {
+            validationError = 'Trip #$tripNo: Please enter Time.';
+            break;
+          }
+          if (vehicle.isEmpty) {
+            validationError = 'Trip #$tripNo: Please select Vehicle.';
+            break;
+          }
+          if (qty <= 0) {
+            validationError = 'Trip #$tripNo: Please enter Quantity.';
+            break;
+          }
+
+          if (_pricingPerTrip) {
+            final tripSaleText = trip.salePerItemController.text.trim();
+            final tripCostText = trip.costPerItemController.text.trim();
+            final tripSale = _parseDecimal(tripSaleText);
+            final tripCost = _parseDecimal(tripCostText);
+            if (tripSaleText.isEmpty || tripSale <= Decimal.zero) {
+              validationError = 'Trip #$tripNo: Please enter Sale.';
+              break;
+            }
+            if (tripCostText.isEmpty || tripCost <= Decimal.zero) {
+              validationError = 'Trip #$tripNo: Please enter Cost.';
+              break;
+            }
+          }
+        }
+      }
+      if (validationError != null) {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(validationError),
+            backgroundColor: AppColors.danger,
+          ),
+        );
+        setState(() {
+          _isSaving = false;
+        });
+        return;
+      }
+
       var totalSale = Decimal.parse('0');
       var totalCost = Decimal.parse('0');
 
@@ -319,19 +399,26 @@ class _CreateTransportationServiceScreenState
       final globalCostPerItem = _parseDecimal(_costPerItemController.text);
       final pricingPerTrip = _pricingPerTrip;
 
+      if (!pricingPerTrip) {
+        totalSale = globalSalePerItem;
+        totalCost = globalCostPerItem;
+      }
+
       final trips = _trips
           .map((trip) {
             final quantity =
                 int.tryParse(trip.quantityController.text.trim()) ?? 0;
             final salePerItem = pricingPerTrip
                 ? _parseDecimal(trip.salePerItemController.text)
-                : globalSalePerItem;
+                : _parseDecimal(trip.salePerItemController.text);
             final costPerItem = pricingPerTrip
                 ? _parseDecimal(trip.costPerItemController.text)
-                : globalCostPerItem;
+                : _parseDecimal(trip.costPerItemController.text);
 
-            totalSale = totalSale + (salePerItem * Decimal.fromInt(quantity));
-            totalCost = totalCost + (costPerItem * Decimal.fromInt(quantity));
+            if (pricingPerTrip) {
+              totalSale = totalSale + (salePerItem * Decimal.fromInt(quantity));
+              totalCost = totalCost + (costPerItem * Decimal.fromInt(quantity));
+            }
             return TransportationTripDraft(
               type: (trip.type ?? '').trim(),
               fromDestination: (trip.fromDestination ?? '').trim(),
@@ -375,10 +462,13 @@ class _CreateTransportationServiceScreenState
           draft: draft,
         );
       } else {
-        await repository.addTransportationService(
+        final saved = await repository.addTransportationService(
           reservationId: reservationId,
           draft: draft,
         );
+        setState(() {
+          _serviceDisplayNo = saved.displayNo;
+        });
       }
 
       if (!mounted) {
@@ -459,59 +549,86 @@ class _CreateTransportationServiceScreenState
   @override
   Widget build(BuildContext context) {
     final isBlocking = _isInitialLoading || _isSaving;
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          AbsorbPointer(
-            absorbing: isBlocking,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(
-                CreateTransportationServiceScreen._pagePadding,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildTitleSection(),
-                  const SizedBox(
-                    height: CreateTransportationServiceScreen._sectionGap,
-                  ),
-                  Text(
-                    'Reservation number : ${_reservationNo ?? '-'}',
-                    style: const TextStyle(
-                      fontSize: AppFontSizes.title13,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+    final reservationNo = _reservationNo;
+    final serviceDisplayNo = _serviceDisplayNo?.trim();
+    final reservationNumber = reservationNo == null
+        ? '-'
+        : (serviceDisplayNo != null && serviceDisplayNo.isNotEmpty)
+        ? serviceDisplayNo.startsWith('$reservationNo-')
+              ? serviceDisplayNo
+              : '$reservationNo-$serviceDisplayNo'
+        : '$reservationNo';
+
+    final isEditing = widget.serviceId?.trim().isNotEmpty == true;
+    final title = reservationNo != null
+        ? isEditing
+              ? 'edit res. $reservationNo'
+              : _reservationId != null
+              ? 'add res. $reservationNo'
+              : 'new res. $reservationNo'
+        : isEditing
+        ? 'edit res.'
+        : widget.reservationId?.trim().isNotEmpty == true
+        ? 'add res.'
+        : 'new res.';
+
+    return Title(
+      title: title,
+      color: Theme.of(context).colorScheme.primary,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Stack(
+          children: [
+            AbsorbPointer(
+              absorbing: isBlocking,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(
+                  CreateTransportationServiceScreen._pagePadding,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildTitleSection(),
+                    const SizedBox(
+                      height: CreateTransportationServiceScreen._sectionGap,
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.s12),
-                  _buildReservationDetailsCard(),
-                  const SizedBox(
-                    height: CreateTransportationServiceScreen._sectionGap,
-                  ),
-                  _buildServiceDetailsCard(),
-                  const SizedBox(
-                    height: CreateTransportationServiceScreen._sectionGap,
-                  ),
-                  _buildBottomActions(),
-                  const SizedBox(height: AppSpacing.s40),
-                ],
+                    Text(
+                      'Reservation number: $reservationNumber',
+                      style: const TextStyle(
+                        fontSize: AppFontSizes.title13,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.s12),
+                    _buildReservationDetailsCard(),
+                    const SizedBox(
+                      height: CreateTransportationServiceScreen._sectionGap,
+                    ),
+                    _buildServiceDetailsCard(),
+                    const SizedBox(
+                      height: CreateTransportationServiceScreen._sectionGap,
+                    ),
+                    _buildBottomActions(),
+                    const SizedBox(height: AppSpacing.s40),
+                  ],
+                ),
               ),
             ),
-          ),
-          if (isBlocking)
-            Positioned.fill(
-              child: Stack(
-                children: [
-                  ModalBarrier(
-                    dismissible: false,
-                    color: Colors.black.withValues(alpha: 0.18),
-                  ),
-                  const Center(child: CircularProgressIndicator()),
-                ],
+            if (isBlocking)
+              Positioned.fill(
+                child: Stack(
+                  children: [
+                    ModalBarrier(
+                      dismissible: false,
+                      color: Colors.black.withValues(alpha: 0.18),
+                    ),
+                    const Center(child: CircularProgressIndicator()),
+                  ],
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1084,24 +1201,13 @@ class _CreateTransportationServiceScreenState
         totalCost: totalCost,
       );
     }
-    return _buildPerItemPricingTable(
-      itemsCount: _totalItemsCount(),
+    return _buildPerTripTotalPricingTable(
+      tripsCount: _trips.length,
       salePerItemController: _salePerItemController,
       costPerItemController: _costPerItemController,
       enabled: !_pricingPerTrip,
       onChanged: () => setState(() {}),
     );
-  }
-
-  int _totalItemsCount() {
-    var total = 0;
-    for (final trip in _trips) {
-      final parsed = int.tryParse(trip.quantityController.text.trim()) ?? 0;
-      if (parsed > 0) {
-        total += parsed;
-      }
-    }
-    return total;
   }
 
   Decimal _parseDecimal(String raw) {
@@ -1136,29 +1242,44 @@ class _CreateTransportationServiceScreenState
             setState(() {
               _pricingPerTrip = v;
               if (_pricingPerTrip) {
-                final globalSale = _salePerItemController.text.trim();
-                final globalCost = _costPerItemController.text.trim();
-                for (final trip in _trips) {
-                  if (trip.salePerItemController.text.trim().isEmpty ||
-                      trip.salePerItemController.text.trim() == '0') {
-                    trip.salePerItemController.text = globalSale.isEmpty
-                        ? '0'
-                        : globalSale;
-                  }
-                  if (trip.costPerItemController.text.trim().isEmpty ||
-                      trip.costPerItemController.text.trim() == '0') {
-                    trip.costPerItemController.text = globalCost.isEmpty
-                        ? '0'
-                        : globalCost;
+                if (_trips.length == 1) {
+                  final globalSale = _salePerItemController.text.trim();
+                  final globalCost = _costPerItemController.text.trim();
+                  final trip = _trips.first;
+                  final qty = int.tryParse(trip.quantityController.text.trim());
+                  if ((qty ?? 0) == 1) {
+                    if (trip.salePerItemController.text.trim().isEmpty ||
+                        trip.salePerItemController.text.trim() == '0') {
+                      trip.salePerItemController.text = globalSale.isEmpty
+                          ? '0'
+                          : globalSale;
+                    }
+                    if (trip.costPerItemController.text.trim().isEmpty ||
+                        trip.costPerItemController.text.trim() == '0') {
+                      trip.costPerItemController.text = globalCost.isEmpty
+                          ? '0'
+                          : globalCost;
+                    }
                   }
                 }
               } else {
-                if (_trips.isNotEmpty) {
-                  _salePerItemController.text =
-                      _trips.first.salePerItemController.text;
-                  _costPerItemController.text =
-                      _trips.first.costPerItemController.text;
+                var totalSale = Decimal.zero;
+                var totalCost = Decimal.zero;
+                for (final trip in _trips) {
+                  final qty =
+                      int.tryParse(trip.quantityController.text.trim()) ?? 0;
+                  final qtyDecimal = Decimal.fromInt(qty <= 0 ? 0 : qty);
+                  totalSale =
+                      totalSale +
+                      (_parseDecimal(trip.salePerItemController.text) *
+                          qtyDecimal);
+                  totalCost =
+                      totalCost +
+                      (_parseDecimal(trip.costPerItemController.text) *
+                          qtyDecimal);
                 }
+                _salePerItemController.text = totalSale.toString();
+                _costPerItemController.text = totalCost.toString();
               }
             });
           },
@@ -1419,6 +1540,233 @@ class _CreateTransportationServiceScreenState
                   perItemController: costPerItemController,
                   price: costPrice,
                   total: costTotal,
+                  addBottomBorder: false,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPerTripTotalPricingTable({
+    required int tripsCount,
+    required TextEditingController salePerItemController,
+    required TextEditingController costPerItemController,
+    required bool enabled,
+    required VoidCallback onChanged,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxTableWidth =
+            constraints.maxWidth >= CreateScreensBreakpoints.largeDesktop
+            ? CreateScreensLayout.pricingTableMaxWidth900
+            : constraints.maxWidth;
+
+        final salePerTripTotal = _parseDecimal(salePerItemController.text);
+        final totalSale = salePerTripTotal;
+
+        final costPerTripTotal = _parseDecimal(costPerItemController.text);
+        final totalCost = costPerTripTotal;
+
+        const borderColor = AppColors.inputBorder;
+        const headerBg = AppColors.primarySurfaceAlt;
+        const headerTextStyle = TextStyle(
+          fontSize: AppFontSizes.label11,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        );
+        const rowLabelStyle = TextStyle(
+          fontSize: AppFontSizes.body12,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        );
+        const valueTextStyle = TextStyle(
+          fontSize: AppFontSizes.body12,
+          fontWeight: FontWeight.w500,
+          color: AppColors.textPrimary,
+        );
+
+        Widget gridCell({
+          required Widget child,
+          BorderSide? right,
+          Alignment alignment = Alignment.centerLeft,
+          EdgeInsets padding = const EdgeInsets.symmetric(
+            horizontal: AppSpacing.s10,
+            vertical: AppSpacing.s6,
+          ),
+          Color? backgroundColor,
+        }) {
+          return Container(
+            alignment: alignment,
+            padding: padding,
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              border: Border(right: right ?? BorderSide.none),
+            ),
+            child: child,
+          );
+        }
+
+        Widget valueInput(TextEditingController controller) {
+          return Align(
+            alignment: Alignment.centerLeft,
+            child: SizedBox(
+              width: 120,
+              height: AppHeights.dropdownSearch30,
+              child: TextFormField(
+                controller: controller,
+                enabled: enabled,
+                onChanged: (_) => onChanged(),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [
+                  ArabicDigitsToEnglishInputFormatter(),
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,6}$')),
+                ],
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadii.r4),
+                    borderSide: const BorderSide(color: borderColor),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadii.r4),
+                    borderSide: const BorderSide(color: borderColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadii.r4),
+                    borderSide: const BorderSide(color: AppColors.primary),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.s10,
+                    vertical: AppSpacing.s8,
+                  ),
+                  isDense: true,
+                ),
+                style: valueTextStyle,
+              ),
+            ),
+          );
+        }
+
+        Widget headerRow() {
+          return Container(
+            height: AppHeights.field34,
+            decoration: const BoxDecoration(
+              color: headerBg,
+              border: Border(bottom: BorderSide(color: borderColor)),
+            ),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: CreateScreensLayout.pricingLabelColWidth90,
+                  child: gridCell(
+                    child: const SizedBox.shrink(),
+                    right: const BorderSide(color: borderColor),
+                    backgroundColor: headerBg,
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: gridCell(
+                    child: const Center(
+                      child: Text('Per Trip', style: headerTextStyle),
+                    ),
+                    right: const BorderSide(color: borderColor),
+                    alignment: Alignment.center,
+                    backgroundColor: headerBg,
+                  ),
+                ),
+                Expanded(
+                  child: gridCell(
+                    child: const Text('Price', style: headerTextStyle),
+                    right: const BorderSide(color: borderColor),
+                    backgroundColor: headerBg,
+                  ),
+                ),
+                Expanded(
+                  child: gridCell(
+                    child: const Text('Total', style: headerTextStyle),
+                    backgroundColor: headerBg,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        Widget dataRow({
+          required String label,
+          required TextEditingController controller,
+          required Decimal price,
+          required Decimal total,
+          bool addBottomBorder = true,
+        }) {
+          return Container(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: addBottomBorder
+                    ? const BorderSide(color: borderColor)
+                    : BorderSide.none,
+              ),
+            ),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: CreateScreensLayout.pricingLabelColWidth90,
+                  child: gridCell(
+                    child: Text(label, style: rowLabelStyle),
+                    right: const BorderSide(color: borderColor),
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: gridCell(
+                    child: valueInput(controller),
+                    right: const BorderSide(color: borderColor),
+                  ),
+                ),
+                Expanded(
+                  child: gridCell(
+                    child: Text(_formatDecimal6(price), style: valueTextStyle),
+                    right: const BorderSide(color: borderColor),
+                  ),
+                ),
+                Expanded(
+                  child: gridCell(
+                    child: Text(_formatDecimal6(total), style: valueTextStyle),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: maxTableWidth),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: borderColor),
+              borderRadius: BorderRadius.circular(AppRadii.r4),
+              color: Colors.white,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                headerRow(),
+                dataRow(
+                  label: 'Sale',
+                  controller: salePerItemController,
+                  price: salePerTripTotal,
+                  total: totalSale,
+                ),
+                dataRow(
+                  label: 'Cost',
+                  controller: costPerItemController,
+                  price: costPerTripTotal,
+                  total: totalCost,
                   addBottomBorder: false,
                 ),
               ],
@@ -1727,7 +2075,6 @@ class _CreateTransportationServiceScreenState
               children: [
                 CustomDropdown(
                   label: 'Vehicle',
-                  isRequired: true,
                   items: _vehicleItems,
                   value: _applyVehicle,
                   onChanged: (v) => setState(() => _applyVehicle = v),
@@ -1740,7 +2087,6 @@ class _CreateTransportationServiceScreenState
                     Expanded(
                       child: CustomTextField(
                         label: 'Quantity',
-                        isRequired: true,
                         controller: _applyQuantityController,
                         keyboardType: TextInputType.number,
                         showStepper: true,
@@ -1796,7 +2142,6 @@ class _CreateTransportationServiceScreenState
                 width: vehicleWidth,
                 child: CustomDropdown(
                   label: 'Vehicle',
-                  isRequired: true,
                   items: _vehicleItems,
                   value: _applyVehicle,
                   onChanged: (v) => setState(() => _applyVehicle = v),
@@ -1809,7 +2154,6 @@ class _CreateTransportationServiceScreenState
                 width: quantityWidth,
                 child: CustomTextField(
                   label: 'Quantity',
-                  isRequired: true,
                   controller: _applyQuantityController,
                   keyboardType: TextInputType.number,
                   showStepper: true,
