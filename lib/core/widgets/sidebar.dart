@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pps/l10n/app_localizations.dart';
 import 'package:pps/features/reservations/provider/reservations_data_providers.dart';
 import '../constants/app_colors.dart';
-import '../constants/app_strings.dart';
 import 'custom_form_fields.dart';
 
 class Sidebar extends ConsumerStatefulWidget {
@@ -45,6 +45,7 @@ class _SidebarState extends ConsumerState<Sidebar> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final String location = GoRouterState.of(context).uri.path;
     final query = _menuQuery.trim().toLowerCase();
 
@@ -57,76 +58,76 @@ class _SidebarState extends ConsumerState<Sidebar> {
         >[
           // TODO(permissions): Filter sections/items based on user roles/permissions once RBAC is implemented.
           (
-            title: AppStrings.sidebarSectionOperations,
+            title: l10n.sidebarSectionOperations,
             items: [
               (
                 icon: FontAwesomeIcons.chartLine,
-                title: AppStrings.dashboardTitle,
+                title: l10n.dashboardTitle,
                 routePath: '/dashboard',
               ),
               (
                 icon: FontAwesomeIcons.calendarDays,
-                title: AppStrings.reservationsTitle,
+                title: l10n.reservationsTitle,
                 routePath: '/reservations',
               ),
             ],
           ),
           (
-            title: AppStrings.sidebarSectionMasterData,
+            title: l10n.sidebarSectionMasterData,
             items: [
               (
                 icon: FontAwesomeIcons.users,
-                title: AppStrings.clientsTitle,
+                title: l10n.clientsTitle,
                 routePath: '/clients',
               ),
               (
                 icon: FontAwesomeIcons.handshake,
-                title: AppStrings.suppliersTitle,
+                title: l10n.suppliersTitle,
                 routePath: '/suppliers',
               ),
               (
                 icon: FontAwesomeIcons.hotel,
-                title: AppStrings.hotelsTitle,
+                title: l10n.hotelsTitle,
                 routePath: '/hotels',
               ),
               (
                 icon: FontAwesomeIcons.listCheck,
-                title: AppStrings.servicesCatalogTitle,
+                title: l10n.servicesCatalogTitle,
                 routePath: '/services',
               ),
               (
                 icon: FontAwesomeIcons.fileLines,
-                title: AppStrings.templatesTitle,
+                title: l10n.templatesTitle,
                 routePath: '/templates',
               ),
             ],
           ),
           (
-            title: AppStrings.sidebarSectionReports,
+            title: l10n.sidebarSectionReports,
             items: [
               (
                 icon: FontAwesomeIcons.chartPie,
-                title: AppStrings.reportsTitle,
+                title: l10n.reportsTitle,
                 routePath: '/reports',
               ),
             ],
           ),
           (
-            title: AppStrings.sidebarSectionIntegrations,
+            title: l10n.sidebarSectionIntegrations,
             items: [
               (
                 icon: FontAwesomeIcons.bridge,
-                title: AppStrings.rmsBridgeTitle,
+                title: l10n.rmsBridgeTitle,
                 routePath: '/rms-bridge',
               ),
             ],
           ),
           (
-            title: AppStrings.sidebarSectionSettings,
+            title: l10n.sidebarSectionSettings,
             items: [
               (
                 icon: FontAwesomeIcons.gear,
-                title: AppStrings.settingsTitle,
+                title: l10n.settingsTitle,
                 routePath: '/settings',
               ),
             ],
@@ -231,7 +232,7 @@ class _SidebarState extends ConsumerState<Sidebar> {
                                   ),
                                   children: [
                                     if (filteredItems.isEmpty)
-                                      const Padding(
+                                      Padding(
                                         padding: EdgeInsets.fromLTRB(
                                           AppSpacing.s12,
                                           AppSpacing.s10,
@@ -239,8 +240,8 @@ class _SidebarState extends ConsumerState<Sidebar> {
                                           AppSpacing.s0,
                                         ),
                                         child: Text(
-                                          AppStrings.sidebarNoResults,
-                                          style: TextStyle(
+                                          l10n.sidebarNoResults,
+                                          style: const TextStyle(
                                             fontSize: AppFontSizes.label11,
                                             color: AppColors.textSecondary,
                                           ),
@@ -248,7 +249,7 @@ class _SidebarState extends ConsumerState<Sidebar> {
                                       )
                                     else if (query.isNotEmpty) ...[
                                       _buildSectionHeader(
-                                        AppStrings.sidebarSectionResults,
+                                        l10n.sidebarSectionResults,
                                       ),
                                       for (final item in filteredItems)
                                         _buildNavItem(
@@ -526,15 +527,17 @@ class _SidebarSearchField extends StatelessWidget {
               controller: controller,
               inputFormatters: [ArabicDigitsToEnglishInputFormatter()],
               onChanged: onChanged,
-              decoration: const InputDecoration(
-                hintText: AppStrings.sidebarSearchHint,
-                hintStyle: TextStyle(
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context)!.sidebarSearchHint,
+                hintStyle: const TextStyle(
                   fontSize: AppFontSizes.label11,
                   color: AppColors.textSecondary,
                 ),
                 border: InputBorder.none,
                 isDense: true,
-                contentPadding: EdgeInsets.symmetric(vertical: AppSpacing.s10),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: AppSpacing.s10,
+                ),
               ),
               style: const TextStyle(
                 fontSize: AppFontSizes.label11,

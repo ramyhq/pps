@@ -11,6 +11,9 @@ class AppStrings {
   static const reportsTitle = 'Reports';
   static const settingsTitle = 'Settings';
 
+  static const languageEnglish = 'English';
+  static const languageArabic = 'العربية';
+
   static const sidebarSearchHint = 'Search…';
   static const sidebarNoResults = 'No results';
   static const sidebarSectionOperations = 'Operations';

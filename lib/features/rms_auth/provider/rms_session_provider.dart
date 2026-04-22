@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/constants/app_strings.dart';
 import '../../../core/rms_api/rms_dio_provider.dart';
 import '../../../core/rms_api/rms_runtime_state_providers.dart';
 import '../data/models/rms_user_info.dart';
@@ -12,34 +11,49 @@ final rmsSessionProvider =
       RmsSessionNotifier.new,
     );
 
+class RmsSessionError {
+  const RmsSessionError._(this.code, this.message);
+
+  final String code;
+  final String? message;
+
+  static const invalidCredentials = RmsSessionError._(
+    'invalidCredentials',
+    null,
+  );
+
+  factory RmsSessionError.message(String message) =>
+      RmsSessionError._('message', message);
+}
+
 class RmsSessionState {
   const RmsSessionState({
     required this.isChecking,
     required this.isAuthenticated,
     required this.isSubmitting,
     required this.user,
-    required this.errorMessage,
+    required this.error,
   });
 
   final bool isChecking;
   final bool isAuthenticated;
   final bool isSubmitting;
   final RmsUserInfo? user;
-  final String? errorMessage;
+  final RmsSessionError? error;
 
   RmsSessionState copyWith({
     bool? isChecking,
     bool? isAuthenticated,
     bool? isSubmitting,
     RmsUserInfo? user,
-    String? errorMessage,
+    RmsSessionError? error,
   }) {
     return RmsSessionState(
       isChecking: isChecking ?? this.isChecking,
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       user: user ?? this.user,
-      errorMessage: errorMessage,
+      error: error,
     );
   }
 
@@ -48,38 +62,38 @@ class RmsSessionState {
     isAuthenticated: false,
     isSubmitting: false,
     user: null,
-    errorMessage: null,
+    error: null,
   );
 }
 
 class RmsSessionNotifier extends Notifier<RmsSessionState> {
   bool _didRestoreFromStorage = false;
 
-  String _mapAuthErrorToUserMessage(Object error) {
+  RmsSessionError _mapAuthError(Object error) {
     if (error is DioException) {
       final status = error.response?.statusCode;
       if (status == 401 || status == 403) {
-        return AppStrings.loginInvalidCredentials;
+        return RmsSessionError.invalidCredentials;
       }
       final data = error.response?.data;
       if (data is Map<String, Object?>) {
         final serverError = data['error'];
         if (serverError is String &&
             serverError.toLowerCase().contains('login')) {
-          return AppStrings.loginInvalidCredentials;
+          return RmsSessionError.invalidCredentials;
         }
       }
     }
 
     final raw = error.toString().toLowerCase();
     if (raw.contains('login succeeded but user info is not available')) {
-      return AppStrings.loginInvalidCredentials;
+      return RmsSessionError.invalidCredentials;
     }
     if (raw.contains('proxy login failed')) {
-      return AppStrings.loginInvalidCredentials;
+      return RmsSessionError.invalidCredentials;
     }
 
-    return error.toString();
+    return RmsSessionError.message(error.toString());
   }
 
   @override
@@ -113,7 +127,7 @@ class RmsSessionNotifier extends Notifier<RmsSessionState> {
                 isAuthenticated: false,
                 isSubmitting: false,
                 user: null,
-                errorMessage: null,
+                error: null,
               );
               return;
             }
@@ -122,7 +136,7 @@ class RmsSessionNotifier extends Notifier<RmsSessionState> {
               isAuthenticated: true,
               isSubmitting: false,
               user: user,
-              errorMessage: null,
+              error: null,
             );
           } catch (_) {
             try {
@@ -133,7 +147,7 @@ class RmsSessionNotifier extends Notifier<RmsSessionState> {
               isAuthenticated: false,
               isSubmitting: false,
               user: null,
-              errorMessage: null,
+              error: null,
             );
           }
         }();
@@ -150,7 +164,7 @@ class RmsSessionNotifier extends Notifier<RmsSessionState> {
           isAuthenticated: false,
           isSubmitting: false,
           user: null,
-          errorMessage: null,
+          error: null,
         );
       }
     });
@@ -166,7 +180,7 @@ class RmsSessionNotifier extends Notifier<RmsSessionState> {
     state = state.copyWith(
       isChecking: false,
       isSubmitting: true,
-      errorMessage: null,
+      error: null,
     );
     try {
       final repo = ref.read(rmsAuthRepositoryProvider);
@@ -180,7 +194,7 @@ class RmsSessionNotifier extends Notifier<RmsSessionState> {
         isSubmitting: false,
         isAuthenticated: true,
         user: user,
-        errorMessage: null,
+        error: null,
       );
     } catch (e) {
       state = state.copyWith(
@@ -188,7 +202,7 @@ class RmsSessionNotifier extends Notifier<RmsSessionState> {
         isSubmitting: false,
         isAuthenticated: false,
         user: null,
-        errorMessage: _mapAuthErrorToUserMessage(e),
+        error: _mapAuthError(e),
       );
     }
   }
@@ -201,7 +215,7 @@ class RmsSessionNotifier extends Notifier<RmsSessionState> {
       isAuthenticated: false,
       isSubmitting: false,
       user: null,
-      errorMessage: null,
+      error: null,
     );
   }
 }

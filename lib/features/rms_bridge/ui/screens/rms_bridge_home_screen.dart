@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:universal_io/io.dart' as io;
+import 'package:pps/l10n/app_localizations.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
@@ -83,10 +84,15 @@ class _RmsBridgeHomeScreenState extends ConsumerState<RmsBridgeHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final session = ref.watch(rmsSessionProvider);
     final isAuthenticated = session.isAuthenticated;
     final showChecking = session.isChecking;
     final showLogin = !isAuthenticated && !showChecking;
+    final errorText = switch (session.error?.code) {
+      'invalidCredentials' => l10n.loginInvalidCredentials,
+      _ => session.error?.message,
+    };
 
     return SingleChildScrollView(
       padding: AppInsets.pageDetails,
@@ -149,7 +155,7 @@ class _RmsBridgeHomeScreenState extends ConsumerState<RmsBridgeHomeScreen> {
               rememberMe: _rememberMe,
               isPasswordVisible: _isPasswordVisible,
               isSubmitting: session.isSubmitting,
-              errorMessage: session.errorMessage,
+              errorMessage: errorText,
               onToggleRememberMe: (v) =>
                   setState(() => _rememberMe = v ?? false),
               onTogglePasswordVisibility: () =>
@@ -442,6 +448,7 @@ class _LoginCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.white,
@@ -466,7 +473,7 @@ class _LoginCard extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: onOpenFullLogin,
-                  child: const Text(AppStrings.rmsBridgeOpenRmsLoginButton),
+                  child: Text(l10n.rmsBridgeOpenRmsLoginButton),
                 ),
               ],
             ),
@@ -505,7 +512,7 @@ class _LoginCard extends StatelessWidget {
               controller: userController,
               focusNode: userFocusNode,
               decoration: InputDecoration(
-                hintText: AppStrings.loginUsernameHint,
+                hintText: l10n.loginUsernameHint,
                 filled: true,
                 fillColor: AppColors.light,
                 border: OutlineInputBorder(
@@ -524,7 +531,7 @@ class _LoginCard extends StatelessWidget {
               controller: passwordController,
               obscureText: !isPasswordVisible,
               decoration: InputDecoration(
-                hintText: AppStrings.loginPasswordHint,
+                hintText: l10n.loginPasswordHint,
                 filled: true,
                 fillColor: AppColors.light,
                 border: OutlineInputBorder(
@@ -549,7 +556,7 @@ class _LoginCard extends StatelessWidget {
               children: [
                 Checkbox(value: rememberMe, onChanged: onToggleRememberMe),
                 Text(
-                  AppStrings.loginRememberMe,
+                  l10n.loginRememberMe,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -588,7 +595,7 @@ class _LoginCard extends StatelessWidget {
                           ),
                         ),
                       )
-                    : const Text(AppStrings.loginButton),
+                    : Text(l10n.loginButton),
               ),
             ),
           ],

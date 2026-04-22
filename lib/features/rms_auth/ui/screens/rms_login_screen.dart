@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pps/l10n/app_localizations.dart';
 
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_strings.dart';
 import '../../../../core/rms_api/rms_api_config.dart';
 import '../../../../core/rms_api/rms_dio_provider.dart';
 import '../../provider/rms_session_provider.dart';
@@ -64,7 +64,12 @@ class _RmsLoginScreenState extends ConsumerState<RmsLoginScreen> {
   Widget build(BuildContext context) {
     ref.watch(rmsRuntimeBootstrapProvider);
 
+    final l10n = AppLocalizations.of(context)!;
     final session = ref.watch(rmsSessionProvider);
+    final errorText = switch (session.error?.code) {
+      'invalidCredentials' => l10n.loginInvalidCredentials,
+      _ => session.error?.message,
+    };
 
     final cardWidth = MediaQuery.sizeOf(context).width >= 720 ? 500.0 : 360.0;
     const logoUrl = '$rmsBaseUrl/Common/Images/RMS-logo.svg';
@@ -119,7 +124,7 @@ class _RmsLoginScreenState extends ConsumerState<RmsLoginScreen> {
                           ),
                           const SizedBox(height: AppSpacing.s16),
                           Text(
-                            AppStrings.loginTitle,
+                            l10n.loginTitle,
                             style: AppTextStyles.heading.copyWith(fontSize: 24),
                           ),
                           if (session.isAuthenticated) ...[
@@ -132,9 +137,7 @@ class _RmsLoginScreenState extends ConsumerState<RmsLoginScreen> {
                                         .read(rmsSessionProvider.notifier)
                                         .logout(),
                                     icon: const Icon(Icons.logout),
-                                    label: const Text(
-                                      AppStrings.rmsBridgeLogoutButton,
-                                    ),
+                                    label: Text(l10n.rmsBridgeLogoutButton),
                                   ),
                                 ),
                                 const SizedBox(width: AppSpacing.s12),
@@ -150,8 +153,8 @@ class _RmsLoginScreenState extends ConsumerState<RmsLoginScreen> {
                                         ),
                                       ),
                                     ),
-                                    child: const Text(
-                                      AppStrings.rmsBridgeOpenDashboardButton,
+                                    child: Text(
+                                      l10n.rmsBridgeOpenDashboardButton,
                                     ),
                                   ),
                                 ),
@@ -162,7 +165,7 @@ class _RmsLoginScreenState extends ConsumerState<RmsLoginScreen> {
                           TextField(
                             controller: _userController,
                             decoration: InputDecoration(
-                              hintText: AppStrings.loginUsernameHint,
+                              hintText: l10n.loginUsernameHint,
                               filled: true,
                               fillColor: AppColors.light,
                               border: OutlineInputBorder(
@@ -183,7 +186,7 @@ class _RmsLoginScreenState extends ConsumerState<RmsLoginScreen> {
                             controller: _passwordController,
                             obscureText: !_isPasswordVisible,
                             decoration: InputDecoration(
-                              hintText: AppStrings.loginPasswordHint,
+                              hintText: l10n.loginPasswordHint,
                               filled: true,
                               fillColor: AppColors.light,
                               border: OutlineInputBorder(
@@ -219,25 +222,25 @@ class _RmsLoginScreenState extends ConsumerState<RmsLoginScreen> {
                                     setState(() => _rememberMe = v ?? false),
                               ),
                               Text(
-                                AppStrings.loginRememberMe,
+                                l10n.loginRememberMe,
                                 style: AppTextStyles.body.copyWith(
                                   fontSize: 14,
                                 ),
                               ),
                               const Spacer(),
-                              const TextButton(
+                              TextButton(
                                 onPressed: null,
-                                child: Text(AppStrings.loginForgotPassword),
+                                child: Text(l10n.loginForgotPassword),
                               ),
                             ],
                           ),
-                          if (session.errorMessage != null)
+                          if (errorText != null)
                             Padding(
                               padding: const EdgeInsets.only(
                                 bottom: AppSpacing.s8,
                               ),
                               child: Text(
-                                session.errorMessage!,
+                                errorText,
                                 style: AppTextStyles.body.copyWith(
                                   color: AppColors.danger,
                                 ),
@@ -268,9 +271,9 @@ class _RmsLoginScreenState extends ConsumerState<RmsLoginScreen> {
                                             ),
                                       ),
                                     )
-                                  : const Text(
-                                      AppStrings.loginButton,
-                                      style: TextStyle(
+                                  : Text(
+                                      l10n.loginButton,
+                                      style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,
                                       ),

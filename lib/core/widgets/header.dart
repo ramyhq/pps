@@ -3,8 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pps/l10n/app_localizations.dart';
 import '../constants/app_colors.dart';
-import '../constants/app_strings.dart';
+import '../localization/locale_provider.dart';
 import '../../features/reservations/provider/create_agent_reservation_provider.dart';
 import '../../features/reservations/provider/reservations_data_providers.dart';
 import 'custom_form_fields.dart';
@@ -36,8 +37,10 @@ class Header extends ConsumerStatefulWidget {
 class _HeaderState extends ConsumerState<Header> {
   final TextEditingController _searchController = TextEditingController();
   final GlobalKey _createMenuAnchorKey = GlobalKey();
+  final GlobalKey _languageMenuAnchorKey = GlobalKey();
   bool _isSearching = false;
   bool _isCreateMenuOpen = false;
+  bool _isLanguageMenuOpen = false;
 
   @override
   void dispose() {
@@ -84,6 +87,7 @@ class _HeaderState extends ConsumerState<Header> {
     if (_isCreateMenuOpen) {
       return;
     }
+    final l10n = AppLocalizations.of(context)!;
 
     final anchorContext = _createMenuAnchorKey.currentContext;
     if (anchorContext == null) {
@@ -137,7 +141,7 @@ class _HeaderState extends ConsumerState<Header> {
             padding: EdgeInsets.zero,
             child: _HeaderDropMenuItem(
               icon: Icons.hotel,
-              label: AppStrings.addAgentDirect,
+              label: l10n.addAgentDirect,
               onTap: () =>
                   Navigator.of(context).pop(_HeaderCreateAction.addAgentDirect),
             ),
@@ -161,7 +165,7 @@ class _HeaderState extends ConsumerState<Header> {
             padding: EdgeInsets.zero,
             child: _HeaderDropMenuItem(
               icon: Icons.shopping_cart_outlined,
-              label: AppStrings.addGeneral,
+              label: l10n.addGeneral,
               onTap: () =>
                   Navigator.of(context).pop(_HeaderCreateAction.addGeneral),
             ),
@@ -171,7 +175,7 @@ class _HeaderState extends ConsumerState<Header> {
             padding: EdgeInsets.zero,
             child: _HeaderDropMenuItem(
               icon: Icons.directions_bus,
-              label: AppStrings.addTransport,
+              label: l10n.addTransport,
               onTap: () =>
                   Navigator.of(context).pop(_HeaderCreateAction.addTransport),
             ),
@@ -203,10 +207,103 @@ class _HeaderState extends ConsumerState<Header> {
     }
   }
 
+  Future<void> _openLanguageMenu() async {
+    if (_isLanguageMenuOpen) {
+      return;
+    }
+    final l10n = AppLocalizations.of(context)!;
+
+    final anchorContext = _languageMenuAnchorKey.currentContext;
+    if (anchorContext == null) {
+      return;
+    }
+
+    final overlayObject = Overlay.of(context).context.findRenderObject();
+    if (overlayObject is! RenderBox) {
+      return;
+    }
+
+    final anchorObject = anchorContext.findRenderObject();
+    if (anchorObject is! RenderBox) {
+      return;
+    }
+
+    final anchorOffset = anchorObject.localToGlobal(
+      Offset.zero,
+      ancestor: overlayObject,
+    );
+    final position = RelativeRect.fromLTRB(
+      anchorOffset.dx,
+      anchorOffset.dy + anchorObject.size.height + 6,
+      overlayObject.size.width - anchorOffset.dx - anchorObject.size.width,
+      overlayObject.size.height - anchorOffset.dy,
+    );
+
+    setState(() => _isLanguageMenuOpen = true);
+    try {
+      final selected = await showMenu<_HeaderLanguageAction>(
+        context: context,
+        position: position,
+        color: Colors.white,
+        surfaceTintColor: Colors.white,
+        elevation: AppElevations.menu,
+        shadowColor: Colors.black.withValues(alpha: AppAlphas.shadow28),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadii.r12),
+        ),
+        constraints: const BoxConstraints(minWidth: 280, maxWidth: 280),
+        items: [
+          PopupMenuItem<_HeaderLanguageAction>(
+            enabled: false,
+            padding: EdgeInsets.zero,
+            child: _HeaderLanguageMenuItem(
+              flag: const Text('🇺🇸', style: TextStyle(fontSize: 16)),
+              label: l10n.languageEnglish,
+              onTap: () => Navigator.of(context).pop(_HeaderLanguageAction.en),
+            ),
+          ),
+          PopupMenuItem<_HeaderLanguageAction>(
+            enabled: false,
+            padding: EdgeInsets.zero,
+            child: _HeaderLanguageMenuItem(
+              flag: const Text('🇪🇬', style: TextStyle(fontSize: 16)),
+              label: l10n.languageArabic,
+              onTap: () => Navigator.of(context).pop(_HeaderLanguageAction.ar),
+            ),
+          ),
+        ],
+      );
+
+      if (!mounted || selected == null) {
+        return;
+      }
+
+      final localeNotifier = ref.read(localeProvider.notifier);
+      switch (selected) {
+        case _HeaderLanguageAction.en:
+          localeNotifier.setLocale(const Locale('en'));
+          return;
+        case _HeaderLanguageAction.ar:
+          localeNotifier.setLocale(const Locale('ar'));
+          return;
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLanguageMenuOpen = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final logoAssetPath = widget.logoAssetPath;
     final showDesktopLogo = widget.showLogo && logoAssetPath != null;
+    final l10n = AppLocalizations.of(context)!;
+    final locale = ref.watch(localeProvider);
+    final languageFlag = switch (locale.languageCode) {
+      'ar' => '🇪🇬',
+      _ => '🇺🇸',
+    };
 
     return Container(
       height: 80.0, // Increased height for bigger logo
@@ -307,9 +404,9 @@ class _HeaderState extends ConsumerState<Header> {
                     color: AppColors.warning,
                     size: AppIconSizes.s16,
                   ),
-                  label: const Text(
-                    'Favorites',
-                    style: TextStyle(color: AppColors.textPrimary),
+                  label: Text(
+                    l10n.favorites,
+                    style: const TextStyle(color: AppColors.textPrimary),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.s16),
@@ -336,9 +433,9 @@ class _HeaderState extends ConsumerState<Header> {
                             FilteringTextInputFormatter.digitsOnly,
                           ],
                           onSubmitted: (_) => _submitSearch(),
-                          decoration: const InputDecoration(
-                            hintText: AppStrings.ppsResNumber,
-                            hintStyle: TextStyle(
+                          decoration: InputDecoration(
+                            hintText: l10n.ppsResNumber,
+                            hintStyle: const TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: AppFontSizes.body12,
                               fontWeight: FontWeight.w500,
@@ -375,48 +472,24 @@ class _HeaderState extends ConsumerState<Header> {
                 // Actions
                 KeyedSubtree(
                   key: _createMenuAnchorKey,
-                  child: SizedBox(
-                    width: AppHeights.field34,
-                    height: AppHeights.field34,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: _isCreateMenuOpen
-                            ? AppColors.primary
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(AppRadii.r12),
-                      ),
-                      child: IconButton(
-                        onPressed: _openCreateMenu,
-                        icon: Icon(
-                          FontAwesomeIcons.calendarPlus,
-                          size: AppIconSizes.s18,
-                          color: _isCreateMenuOpen
-                              ? Colors.white
-                              : AppColors.primary,
-                        ),
-                        padding: EdgeInsets.zero,
-                        splashRadius: AppIconSizes.s18,
-                      ),
-                    ),
+                  child: _HeaderIconButton(
+                    onPressed: _openCreateMenu,
+                    icon: FontAwesomeIcons.calendarPlus,
+                    iconSize: AppIconSizes.s18,
+                    active: _isCreateMenuOpen,
                   ),
                 ),
-                IconButton(
+                _HeaderIconButton(
                   onPressed: () {},
-                  icon: const Icon(
-                    FontAwesomeIcons.building,
-                    size: AppIconSizes.s18,
-                    color: AppColors.primary,
-                  ),
+                  icon: FontAwesomeIcons.building,
+                  iconSize: AppIconSizes.s18,
                 ),
                 Stack(
                   children: [
-                    IconButton(
+                    _HeaderIconButton(
                       onPressed: () {},
-                      icon: const Icon(
-                        FontAwesomeIcons.bell,
-                        size: AppIconSizes.s18,
-                        color: AppColors.primary,
-                      ),
+                      icon: FontAwesomeIcons.bell,
+                      iconSize: AppIconSizes.s18,
                     ),
                     Positioned(
                       right: AppSpacing.s8,
@@ -443,20 +516,25 @@ class _HeaderState extends ConsumerState<Header> {
                     ),
                   ],
                 ),
-                IconButton(
+                _HeaderIconButton(
                   onPressed: () {},
-                  icon: const Icon(
-                    Icons.chat_bubble_outline,
-                    size: AppIconSizes.s18,
-                    color: AppColors.textSecondary,
-                  ),
+                  icon: Icons.chat_bubble_outline,
+                  iconSize: AppIconSizes.s18,
                 ),
-                IconButton(
+                _HeaderIconButton(
                   onPressed: () {},
-                  icon: const Icon(
-                    Icons.wb_sunny_outlined,
-                    size: AppIconSizes.s18,
-                    color: AppColors.textSecondary,
+                  icon: Icons.wb_sunny_outlined,
+                  iconSize: AppIconSizes.s18,
+                ),
+                KeyedSubtree(
+                  key: _languageMenuAnchorKey,
+                  child: _HeaderIconButton(
+                    onPressed: _openLanguageMenu,
+                    active: _isLanguageMenuOpen,
+                    child: Text(
+                      languageFlag,
+                      style: const TextStyle(fontSize: 16),
+                    ),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.s8),
@@ -480,6 +558,62 @@ class _HeaderState extends ConsumerState<Header> {
 }
 
 enum _HeaderCreateAction { addAgentDirect, addGeneral, addTransport }
+
+enum _HeaderLanguageAction { en, ar }
+
+class _HeaderIconButton extends StatefulWidget {
+  const _HeaderIconButton({
+    required this.onPressed,
+    this.icon,
+    this.iconSize = AppIconSizes.s18,
+    this.child,
+    this.active = false,
+  }) : assert(icon != null || child != null);
+
+  final VoidCallback? onPressed;
+  final IconData? icon;
+  final double iconSize;
+  final Widget? child;
+  final bool active;
+
+  @override
+  State<_HeaderIconButton> createState() => _HeaderIconButtonState();
+}
+
+class _HeaderIconButtonState extends State<_HeaderIconButton> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final highlighted = widget.active || _hovered;
+    final bgColor = highlighted
+        ? AppColors.primarySurfaceAlt
+        : Colors.transparent;
+    final iconColor = highlighted ? AppColors.primary : AppColors.textSecondary;
+
+    return SizedBox(
+      width: AppHeights.field34,
+      height: AppHeights.field34,
+      child: Material(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(AppRadii.r12),
+        child: InkWell(
+          onTap: widget.onPressed,
+          onHover: (value) => setState(() => _hovered = value),
+          borderRadius: BorderRadius.circular(AppRadii.r12),
+          hoverColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          child: Center(
+            child: widget.icon != null
+                ? Icon(widget.icon, size: widget.iconSize, color: iconColor)
+                : widget.child!,
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class _HeaderDropMenuItem extends StatefulWidget {
   const _HeaderDropMenuItem({
@@ -538,6 +672,74 @@ class _HeaderDropMenuItemState extends State<_HeaderDropMenuItem> {
                       fontSize: AppFontSizes.label11,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
+                      height: 1.0,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HeaderLanguageMenuItem extends StatefulWidget {
+  const _HeaderLanguageMenuItem({
+    required this.flag,
+    required this.label,
+    required this.onTap,
+  });
+
+  final Widget flag;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  State<_HeaderLanguageMenuItem> createState() =>
+      _HeaderLanguageMenuItemState();
+}
+
+class _HeaderLanguageMenuItemState extends State<_HeaderLanguageMenuItem> {
+  @override
+  Widget build(BuildContext context) {
+    final hoverBg = AppColors.border.withValues(alpha: AppAlphas.hover26);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.s10,
+        vertical: AppSpacing.s4,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(AppRadii.r8),
+        child: InkWell(
+          onTap: widget.onTap,
+          borderRadius: BorderRadius.circular(AppRadii.r8),
+          hoverColor: hoverBg,
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          child: Container(
+            height: AppHeights.menuItem40,
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s12),
+            alignment: Alignment.centerLeft,
+            child: Row(
+              children: [
+                SizedBox(
+                  width: AppIconSizes.s20,
+                  child: Center(child: widget.flag),
+                ),
+                const SizedBox(width: AppSpacing.s10),
+                Expanded(
+                  child: Text(
+                    widget.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: AppFontSizes.label11,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textSecondary,
                       height: 1.0,
                     ),
                   ),

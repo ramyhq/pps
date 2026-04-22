@@ -44,11 +44,12 @@ class _ReservationDetailsScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final id = widget.reservationId;
     if (id == null || id.trim().isEmpty) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: Colors.transparent,
-        body: Center(child: Text(AppStrings.missingReservationId)),
+        body: Center(child: Text(l10n.missingReservationId)),
       );
     }
 
@@ -80,8 +81,8 @@ class _ReservationDetailsScreenState
 
     final reservationNo = details?.order.reservationNo;
     final title = reservationNo != null
-        ? 'View res. $reservationNo'
-        : 'View res.';
+        ? '${l10n.detailsTitle} $reservationNo'
+        : l10n.detailsTitle;
 
     return Title(
       title: title,
@@ -153,17 +154,16 @@ class _ReservationDetailsScreenState
     String id,
     ReservationDetails? details,
   ) {
-    final l10n = AppLocalizations.of(context);
-    final printTotalsTooltip =
-        l10n?.printTotalsHintTooltip ?? AppStrings.printTotalsHintTooltipEn;
+    final l10n = AppLocalizations.of(context)!;
+    final printTotalsTooltip = l10n.printTotalsHintTooltip;
 
     return Row(
       children: [
-        const Column(
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              AppStrings.detailsTitle,
+              l10n.detailsTitle,
               style: TextStyle(
                 fontSize: AppFontSizes.title20,
                 fontWeight: FontWeight.w700,
@@ -174,7 +174,7 @@ class _ReservationDetailsScreenState
             Row(
               children: [
                 Text(
-                  AppStrings.reservationsTitle,
+                  l10n.reservationsTitle,
                   style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: AppFontSizes.body12,
@@ -189,7 +189,7 @@ class _ReservationDetailsScreenState
                   ),
                 ),
                 Text(
-                  AppStrings.detailsTitle,
+                  l10n.detailsTitle,
                   style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: AppFontSizes.body12,
@@ -229,9 +229,9 @@ class _ReservationDetailsScreenState
                 case _ReservationToolbarAction.print:
                   final payload = details;
                   if (payload == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text(AppStrings.print)),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(l10n.print)));
                     return;
                   }
                   final print1Diffs = <String>[];
@@ -255,9 +255,9 @@ class _ReservationDetailsScreenState
                 case _ReservationToolbarAction.print2:
                   final payload = details;
                   if (payload == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text(AppStrings.print2)),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(AppStrings.print2)));
                     return;
                   }
                   final rmsText = (payload.order.rmsInvoiceNo ?? '').trim();
@@ -318,26 +318,26 @@ class _ReservationDetailsScreenState
               borderRadius: BorderRadius.circular(AppRadii.r4),
               border: Border.all(color: AppColors.primary),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
+                const Icon(
                   Icons.print_outlined,
                   size: AppIconSizes.s14,
                   color: AppColors.primary,
                 ),
-                SizedBox(width: AppSpacing.s6),
+                const SizedBox(width: AppSpacing.s6),
                 Text(
-                  AppStrings.print,
-                  style: TextStyle(
+                  l10n.print,
+                  style: const TextStyle(
                     fontSize: AppFontSizes.body12,
                     fontWeight: FontWeight.w600,
                     color: AppColors.primary,
                     height: 1.0,
                   ),
                 ),
-                SizedBox(width: AppSpacing.s3),
-                _TriangleDownIcon(color: AppColors.primary),
+                const SizedBox(width: AppSpacing.s3),
+                const _TriangleDownIcon(color: AppColors.primary),
               ],
             ),
           ),
@@ -368,21 +368,21 @@ class _ReservationDetailsScreenState
               }
             }();
           },
-          entries: const [
+          entries: [
             AppDropMenuEntry.action(
               value: _ReservationToolbarAction.printUsage,
-              label: AppStrings.printUsageTitle,
+              label: l10n.printUsageTitle,
               icon: Icons.help_outline,
             ),
             AppDropMenuEntry.action(
               value: _ReservationToolbarAction.guide,
-              label: AppStrings.calculationsGuide,
+              label: l10n.calculationsGuide,
               icon: Icons.info_outline,
             ),
-            AppDropMenuEntry.divider(),
+            const AppDropMenuEntry.divider(),
             AppDropMenuEntry.action(
               value: _ReservationToolbarAction.delete,
-              label: AppStrings.delete,
+              label: l10n.delete,
               icon: Icons.delete_outline,
               isDanger: true,
             ),
@@ -394,26 +394,26 @@ class _ReservationDetailsScreenState
               color: AppColors.primary,
               borderRadius: BorderRadius.circular(AppRadii.r4),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
+                const Icon(
                   Icons.more_vert,
                   size: AppIconSizes.s14,
                   color: Colors.white,
                 ),
-                SizedBox(width: AppSpacing.s6),
+                const SizedBox(width: AppSpacing.s6),
                 Text(
-                  AppStrings.actions,
-                  style: TextStyle(
+                  l10n.actions,
+                  style: const TextStyle(
                     fontSize: AppFontSizes.body12,
                     fontWeight: FontWeight.w500,
                     color: Colors.white,
                     height: 1.0,
                   ),
                 ),
-                SizedBox(width: AppSpacing.s3),
-                _TriangleDownIcon(color: Colors.white),
+                const SizedBox(width: AppSpacing.s3),
+                const _TriangleDownIcon(color: Colors.white),
               ],
             ),
           ),
@@ -460,7 +460,7 @@ class _ReservationDetailsScreenState
           child: OutlinedButton.icon(
             onPressed: () => context.go('/reservations'),
             icon: const Icon(Icons.chevron_left, size: AppIconSizes.s14),
-            label: const Text(AppStrings.back),
+            label: Text(l10n.back),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.primary,
               side: const BorderSide(color: AppColors.primary),
@@ -583,6 +583,7 @@ class _ReservationDetailsScreenState
     ReservationOrder order,
     List<ReservationServiceSummary> services,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final optionDate = order.clientOptionDate == null
         ? '-'
         : DateFormat(_dateFormat).format(order.clientOptionDate!);
@@ -598,7 +599,7 @@ class _ReservationDetailsScreenState
         : order.rmsInvoiceNo!.trim();
 
     return _DetailsAccordion(
-      title: AppStrings.reservationMainInfoTitle,
+      title: l10n.reservationMainInfoTitle,
       initiallyExpanded: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -613,7 +614,7 @@ class _ReservationDetailsScreenState
                 services,
               ),
               icon: const Icon(Icons.edit, color: AppColors.primary, size: 16),
-              tooltip: AppStrings.editInfoTooltip,
+              tooltip: l10n.editInfoTooltip,
               constraints: const BoxConstraints(),
               padding: EdgeInsets.zero,
               visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
@@ -645,7 +646,7 @@ class _ReservationDetailsScreenState
                         SizedBox(
                           width: colWidth,
                           child: _buildMainInfoItem(
-                            AppStrings.client,
+                            l10n.client,
                             order.client.label,
                             icon: Icons.swap_horiz,
                           ),
@@ -654,17 +655,14 @@ class _ReservationDetailsScreenState
                         SizedBox(
                           width: colWidth,
                           child: _buildMainInfoItem(
-                            AppStrings.fromDate,
+                            l10n.fromDate,
                             fromDateText,
                           ),
                         ),
                         const SizedBox(width: gap),
                         SizedBox(
                           width: colWidth,
-                          child: _buildMainInfoItem(
-                            AppStrings.toDate,
-                            toDateText,
-                          ),
+                          child: _buildMainInfoItem(l10n.toDate, toDateText),
                         ),
                       ],
                     ),
@@ -677,7 +675,7 @@ class _ReservationDetailsScreenState
                         SizedBox(
                           width: colWidth,
                           child: _buildMainInfoItem(
-                            AppStrings.guestName,
+                            l10n.guestName,
                             order.guestName ?? '-',
                           ),
                         ),
@@ -685,7 +683,7 @@ class _ReservationDetailsScreenState
                         SizedBox(
                           width: colWidth,
                           child: _buildMainInfoItem(
-                            AppStrings.clientOptionDate,
+                            l10n.clientOptionDate,
                             optionDate,
                           ),
                         ),
@@ -693,11 +691,10 @@ class _ReservationDetailsScreenState
                         SizedBox(
                           width: colWidth,
                           child: _buildMainInfoItem(
-                            AppStrings.rmsInvoiceNo,
+                            l10n.rmsInvoiceNo,
                             rmsInvoiceText,
                             indicatorDotColor: AppColors.primary,
-                            indicatorMessage:
-                                AppStrings.rmsInvoiceIndicatorTooltip,
+                            indicatorMessage: l10n.rmsInvoiceIndicatorTooltip,
                             emphasizeValue: true,
                           ),
                         ),
@@ -737,7 +734,7 @@ class _ReservationDetailsScreenState
                       ReservationDetailsLayout.mainInfoClientWidth,
                     ),
                     child: _buildMainInfoItem(
-                      AppStrings.client,
+                      l10n.client,
                       order.client.label,
                       icon: Icons.swap_horiz,
                     ),
@@ -746,21 +743,18 @@ class _ReservationDetailsScreenState
                     width: clampWidth(
                       ReservationDetailsLayout.mainInfoFromWidth,
                     ),
-                    child: _buildMainInfoItem(
-                      AppStrings.fromDate,
-                      fromDateText,
-                    ),
+                    child: _buildMainInfoItem(l10n.fromDate, fromDateText),
                   ),
                   SizedBox(
                     width: clampWidth(ReservationDetailsLayout.mainInfoToWidth),
-                    child: _buildMainInfoItem(AppStrings.toDate, toDateText),
+                    child: _buildMainInfoItem(l10n.toDate, toDateText),
                   ),
                   SizedBox(
                     width: clampWidth(
                       ReservationDetailsLayout.mainInfoGuestWidth,
                     ),
                     child: _buildMainInfoItem(
-                      AppStrings.guestName,
+                      l10n.guestName,
                       order.guestName ?? '-',
                     ),
                   ),
@@ -769,7 +763,7 @@ class _ReservationDetailsScreenState
                       ReservationDetailsLayout.mainInfoOptionDateWidth,
                     ),
                     child: _buildMainInfoItem(
-                      AppStrings.clientOptionDate,
+                      l10n.clientOptionDate,
                       optionDate,
                     ),
                   ),
@@ -778,10 +772,10 @@ class _ReservationDetailsScreenState
                       ReservationDetailsLayout.mainInfoRmsInvoiceWidth,
                     ),
                     child: _buildMainInfoItem(
-                      AppStrings.rmsInvoiceNo,
+                      l10n.rmsInvoiceNo,
                       rmsInvoiceText,
                       indicatorDotColor: AppColors.primary,
-                      indicatorMessage: AppStrings.rmsInvoiceIndicatorTooltip,
+                      indicatorMessage: l10n.rmsInvoiceIndicatorTooltip,
                       emphasizeValue: true,
                     ),
                   ),
@@ -813,6 +807,7 @@ class _ReservationDetailsScreenState
     ReservationOrder order,
     List<ReservationServiceSummary> services,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final repository = ref.read(reservationsRepositoryProvider);
     late final List<Client> clients;
     try {
@@ -931,7 +926,7 @@ class _ReservationDetailsScreenState
                             backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
                           ),
-                          child: const Text(AppStrings.continueAnyway),
+                          child: Text(l10n.continueAnyway),
                         ),
                       ],
                     );
@@ -958,9 +953,7 @@ class _ReservationDetailsScreenState
                     (updated.rmsInvoiceNo ?? '').trim() != entered &&
                     context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(AppStrings.rmsInvoiceMissingColumn),
-                    ),
+                    SnackBar(content: Text(l10n.rmsInvoiceMissingColumn)),
                   );
                 }
                 if (dialogContext.mounted) {
@@ -968,9 +961,9 @@ class _ReservationDetailsScreenState
                 }
                 ref.invalidate(reservationDetailsProvider(order.id));
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text(AppStrings.saved)),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(l10n.saved)));
                 }
               } catch (e) {
                 if (context.mounted) {
@@ -1019,9 +1012,9 @@ class _ReservationDetailsScreenState
                             padding: const EdgeInsets.fromLTRB(16, 12, 12, 0),
                             child: Row(
                               children: [
-                                const Text(
-                                  AppStrings.editInfoTitle,
-                                  style: TextStyle(
+                                Text(
+                                  l10n.editInfoTitle,
+                                  style: const TextStyle(
                                     fontSize: AppFontSizes.title14,
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.textPrimary,
@@ -1243,7 +1236,7 @@ class _ReservationDetailsScreenState
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                  child: const Text(AppStrings.close),
+                                  child: Text(l10n.close),
                                 ),
                                 const SizedBox(width: AppSpacing.s10),
                                 ElevatedButton(
@@ -1281,7 +1274,7 @@ class _ReservationDetailsScreenState
                                             color: Colors.white,
                                           ),
                                         )
-                                      : const Text(AppStrings.save),
+                                      : Text(l10n.save),
                                 ),
                               ],
                             ),
@@ -1359,6 +1352,8 @@ class _ReservationDetailsScreenState
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (context, setState) {
+            final l10n = AppLocalizations.of(context)!;
+
             InputDecoration decoration(String label) {
               return InputDecoration(
                 labelText: label,
@@ -1461,9 +1456,9 @@ class _ReservationDetailsScreenState
                           padding: const EdgeInsets.fromLTRB(16, 12, 12, 0),
                           child: Row(
                             children: [
-                              const Text(
-                                AppStrings.rmsInvoiceDialogTitle,
-                                style: TextStyle(
+                              Text(
+                                l10n.rmsInvoiceDialogTitle,
+                                style: const TextStyle(
                                   fontSize: AppFontSizes.title14,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.textPrimary,
@@ -1493,9 +1488,9 @@ class _ReservationDetailsScreenState
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                AppStrings.rmsInvoiceDialogHint,
-                                style: TextStyle(
+                              Text(
+                                l10n.rmsInvoiceDialogHint,
+                                style: const TextStyle(
                                   color: AppColors.textSecondary,
                                   fontSize: AppFontSizes.body12,
                                   height: 1.2,
@@ -1517,7 +1512,7 @@ class _ReservationDetailsScreenState
                                           ArabicDigitsToEnglishInputFormatter(),
                                         ],
                                         decoration: decoration(
-                                          AppStrings.rmsInvoiceNo,
+                                          l10n.rmsInvoiceNo,
                                         ),
                                       ),
                                     ),
@@ -1564,7 +1559,7 @@ class _ReservationDetailsScreenState
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                child: const Text(AppStrings.continueWithout),
+                                child: Text(l10n.continueWithout),
                               ),
                               const SizedBox(width: AppSpacing.s10),
                               ElevatedButton(
@@ -1602,7 +1597,7 @@ class _ReservationDetailsScreenState
                                           color: Colors.white,
                                         ),
                                       )
-                                    : const Text(AppStrings.saveAndPrint),
+                                    : Text(l10n.saveAndPrint),
                               ),
                             ],
                           ),
@@ -2088,18 +2083,19 @@ class _ReservationDetailsScreenState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
+        final l10n = AppLocalizations.of(context)!;
         return AppDialog(
-          title: const Text(
-            AppStrings.deleteReservationTitle,
-            style: TextStyle(
+          title: Text(
+            l10n.deleteReservationTitle,
+            style: const TextStyle(
               fontSize: AppFontSizes.title14,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),
           ),
-          content: const Text(
-            AppStrings.deleteServiceMessage,
-            style: TextStyle(
+          content: Text(
+            l10n.deleteServiceMessage,
+            style: const TextStyle(
               fontSize: AppFontSizes.body12,
               color: AppColors.textSecondary,
               height: 1.35,
@@ -2118,7 +2114,7 @@ class _ReservationDetailsScreenState
                   borderRadius: BorderRadius.circular(AppRadii.r8),
                 ),
               ),
-              child: const Text(AppStrings.cancel),
+              child: Text(l10n.cancel),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
@@ -2131,7 +2127,7 @@ class _ReservationDetailsScreenState
                   borderRadius: BorderRadius.circular(AppRadii.r8),
                 ),
               ),
-              child: const Text(AppStrings.delete),
+              child: Text(l10n.delete),
             ),
           ],
         );
@@ -2146,9 +2142,9 @@ class _ReservationDetailsScreenState
           .deleteReservationService(serviceId: service.id);
       ref.invalidate(reservationDetailsProvider(reservationId));
       if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text(AppStrings.deleted)));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.deleted)),
+        );
       }
     } catch (e) {
       if (context.mounted) {
@@ -2170,7 +2166,9 @@ class _ReservationDetailsScreenState
     final city = agent?.hotelCity?.trim();
     final place = (location != null && location.isNotEmpty)
         ? location
-        : (city != null && city.isNotEmpty ? city : AppStrings.hotel);
+        : (city != null && city.isNotEmpty
+              ? city
+              : AppLocalizations.of(context)!.hotel);
     final hasManual = manual != null && manual > 0;
 
     String? locationCodeForAgent(AgentReservationDraft? agent) {
@@ -3640,6 +3638,7 @@ class _ReservationDetailsScreenState
       actions: [
         Builder(
           builder: (dialogContext) {
+            final l10n = AppLocalizations.of(dialogContext)!;
             return TextButton(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
@@ -3650,15 +3649,16 @@ class _ReservationDetailsScreenState
                   await _showPrintUsageDialog(context);
                 });
               },
-              child: const Text(AppStrings.more),
+              child: Text(l10n.more),
             );
           },
         ),
         Builder(
           builder: (dialogContext) {
+            final l10n = AppLocalizations.of(dialogContext)!;
             return ElevatedButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text(AppStrings.ok),
+              child: Text(l10n.ok),
             );
           },
         ),
@@ -3674,18 +3674,19 @@ class _ReservationDetailsScreenState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
+        final l10n = AppLocalizations.of(context)!;
         return AppDialog(
-          title: const Text(
-            AppStrings.deleteReservationTitle,
-            style: TextStyle(
+          title: Text(
+            l10n.deleteReservationTitle,
+            style: const TextStyle(
               fontSize: AppFontSizes.title14,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),
           ),
-          content: const Text(
-            AppStrings.deleteReservationMessage,
-            style: TextStyle(
+          content: Text(
+            l10n.deleteReservationMessage,
+            style: const TextStyle(
               fontSize: AppFontSizes.body12,
               color: AppColors.textSecondary,
               height: 1.35,
@@ -3704,7 +3705,7 @@ class _ReservationDetailsScreenState
                   borderRadius: BorderRadius.circular(AppRadii.r8),
                 ),
               ),
-              child: const Text(AppStrings.cancel),
+              child: Text(l10n.cancel),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
@@ -3717,7 +3718,7 @@ class _ReservationDetailsScreenState
                   borderRadius: BorderRadius.circular(AppRadii.r8),
                 ),
               ),
-              child: const Text(AppStrings.delete),
+              child: Text(l10n.delete),
             ),
           ],
         );
