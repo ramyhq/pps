@@ -165,6 +165,69 @@ class AppLocalizationsAr extends AppLocalizations {
   String get print => 'طباعة';
 
   @override
+  String get print1Summary => 'طباعة 1 — بسيط';
+
+  @override
+  String get print2Summary => 'طباعة 2 — مفصل (Mix)';
+
+  @override
+  String get partyPaxManual => 'عدد الأفراد (يدوي)';
+
+  @override
+  String get partyPaxManualHint => 'اختياري. بيستخدم لمراجعة سيجمنتات الفنادق وتوزيع الإضافات.';
+
+  @override
+  String get partyPaxManualIndicatorTooltip => 'لو فيه سيجمنتات PAX مختلفة عن عدد الأفراد (يدوي) هيظهر تحذير.';
+
+  @override
+  String get warningIndicatorDefaultTooltip => 'تحذير: راجع التفاصيل.';
+
+  @override
+  String get partyPaxMismatchTitle => 'اختلاف عدد الأفراد';
+
+  @override
+  String get partyPaxMismatchBodyPrefix => 'في سيجمنتات فنادق فيها PAX مختلف عن عدد الأفراد (يدوي):';
+
+  @override
+  String get fixNow => 'إصلاح الآن';
+
+  @override
+  String generalQtyMismatchTemplate(String qty, String manualPax) {
+    return 'تحذير: كمية الخدمة العامة ($qty) مختلفة عن عدد الأفراد (يدوي) ($manualPax). لو Qty المقصود بيه عدد الأشخاص للخدمة دي، راجعها.';
+  }
+
+  @override
+  String locationPaxMismatchTemplate(String place, String locationPax, String manualPax) {
+    return 'تحذير: إجمالي PAX في $place ($locationPax) مختلف عن عدد الأفراد (يدوي) ($manualPax).';
+  }
+
+  @override
+  String locationPaxDifferenceTemplate(String place, String placePax, String otherPlace, String otherPax) {
+    return 'تحذير: إجمالي PAX في $place ($placePax) مختلف عن $otherPlace ($otherPax).';
+  }
+
+  @override
+  String get print1SimpleBlockedTitle => 'طباعة 1 — بسيط غير متاحة';
+
+  @override
+  String get print1SimpleBlockedBodyIntro => 'لا يمكن استخدام طباعة 1 — بسيط لأن توزيع الغرف مختلف بين المدينة ومكة.\n\nالشرط لاستخدام طباعة 1:\n- مجموع Qty لكل نوع غرفة في MED لازم يساوي مجموع Qty لنفس النوع في MAK.\n\nمثال سريع:\n- Quad: MED=25 و MAK=25 → ينفع طباعة 1.\n- Quad: MED=25 و MAK=20 → لازم طباعة 2.\n\nالاختلافات الحالية:\n';
+
+  @override
+  String get print1SimpleBlockedUsePrint2Hint => 'استخدم طباعة 2 — مفصل (Mix) في الحالة دي.';
+
+  @override
+  String get printUsageBody => 'هشرح لك الموضوع كأنك أول مرة تستخدم النظام (بالعربي البسيط):\n\n1) يعني إيه (Qty / Nights / PAX)؟\n- Qty: عدد الغرف.\n- Nights: عدد الليالي.\n- PAX: عدد الأشخاص اللي الحساب بيتوزع عليهم.\n\n2) أهم قاعدة في الفاتورة\n- إجمالي الفاتورة (Total) = مجموع Total sale لكل الخدمات في الحجز.\n- جدول الغرف في الـ PDF وظيفته يشرح التوزيع، لكن رقم Total النهائي لازم يطابق الفاتورة.\n\n3) Party Pax (Manual) ده إيه؟\n- رقم اختياري إنت بتكتبه بنفسك.\n- المقصود منه: عدد المسافرين الحقيقي.\n- لو كتبته: بيتستخدم لتوزيع الإضافات (Add-ons) فقط.\n- لو ما كتبتهوش: النظام بيستخدم Qty Pax (محسوبة من توزيع الغرف) علشان يوزع الإضافات.\n\n4) النقطة الحمرا جنب Party Pax (Manual) معناها إيه؟\n- معناها إن فيه اختلاف بين PAX بتاع سيجمنت/فندق وبين Party Pax (Manual).\n- لازم تراجع الأرقام لأن ده بيأثر على توزيع الإضافات.\n\n5) إمتى أستخدم Print 1 (Simple)؟\n- لما يكون توزيع الغرف ثابت بين المدينة ومكة.\n- شرط أساسي: مجموع Qty لكل نوع غرفة في MED لازم يساوي مجموع Qty لنفس النوع في MAK.\n\n6) إمتى أستخدم Print 2 (Mix detailed)؟\n- لما توزيع الغرف مختلف بين المدينة ومكة (أو بين الفترات).\n- أو لما عايز تفاصيل أكتر عن تقسيم السكن حسب المدينة والفترات.\n\nملحوظة:\n- لو Print 1 مش متاح، النظام هيمنعك ويقولك ليه ويقترح Print 2.\n';
+
+  @override
+  String get calculationsGuideBody => 'طباعة 1 — بسيط:\n- Qty (المعروض) = أكبر عدد غرف في اليوم بعد دمج سيجمنتات الفندق.\n- PAX# = Qty × عدد الأشخاص/غرفة (Double=2, Triple=3, Quad=4, Quint=5).\n- الإضافات/فرد = (إجمالي بيع General + Transportation) / عدد الأفراد.\n- عدد الأفراد = عدد الأفراد (يدوي) لو مكتوب، وإلا بيتحسب من الغرف.\n\nطباعة 2 — مفصل (Mix):\n- لو توزيع الفندق مختلف حسب المدينة/الفترة، الصفوف بتتفصل حسب (المدينة + الفترة).\n- لو نوع الغرفة نفس الـ Qty عبر الفترات يفضل صف واحد.\n- الإضافات بتتوزع على الليالي لتجنب التكرار بين المدن.\n- إجمالي الـ PDF النهائي = إجمالي الفاتورة (مجموع services.totalSale).\n\nعدد الأفراد (يدوي):\n- رقم اختياري بتمثّل به عدد المسافرين الحقيقي.\n- لو أي سيجمنت فندق PAX مختلف، هيظهر تحذير أحمر.';
+
+  @override
+  String get mealPlan => 'نظام الوجبات';
+
+  @override
+  String get noOfRooms => 'عدد الغرف';
+
+  @override
   String get pdfPreview => 'معاينة PDF';
 
   @override
@@ -375,8 +438,401 @@ class AppLocalizationsAr extends AppLocalizations {
   String get deleted => 'تم الحذف';
 
   @override
-  String get termsAndConditionsStandard => 'Standard';
+  String get termsAndConditionsStandard => 'قياسي';
 
   @override
-  String get termsAndConditionsTrain => 'Train';
+  String get termsAndConditionsTrain => 'قطار';
+
+  @override
+  String get dashboardSubtitle => 'نظرة عامة على الحجوزات والأداء.';
+
+  @override
+  String get dashboardSelectPeriodTooltip => 'اختر الفترة الزمنية لإحصائيات لوحة التحكم.';
+
+  @override
+  String dashboardErrorLoading(String error) {
+    return 'حصل خطأ أثناء تحميل لوحة التحكم: $error';
+  }
+
+  @override
+  String dashboardLastDays(int days) {
+    return 'آخر $days يوم';
+  }
+
+  @override
+  String dashboardLastDaysShort(int days) {
+    return 'آخر $days يوم';
+  }
+
+  @override
+  String get dashboardTodaysReservationsTitle => 'حجوزات اليوم';
+
+  @override
+  String get dashboardTodaysReservationsTooltip => 'عدد الحجوزات التي تم إنشاؤها اليوم.';
+
+  @override
+  String get dashboardThisWeekTitle => 'هذا الأسبوع';
+
+  @override
+  String get dashboardThisWeekTooltip => 'عدد الحجوزات التي تم إنشاؤها هذا الأسبوع.';
+
+  @override
+  String dashboardPeriodTotalTitle(int days) {
+    return 'إجمالي الفترة ($days يوم)';
+  }
+
+  @override
+  String get dashboardPeriodTotalTooltip => 'إجمالي الحجوزات التي تم إنشاؤها داخل الفترة المحددة.';
+
+  @override
+  String get dashboardNeedsAttentionTitle => 'بحاجة لمتابعة';
+
+  @override
+  String get dashboardNeedsAttentionTooltip => 'حجوزات تحتاج رقم فاتورة RMS داخل فترة المتابعة.';
+
+  @override
+  String get dashboardReservationsOverviewTitle => 'نظرة عامة على الحجوزات';
+
+  @override
+  String get dashboardReservationsOverviewTooltip => 'يعرض اتجاه يومي للحجوزات خلال الفترة المحددة.';
+
+  @override
+  String get dashboardDailyVolumeSubtitle => 'حجم الحجوزات اليومية التي تم إنشاؤها.';
+
+  @override
+  String dashboardReservationsCount(int count) {
+    return '$count حجز';
+  }
+
+  @override
+  String get dashboardNeedsAttentionListTooltip => 'قائمة بآخر الحجوزات التي مازال ينقصها رقم فاتورة RMS.';
+
+  @override
+  String get dashboardFollowUpPeriodTooltip => 'اختر عدد الأيام السابقة لفحص الحجوزات بدون رقم فاتورة RMS.';
+
+  @override
+  String get dashboardNeedsAttentionSubtitle => 'آخر حجوزات ينقصها رقم فاتورة RMS.';
+
+  @override
+  String get dashboardAllCaughtUp => 'كل شيء تمام!';
+
+  @override
+  String dashboardPpsNumber(int reservationNo) {
+    return 'PPS: #$reservationNo';
+  }
+
+  @override
+  String dashboardRmsInvoice(String value) {
+    return 'RMS: $value';
+  }
+
+  @override
+  String get dashboardTopClientsTitle => 'أفضل العملاء';
+
+  @override
+  String get dashboardTopClientsTooltip => 'يعرض أفضل 5 عملاء حسب عدد الحجوزات خلال الفترة المحددة.';
+
+  @override
+  String get dashboardTopClientsSubtitle => 'العملاء الأكثر من حيث عدد الحجوزات خلال الفترة المحددة.';
+
+  @override
+  String get dashboardRankFirstTooltip => 'المركز الأول - كأس ذهبي';
+
+  @override
+  String get dashboardRankSecondTooltip => 'المركز الثاني - كأس فضي';
+
+  @override
+  String get dashboardRankThirdTooltip => 'المركز الثالث - ميدالية ذهبية';
+
+  @override
+  String get dashboardRankFourthTooltip => 'المركز الرابع - ميدالية فضية';
+
+  @override
+  String dashboardReservationsAbbrev(int count) {
+    return '$count حجز';
+  }
+
+  @override
+  String get search => 'بحث';
+
+  @override
+  String get reset => 'إعادة ضبط';
+
+  @override
+  String get exportToExcel => 'تصدير إلى Excel';
+
+  @override
+  String get exportToPdf => 'تصدير إلى PDF';
+
+  @override
+  String get createReservation => 'إنشاء حجز';
+
+  @override
+  String get create => 'إنشاء';
+
+  @override
+  String get reservationFiltersInfoGroup => 'بيانات الحجز';
+
+  @override
+  String get reservationFiltersDatesGroup => 'تواريخ الحجز';
+
+  @override
+  String get reservationFiltersGuestNationality => 'جنسية النزيل';
+
+  @override
+  String get reservationFiltersClientNationality => 'جنسية العميل';
+
+  @override
+  String get reservationFiltersHotelCity => 'مدينة الفندق';
+
+  @override
+  String get reservationFiltersHotelCategory => 'تصنيف الفندق';
+
+  @override
+  String get reservationFiltersSaleAllotment => 'حصة البيع';
+
+  @override
+  String get reservationFiltersArrivalDateRange => 'نطاق تاريخ الوصول';
+
+  @override
+  String get reservationFiltersDepartureDateRange => 'نطاق تاريخ المغادرة';
+
+  @override
+  String get reservationFiltersCreationDateRange => 'نطاق تاريخ الإنشاء';
+
+  @override
+  String get reservationFiltersClientOptionDateRange => 'نطاق تاريخ خيار العميل';
+
+  @override
+  String get reservationFiltersHotelOptionDateRange => 'نطاق تاريخ خيار الفندق';
+
+  @override
+  String get reservationFiltersAgentOptionDateRange => 'نطاق تاريخ خيار الوكيل';
+
+  @override
+  String get reservationFiltersServiceDateRange => 'نطاق تاريخ الخدمة';
+
+  @override
+  String get reservationFiltersIncludeServices => 'تضمين الخدمات';
+
+  @override
+  String get reservationFiltersTypesGroup => 'الأنواع والحالة';
+
+  @override
+  String get reservationFiltersReservationType => 'نوع الحجز';
+
+  @override
+  String get reservationFiltersServiceType => 'نوع الخدمة';
+
+  @override
+  String get reservationFiltersMyReservations => 'حجوزاتي';
+
+  @override
+  String get reservationFiltersType => 'النوع';
+
+  @override
+  String get reservationFiltersIsSent => 'تم الإرسال';
+
+  @override
+  String get status => 'الحالة';
+
+  @override
+  String get reservationFiltersFinancialStatus => 'الحالة المالية';
+
+  @override
+  String get reservationFiltersPaymentStatus => 'حالة الدفع';
+
+  @override
+  String get reservationFiltersInvoiced => 'تمت الفوترة';
+
+  @override
+  String get reservationFiltersSplitReservation => 'تقسيم الحجز';
+
+  @override
+  String get reservationFiltersExtraGroup => 'تفاصيل إضافية';
+
+  @override
+  String get reservationFiltersConfirmation => 'تأكيد';
+
+  @override
+  String get reservationFiltersVoucher => 'قسيمة';
+
+  @override
+  String get reservationFiltersFileNo => 'رقم الملف';
+
+  @override
+  String get reservationFiltersReferenceNo => 'الرقم المرجعي';
+
+  @override
+  String get reservationFiltersAgreementNo => 'رقم الاتفاقية';
+
+  @override
+  String get reservationFiltersEnteredBy => 'أُدخل بواسطة';
+
+  @override
+  String get reservationFiltersB2bStatus => 'حالة B2B';
+
+  @override
+  String get company => 'الشركة';
+
+  @override
+  String get reservationFiltersSubClient => 'عميل فرعي';
+
+  @override
+  String get reservationFiltersSalesperson => 'مندوب المبيعات';
+
+  @override
+  String get creator => 'المنشئ';
+
+  @override
+  String get tag => 'وسم';
+
+  @override
+  String get reservationFiltersOrderBy => 'ترتيب حسب';
+
+  @override
+  String get reservationFiltersDirection => 'الاتجاه';
+
+  @override
+  String get reservationFiltersRemarksGroup => 'ملاحظات';
+
+  @override
+  String get reservationFiltersReservationRemarks => 'ملاحظات الحجز';
+
+  @override
+  String get reservationFiltersDetailRemarks => 'ملاحظات التفاصيل';
+
+  @override
+  String get reservationFiltersClientRemarks => 'ملاحظات العميل';
+
+  @override
+  String get reservationFiltersHotelRemarks => 'ملاحظات الفندق';
+
+  @override
+  String get reservationFiltersAgentRemarks => 'ملاحظات الوكيل';
+
+  @override
+  String get fromToHint => 'من - إلى';
+
+  @override
+  String get all => 'الكل';
+
+  @override
+  String get expandAll => 'توسيع الكل';
+
+  @override
+  String get collapseAll => 'طيّ الكل';
+
+  @override
+  String get loading => 'جارٍ التحميل...';
+
+  @override
+  String get loadingServices => 'جارٍ تحميل الخدمات...';
+
+  @override
+  String get noReservationsFound => 'لا توجد حجوزات.';
+
+  @override
+  String get noServicesFoundForReservation => 'لا توجد خدمات لهذا الحجز.';
+
+  @override
+  String get confirmed => 'مؤكد';
+
+  @override
+  String get from => 'من';
+
+  @override
+  String get to => 'إلى';
+
+  @override
+  String get tags => 'وسوم';
+
+  @override
+  String get sale => 'البيع';
+
+  @override
+  String get paid => 'المدفوع';
+
+  @override
+  String get remaining => 'المتبقي';
+
+  @override
+  String get show => 'عرض';
+
+  @override
+  String get entries => 'سجلات';
+
+  @override
+  String showingEntriesRange(int from, int to, int total) {
+    return 'عرض $from إلى $to من $total سجل';
+  }
+
+  @override
+  String get rooms => 'غرف';
+
+  @override
+  String get rn => 'RN';
+
+  @override
+  String get cost => 'التكلفة';
+
+  @override
+  String get provider => 'المزوّد';
+
+  @override
+  String get date => 'التاريخ';
+
+  @override
+  String get desc => 'الوصف';
+
+  @override
+  String get service => 'الخدمة';
+
+  @override
+  String get qtyShort => 'الكمية';
+
+  @override
+  String get grandTotal => 'الإجمالي الكلي';
+
+  @override
+  String get view => 'عرض';
+
+  @override
+  String get unpost => 'إلغاء ترحيل';
+
+  @override
+  String get sendEmail => 'إرسال بريد';
+
+  @override
+  String get transactionsDetails => 'تفاصيل المعاملات';
+
+  @override
+  String get auditLog => 'سجل التدقيق';
+
+  @override
+  String get agentDirect => 'حجز مباشر';
+
+  @override
+  String get hotelDirect => 'مباشر';
+
+  @override
+  String tripWithNumber(String no) {
+    return 'رحلة $no';
+  }
+
+  @override
+  String serviceWithNumber(String no) {
+    return 'خدمة $no';
+  }
+
+  @override
+  String generalServiceWithName(String name) {
+    return 'خدمة عامة - $name';
+  }
+
+  @override
+  String get providerFallback => 'المزوّد';
+
+  @override
+  String get notEnoughData => 'لا توجد بيانات كافية.';
 }

@@ -4,7 +4,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:decimal/decimal.dart';
-import 'dart:ui' as ui;
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:pps/core/constants/app_colors.dart';
@@ -257,7 +256,7 @@ class _ReservationDetailsScreenState
                   if (payload == null) {
                     ScaffoldMessenger.of(
                       context,
-                    ).showSnackBar(SnackBar(content: Text(AppStrings.print2)));
+                    ).showSnackBar(SnackBar(content: Text(l10n.print2Summary)));
                     return;
                   }
                   final rmsText = (payload.order.rmsInvoiceNo ?? '').trim();
@@ -283,15 +282,15 @@ class _ReservationDetailsScreenState
           menuMinWidth: 220,
           menuMaxWidth: 280,
           entries: [
-            const AppDropMenuEntry.action(
+            AppDropMenuEntry.action(
               value: _ReservationToolbarAction.print,
-              label: AppStrings.print1Summary,
+              label: l10n.print1Summary,
               icon: Icons.print_outlined,
               isDanger: true,
             ),
             AppDropMenuEntry.action(
               value: _ReservationToolbarAction.print2,
-              label: AppStrings.print2Summary,
+              label: l10n.print2Summary,
               icon: Icons.print_outlined,
               trailing: Tooltip(
                 message: printTotalsTooltip,
@@ -432,7 +431,7 @@ class _ReservationDetailsScreenState
               Icons.picture_as_pdf_outlined,
               size: AppIconSizes.s14,
             ),
-            label: const Text(AppStrings.pdfPreview),
+            label: Text(l10n.pdfPreview),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.primary,
               side: const BorderSide(color: AppColors.primary),
@@ -491,6 +490,7 @@ class _ReservationDetailsScreenState
     ReservationOrder order,
     List<ReservationServiceSummary> services,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -501,7 +501,7 @@ class _ReservationDetailsScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildReservationHeaderRow(order),
+          _buildReservationHeaderRow(l10n, order),
           const SizedBox(height: AppSpacing.s10),
           _buildReservationMainInfoPanel(context, ref, order, services),
           const SizedBox(height: AppSpacing.s16),
@@ -515,7 +515,10 @@ class _ReservationDetailsScreenState
     );
   }
 
-  Widget _buildReservationHeaderRow(ReservationOrder order) {
+  Widget _buildReservationHeaderRow(
+    AppLocalizations l10n,
+    ReservationOrder order,
+  ) {
     final createdAtText = DateFormat(
       'dd/MM/yyyy hh:mm:ss a',
     ).format(order.createdAt);
@@ -528,16 +531,13 @@ class _ReservationDetailsScreenState
             runSpacing: AppSpacing.s8,
             children: [
               _buildHeaderLabelValue(
-                label: AppStrings.reservationIdLabel,
+                label: l10n.ppsResNumberLabel,
                 value: '${order.reservationNo} ,',
               ),
-              _buildHeaderLabelValue(
-                label: AppStrings.creatorLabel,
-                value: '- ,',
-              ),
+              _buildHeaderLabelValue(label: l10n.creatorLabel, value: '- ,'),
               // TODO(auth): Replace creator placeholder when authentication is implemented.
               _buildHeaderLabelValue(
-                label: AppStrings.dateLabel,
+                label: l10n.dateLabel,
                 value: createdAtText,
               ),
             ],
@@ -702,14 +702,14 @@ class _ReservationDetailsScreenState
                         SizedBox(
                           width: colWidth,
                           child: _buildMainInfoItem(
-                            AppStrings.partyPaxManual,
+                            l10n.partyPaxManual,
                             order.partyPaxManual?.toString() ?? '-',
                             indicatorDotColor:
                                 _hasPartyPaxMismatch(order, services)
                                 ? AppColors.danger
                                 : null,
                             indicatorMessage:
-                                AppStrings.partyPaxManualIndicatorTooltip,
+                                l10n.partyPaxManualIndicatorTooltip,
                             emphasizeValue: true,
                           ),
                         ),
@@ -782,13 +782,12 @@ class _ReservationDetailsScreenState
                   SizedBox(
                     width: clampWidth(ReservationDetailsLayout.mainInfoToWidth),
                     child: _buildMainInfoItem(
-                      AppStrings.partyPaxManual,
+                      l10n.partyPaxManual,
                       order.partyPaxManual?.toString() ?? '-',
                       indicatorDotColor: _hasPartyPaxMismatch(order, services)
                           ? AppColors.danger
                           : null,
-                      indicatorMessage:
-                          AppStrings.partyPaxManualIndicatorTooltip,
+                      indicatorMessage: l10n.partyPaxManualIndicatorTooltip,
                       emphasizeValue: true,
                     ),
                   ),
@@ -894,6 +893,7 @@ class _ReservationDetailsScreenState
                     : parsedParty;
                 if (partyPaxManual != null) {
                   final mismatchLines = _partyPaxMismatchLines(
+                    l10n,
                     partyPaxManual,
                     services,
                   );
@@ -901,13 +901,13 @@ class _ReservationDetailsScreenState
                     final shouldContinue = await AppDialog.show<bool>(
                       context: dialogContext,
                       barrierDismissible: false,
-                      title: const Text(AppStrings.partyPaxMismatchTitle),
+                      title: Text(l10n.partyPaxMismatchTitle),
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${AppStrings.partyPaxMismatchBodyPrefix} ${partyPaxManual.toString()}',
+                            '${l10n.partyPaxMismatchBodyPrefix} ${partyPaxManual.toString()}',
                           ),
                           const SizedBox(height: AppSpacing.s10),
                           for (final line in mismatchLines) Text('- $line'),
@@ -917,7 +917,7 @@ class _ReservationDetailsScreenState
                         TextButton(
                           onPressed: () =>
                               Navigator.of(dialogContext).pop(false),
-                          child: const Text(AppStrings.fixNow),
+                          child: Text(l10n.fixNow),
                         ),
                         ElevatedButton(
                           onPressed: () =>
@@ -1106,7 +1106,7 @@ class _ReservationDetailsScreenState
                                             selectedClientId =
                                                 v ?? selectedClientId;
                                           }),
-                                    decoration: decoration(AppStrings.client),
+                                    decoration: decoration(l10n.client),
                                     isExpanded: true,
                                     isDense: true,
                                   ),
@@ -1116,9 +1116,7 @@ class _ReservationDetailsScreenState
                                   width: guestWidth,
                                   child: TextField(
                                     controller: guestNameController,
-                                    decoration: decoration(
-                                      AppStrings.guestName,
-                                    ),
+                                    decoration: decoration(l10n.guestName),
                                   ),
                                 );
 
@@ -1129,7 +1127,7 @@ class _ReservationDetailsScreenState
                                     readOnly: true,
                                     onTap: isSaving ? null : pickOptionDate,
                                     decoration: decoration(
-                                      AppStrings.clientOptionDate,
+                                      l10n.clientOptionDate,
                                       suffixIcon: const Icon(
                                         Icons.calendar_today,
                                         size: AppIconSizes.s16,
@@ -1145,9 +1143,7 @@ class _ReservationDetailsScreenState
                                     inputFormatters: [
                                       ArabicDigitsToEnglishInputFormatter(),
                                     ],
-                                    decoration: decoration(
-                                      AppStrings.rmsInvoiceNo,
-                                    ),
+                                    decoration: decoration(l10n.rmsInvoiceNo),
                                   ),
                                 );
 
@@ -1158,12 +1154,9 @@ class _ReservationDetailsScreenState
                                     inputFormatters: [
                                       ArabicDigitsToEnglishInputFormatter(),
                                     ],
-                                    decoration:
-                                        decoration(
-                                          AppStrings.partyPaxManual,
-                                        ).copyWith(
-                                          hintText:
-                                              AppStrings.partyPaxManualHint,
+                                    decoration: decoration(l10n.partyPaxManual)
+                                        .copyWith(
+                                          hintText: l10n.partyPaxManualHint,
                                         ),
                                     keyboardType: TextInputType.number,
                                   ),
@@ -1393,9 +1386,7 @@ class _ReservationDetailsScreenState
                     (updated.rmsInvoiceNo ?? '').trim() != entered &&
                     context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(AppStrings.rmsInvoiceMissingColumn),
-                    ),
+                    SnackBar(content: Text(l10n.rmsInvoiceMissingColumn)),
                   );
                 }
 
@@ -1641,6 +1632,7 @@ class _ReservationDetailsScreenState
     ReservationOrder order,
     List<ReservationServiceSummary> services,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -1661,8 +1653,8 @@ class _ReservationDetailsScreenState
                 topRight: Radius.circular(AppRadii.r6),
               ),
             ),
-            child: const Text(
-              AppStrings.reservationDetailsTitle,
+            child: Text(
+              l10n.reservationDetailsTitle,
               style: TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w600,
@@ -1702,6 +1694,7 @@ class _ReservationDetailsScreenState
     ReservationServiceSummary service,
     List<ReservationServiceSummary> services,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     late final String title;
     final tag = '(#${service.displayNo})';
 
@@ -1738,10 +1731,10 @@ class _ReservationDetailsScreenState
               rawCity != null &&
               (rawCity.contains('makk') || rawCity.contains('mak')));
       if (isMed) {
-        return AppStrings.med;
+        return l10n.med;
       }
       if (isMak) {
-        return AppStrings.mak;
+        return l10n.mak;
       }
       return null;
     }
@@ -1769,17 +1762,17 @@ class _ReservationDetailsScreenState
     final manualPartyPax = order.partyPaxManual;
     final locationTotals = locationSegmentPaxTotals();
     final hasManual = manualPartyPax != null && manualPartyPax > 0;
-    final medTotal = locationTotals[AppStrings.med] ?? 0;
-    final makTotal = locationTotals[AppStrings.mak] ?? 0;
+    final medTotal = locationTotals[l10n.med] ?? 0;
+    final makTotal = locationTotals[l10n.mak] ?? 0;
     final warnLowerLocation =
         (!hasManual && medTotal > 0 && makTotal > 0 && medTotal != makTotal)
-        ? (medTotal < makTotal ? AppStrings.med : AppStrings.mak)
+        ? (medTotal < makTotal ? l10n.med : l10n.mak)
         : null;
 
     switch (service.type) {
       case ReservationServiceType.transportation:
         final transportation = service.transportationDetails;
-        title = _serviceTitle(service);
+        title = _serviceTitle(l10n, service);
         summary = LayoutBuilder(
           builder: (context, constraints) {
             const gap = 12.0;
@@ -1793,7 +1786,7 @@ class _ReservationDetailsScreenState
                   SizedBox(
                     width: 300,
                     child: _buildServiceInfoColumn(
-                      AppStrings.vehicleProvider,
+                      l10n.vehicleProvider,
                       _valueOrDash(transportation?.supplierName),
                       icon: Icons.people,
                     ),
@@ -1802,7 +1795,7 @@ class _ReservationDetailsScreenState
                   SizedBox(
                     width: colWidth,
                     child: _buildServiceInfoColumn(
-                      AppStrings.serviceRoute,
+                      l10n.serviceRoute,
                       _transportationRouteLabel(transportation),
                     ),
                   ),
@@ -1810,7 +1803,7 @@ class _ReservationDetailsScreenState
                   SizedBox(
                     width: colWidth,
                     child: _buildServiceInfoColumn(
-                      AppStrings.totalSale,
+                      l10n.totalSale,
                       _formatMoney(service.totalSale),
                     ),
                   ),
@@ -1818,7 +1811,7 @@ class _ReservationDetailsScreenState
                   SizedBox(
                     width: colWidth,
                     child: _buildServiceInfoColumn(
-                      AppStrings.totalCost,
+                      l10n.totalCost,
                       _formatMoney(service.totalCost),
                     ),
                   ),
@@ -1830,8 +1823,8 @@ class _ReservationDetailsScreenState
         details = _buildTransportationServiceBody(service);
       case ReservationServiceType.agent:
         final agent = service.agentDetails;
-        title = _serviceTitle(service);
-        typePillText = AppStrings.agentDirect;
+        title = _serviceTitle(l10n, service);
+        typePillText = l10n.agentDirect;
         final rawLocation = agent?.hotelLocation?.trim().toLowerCase();
         final rawCity = agent?.hotelCity?.trim().toLowerCase();
         final isMed =
@@ -1851,10 +1844,10 @@ class _ReservationDetailsScreenState
                 rawCity != null &&
                 (rawCity.contains('makk') || rawCity.contains('mak')));
         if (isMed) {
-          secondaryPillText = AppStrings.med;
+          secondaryPillText = l10n.med;
           secondaryPillColor = AppColors.actionGreen;
         } else if (isMak) {
-          secondaryPillText = AppStrings.mak;
+          secondaryPillText = l10n.mak;
           secondaryPillColor = AppColors.dangerAccent;
         }
         summary = Padding(
@@ -1874,42 +1867,42 @@ class _ReservationDetailsScreenState
                   SizedBox(
                     width: colWidth,
                     child: _buildServiceInfoColumn(
-                      AppStrings.arrivalDate,
+                      l10n.arrivalDate,
                       _formatDateValue(agent?.arrivalDate),
                     ),
                   ),
                   SizedBox(
                     width: colWidth,
                     child: _buildServiceInfoColumn(
-                      AppStrings.nights,
+                      l10n.nights,
                       _agentNights(agent).toString(),
                     ),
                   ),
                   SizedBox(
                     width: colWidth,
                     child: _buildServiceInfoColumn(
-                      AppStrings.departureDate,
+                      l10n.departureDate,
                       _formatDateValue(agent?.departureDate),
                     ),
                   ),
                   SizedBox(
                     width: colWidth,
                     child: _buildServiceInfoColumn(
-                      AppStrings.totalRn,
+                      l10n.totalRn,
                       _agentTotalRn(agent).toString(),
                     ),
                   ),
                   SizedBox(
                     width: colWidth,
                     child: _buildServiceInfoColumn(
-                      AppStrings.totalSale,
+                      l10n.totalSale,
                       _formatMoney(service.totalSale),
                     ),
                   ),
                   SizedBox(
                     width: colWidth,
                     child: _buildServiceInfoColumn(
-                      AppStrings.totalCost,
+                      l10n.totalCost,
                       _formatMoney(service.totalCost),
                     ),
                   ),
@@ -1933,25 +1926,26 @@ class _ReservationDetailsScreenState
             locCode == warnLowerLocation;
         if (hasLocationMismatchWithManual || hasLowerLocationMismatch) {
           indicatorDotColor = AppColors.danger;
-          indicatorDotMessage = AppStrings.warningIndicatorDefaultTooltip;
+          indicatorDotMessage = l10n.warningIndicatorDefaultTooltip;
         }
         if (secondaryPillText != null) {
           if (hasLocationMismatchWithManual) {
-            secondaryPillWarningMessage = AppStrings.locationPaxMismatchTemplate
-                .replaceAll('{place}', secondaryPillText)
-                .replaceAll('{locationPax}', locationPax.toString())
-                .replaceAll('{manualPax}', manualPartyPax.toString());
+            secondaryPillWarningMessage = l10n.locationPaxMismatchTemplate(
+              secondaryPillText,
+              locationPax.toString(),
+              manualPartyPax.toString(),
+            );
           } else if (hasLowerLocationMismatch) {
-            final otherCode = warnLowerLocation == AppStrings.med
-                ? AppStrings.mak
-                : AppStrings.med;
+            final otherCode = warnLowerLocation == l10n.med
+                ? l10n.mak
+                : l10n.med;
             final otherPax = locationTotals[otherCode] ?? 0;
-            secondaryPillWarningMessage = AppStrings
-                .locationPaxDifferenceTemplate
-                .replaceAll('{place}', secondaryPillText)
-                .replaceAll('{placePax}', locationPax.toString())
-                .replaceAll('{otherPlace}', otherCode)
-                .replaceAll('{otherPax}', otherPax.toString());
+            secondaryPillWarningMessage = l10n.locationPaxDifferenceTemplate(
+              secondaryPillText,
+              locationPax.toString(),
+              otherCode,
+              otherPax.toString(),
+            );
           }
           if (secondaryPillWarningMessage != null) {
             indicatorDotMessage = secondaryPillWarningMessage;
@@ -1959,7 +1953,7 @@ class _ReservationDetailsScreenState
         }
       case ReservationServiceType.general:
         final general = service.generalDetails;
-        title = _serviceTitle(service);
+        title = _serviceTitle(l10n, service);
         summary = LayoutBuilder(
           builder: (context, constraints) {
             double w(double desired) =>
@@ -1973,17 +1967,17 @@ class _ReservationDetailsScreenState
                   SizedBox(
                     width: w(260),
                     child: _buildServiceInfoColumn(
-                      AppStrings.serviceName,
+                      l10n.serviceName,
                       general?.serviceName.trim().isNotEmpty == true
                           ? general!.serviceName.trim()
-                          : AppStrings.generalService,
+                          : l10n.generalService,
                       icon: Icons.shopping_bag_outlined,
                     ),
                   ),
                   SizedBox(
                     width: w(120),
                     child: _buildServiceInfoColumn(
-                      AppStrings.quantity,
+                      l10n.quantity,
                       (general?.quantity ?? 1).toString(),
                       warningMessage:
                           (manualPartyPax != null &&
@@ -1991,43 +1985,38 @@ class _ReservationDetailsScreenState
                               general != null &&
                               general.quantity > 0 &&
                               general.quantity != manualPartyPax)
-                          ? AppStrings.generalQtyMismatchTemplate
-                                .replaceAll(
-                                  '{qty}',
-                                  general.quantity.toString(),
-                                )
-                                .replaceAll(
-                                  '{manualPax}',
-                                  manualPartyPax.toString(),
-                                )
+                          ? l10n.generalQtyMismatchTemplate(
+                              general.quantity.toString(),
+                              manualPartyPax.toString(),
+                            )
                           : null,
                     ),
                   ),
                   SizedBox(
                     width: w(160),
                     child: _buildServiceInfoColumn(
-                      AppStrings.salePrice,
+                      l10n.salePrice,
                       _formatMoney(general?.salePerItem ?? service.totalSale),
                     ),
                   ),
                   SizedBox(
                     width: w(160),
                     child: _buildServiceInfoColumn(
-                      AppStrings.costPrice,
+                      l10n.costPrice,
                       _formatMoney(general?.costPerItem ?? service.totalCost),
                     ),
                   ),
                   SizedBox(
                     width: w(160),
                     child: _buildServiceInfoColumn(
-                      AppStrings.totalSale,
+                      l10n.totalSale,
                       _formatMoney(service.totalSale),
                     ),
                   ),
                   SizedBox(
                     width: w(160),
                     child: _buildServiceInfoColumn(
-                      AppStrings.totalCost,
+                      l10n.totalCost,
                       _formatMoney(service.totalCost),
                     ),
                   ),
@@ -2160,15 +2149,14 @@ class _ReservationDetailsScreenState
     ReservationOrder order,
     List<ReservationServiceSummary> services,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final agent = service.agentDetails;
     final manual = order.partyPaxManual;
     final location = agent?.hotelLocation?.trim();
     final city = agent?.hotelCity?.trim();
     final place = (location != null && location.isNotEmpty)
         ? location
-        : (city != null && city.isNotEmpty
-              ? city
-              : AppLocalizations.of(context)!.hotel);
+        : (city != null && city.isNotEmpty ? city : l10n.hotel);
     final hasManual = manual != null && manual > 0;
 
     String? locationCodeForAgent(AgentReservationDraft? agent) {
@@ -2195,10 +2183,10 @@ class _ReservationDetailsScreenState
               rawCity != null &&
               (rawCity.contains('makk') || rawCity.contains('mak')));
       if (isMed) {
-        return AppStrings.med;
+        return l10n.med;
       }
       if (isMak) {
-        return AppStrings.mak;
+        return l10n.mak;
       }
       return null;
     }
@@ -2226,11 +2214,11 @@ class _ReservationDetailsScreenState
     final code = locationCodeForAgent(agent);
     final totals = locationTotals();
     final locationPax = code == null ? null : totals[code];
-    final medTotal = totals[AppStrings.med] ?? 0;
-    final makTotal = totals[AppStrings.mak] ?? 0;
+    final medTotal = totals[l10n.med] ?? 0;
+    final makTotal = totals[l10n.mak] ?? 0;
     final warnLowerLocation =
         (!hasManual && medTotal > 0 && makTotal > 0 && medTotal != makTotal)
-        ? (medTotal < makTotal ? AppStrings.med : AppStrings.mak)
+        ? (medTotal < makTotal ? l10n.med : l10n.mak)
         : null;
 
     final shouldWarnForThisService = hasManual
@@ -2239,20 +2227,20 @@ class _ReservationDetailsScreenState
 
     if (shouldWarnForThisService) {
       if (hasManual) {
-        paxWarningMessage = AppStrings.locationPaxMismatchTemplate
-            .replaceAll('{place}', place)
-            .replaceAll('{locationPax}', (locationPax ?? 0).toString())
-            .replaceAll('{manualPax}', manual.toString());
+        paxWarningMessage = l10n.locationPaxMismatchTemplate(
+          place,
+          (locationPax ?? 0).toString(),
+          manual.toString(),
+        );
       } else {
-        final otherCode = warnLowerLocation == AppStrings.med
-            ? AppStrings.mak
-            : AppStrings.med;
+        final otherCode = warnLowerLocation == l10n.med ? l10n.mak : l10n.med;
         final otherPax = totals[otherCode] ?? 0;
-        paxWarningMessage = AppStrings.locationPaxDifferenceTemplate
-            .replaceAll('{place}', place)
-            .replaceAll('{placePax}', (locationPax ?? 0).toString())
-            .replaceAll('{otherPlace}', otherCode)
-            .replaceAll('{otherPax}', otherPax.toString());
+        paxWarningMessage = l10n.locationPaxDifferenceTemplate(
+          place,
+          (locationPax ?? 0).toString(),
+          otherCode,
+          otherPax.toString(),
+        );
       }
     }
 
@@ -2290,7 +2278,7 @@ class _ReservationDetailsScreenState
                 SizedBox(
                   width: w(120),
                   child: _buildServiceInfoColumn(
-                    AppStrings.pax,
+                    l10n.pax,
                     agent == null ? '-' : agent.totalPax.toString(),
                     warningMessage: paxWarningMessage,
                   ),
@@ -2298,7 +2286,7 @@ class _ReservationDetailsScreenState
                 SizedBox(
                   width: w(260),
                   child: _buildServiceInfoColumn(
-                    AppStrings.supplier,
+                    l10n.supplier,
                     _valueOrDash(agent?.supplierName),
                   ),
                 ),
@@ -2318,14 +2306,14 @@ class _ReservationDetailsScreenState
                 SizedBox(
                   width: w(260),
                   child: _buildServiceInfoColumn(
-                    AppStrings.hotel,
+                    l10n.hotel,
                     _valueOrDash(agent?.hotelName),
                   ),
                 ),
                 SizedBox(
                   width: w(200),
                   child: _buildServiceInfoColumn(
-                    AppStrings.clientOptionDate,
+                    l10n.clientOptionDate,
                     _formatDateValue(order.clientOptionDate),
                   ),
                 ),
@@ -2341,6 +2329,7 @@ class _ReservationDetailsScreenState
     ReservationServiceSummary service,
     ReservationOrder order,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final general = service.generalDetails;
     final format = DateFormat(_dateFormat);
     final dateOfService = general?.dateOfService;
@@ -2369,21 +2358,18 @@ class _ReservationDetailsScreenState
                   SizedBox(
                     width: w(200),
                     child: _buildServiceInfoColumn(
-                      AppStrings.dateOfService,
+                      l10n.dateOfService,
                       dateOfServiceText,
                     ),
                   ),
                   SizedBox(
                     width: w(200),
-                    child: _buildServiceInfoColumn(
-                      AppStrings.endDate,
-                      endDateText,
-                    ),
+                    child: _buildServiceInfoColumn(l10n.endDate, endDateText),
                   ),
                   SizedBox(
                     width: w(260),
                     child: _buildServiceInfoColumn(
-                      AppStrings.termsAndConditions,
+                      l10n.termsAndConditions,
                       general?.termsAndConditions?.trim().isNotEmpty == true
                           ? general!.termsAndConditions!.trim()
                           : '-',
@@ -2400,7 +2386,7 @@ class _ReservationDetailsScreenState
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
           child: _buildServiceInfoColumn(
-            AppStrings.serviceDescription,
+            l10n.serviceDescription,
             general?.description.trim().isNotEmpty == true
                 ? general!.description.trim()
                 : '-',
@@ -2410,7 +2396,7 @@ class _ReservationDetailsScreenState
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
           child: _buildServiceInfoColumn(
-            AppStrings.providerRemarks,
+            l10n.providerRemarks,
             general?.providerRemarks?.trim().isNotEmpty == true
                 ? general!.providerRemarks!.trim()
                 : '-',
@@ -2421,6 +2407,7 @@ class _ReservationDetailsScreenState
   }
 
   Widget _buildTransportationServiceBody(ReservationServiceSummary service) {
+    final l10n = AppLocalizations.of(context)!;
     final transportation = service.transportationDetails;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2443,21 +2430,21 @@ class _ReservationDetailsScreenState
                   SizedBox(
                     width: w(260),
                     child: _buildServiceInfoColumn(
-                      AppStrings.termsAndConditions,
+                      l10n.termsAndConditions,
                       _valueOrDash(transportation?.termsAndConditions),
                     ),
                   ),
                   SizedBox(
                     width: w(200),
                     child: _buildServiceInfoColumn(
-                      AppStrings.providerOptionDate,
+                      l10n.providerOptionDate,
                       _formatDateValue(transportation?.providerOptionDate),
                     ),
                   ),
                   SizedBox(
                     width: w(200),
                     child: _buildServiceInfoColumn(
-                      AppStrings.transactionsNotes,
+                      l10n.transactionsNotes,
                       _valueOrDash(transportation?.transactionNotes),
                     ),
                   ),
@@ -2465,7 +2452,7 @@ class _ReservationDetailsScreenState
                   SizedBox(
                     width: w(200),
                     child: _buildServiceInfoColumn(
-                      AppStrings.providerRemarks,
+                      l10n.providerRemarks,
                       _valueOrDash(transportation?.providerRemarks),
                     ),
                   ),
@@ -2476,8 +2463,8 @@ class _ReservationDetailsScreenState
         ),
 
         const SizedBox(height: 12),
-        const Text(
-          AppStrings.tripsDetails,
+        Text(
+          l10n.tripsDetails,
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -2492,6 +2479,7 @@ class _ReservationDetailsScreenState
   }
 
   Widget _buildHotelReservationsTable(ReservationServiceSummary service) {
+    final l10n = AppLocalizations.of(context)!;
     String roomRateTextFor(AgentReservationDraft? agent) {
       final rates = agent?.roomRates ?? const <AgentReservationRoomRate>[];
       if (rates.isEmpty) {
@@ -2597,46 +2585,46 @@ class _ReservationDetailsScreenState
                   backgroundColor: AppColors.primary.withValues(alpha: 0.06),
                   bottomBorder: const BorderSide(color: AppColors.primary),
                   textStyle: headerStyle,
-                  cells: const [
-                    _TableCellData(text: AppStrings.roomType, width: 140),
+                  cells: [
+                    _TableCellData(text: l10n.roomType, width: 140),
                     _TableCellData(
-                      text: AppStrings.mealPlan,
+                      text: l10n.mealPlan,
                       width: 120,
                       alignment: Alignment.center,
                       textAlign: TextAlign.center,
                     ),
                     _TableCellData(
-                      text: AppStrings.noOfRooms,
+                      text: l10n.noOfRooms,
                       width: 120,
                       alignment: Alignment.center,
                       textAlign: TextAlign.center,
                     ),
                     _TableCellData(
-                      text: AppStrings.totalRn,
+                      text: l10n.totalRn,
                       width: 120,
                       alignment: Alignment.center,
                       textAlign: TextAlign.center,
                     ),
                     _TableCellData(
-                      text: AppStrings.roomRate,
+                      text: l10n.roomRate,
                       width: 120,
                       alignment: Alignment.center,
                       textAlign: TextAlign.center,
                     ),
                     _TableCellData(
-                      text: AppStrings.totalSale,
+                      text: l10n.totalSale,
                       width: 140,
                       alignment: Alignment.center,
                       textAlign: TextAlign.center,
                     ),
                     _TableCellData(
-                      text: AppStrings.totalCost,
+                      text: l10n.totalCost,
                       width: 140,
                       alignment: Alignment.center,
                       textAlign: TextAlign.center,
                     ),
                     _TableCellData(
-                      text: AppStrings.actions,
+                      text: l10n.actions,
                       width: 90,
                       alignment: Alignment.center,
                       textAlign: TextAlign.center,
@@ -2749,7 +2737,7 @@ class _ReservationDetailsScreenState
                   bottomBorder: BorderSide.none,
                   textStyle: footerStyle,
                   cells: [
-                    const _TableCellData(text: AppStrings.total, width: 140),
+                    _TableCellData(text: l10n.total, width: 140),
                     const _TableCellData(
                       text: '',
                       width: 120,
@@ -2996,26 +2984,29 @@ class _ReservationDetailsScreenState
     }
   }
 
-  String _serviceTitle(ReservationServiceSummary service) {
+  String _serviceTitle(
+    AppLocalizations l10n,
+    ReservationServiceSummary service,
+  ) {
     switch (service.type) {
       case ReservationServiceType.agent:
         final hotelName = service.agentDetails?.hotelName?.trim() ?? '';
         final city = service.agentDetails?.hotelCity?.trim() ?? '';
         return hotelName.isEmpty
-            ? AppStrings.agentDirect
+            ? l10n.agentDirect
             : city.isEmpty
             ? '${service.serviceNo} - $hotelName'
             : '${service.serviceNo} - $hotelName - $city';
       case ReservationServiceType.general:
         final name = service.generalDetails?.serviceName.trim() ?? '';
         return name.isEmpty
-            ? AppStrings.generalService
-            : '${AppStrings.generalServicePrefix}$name';
+            ? l10n.generalService
+            : '${l10n.generalService} - $name';
       case ReservationServiceType.transportation:
         final route = _transportationRouteLabel(service.transportationDetails);
         return route == '-'
-            ? AppStrings.transportationService
-            : '${AppStrings.transportationPrefix}$route';
+            ? l10n.transportationService
+            : '${l10n.transportationService} - $route';
     }
   }
 
@@ -3084,6 +3075,7 @@ class _ReservationDetailsScreenState
   }
 
   Widget _buildTotalsRow(List<ReservationServiceSummary> services) {
+    final l10n = AppLocalizations.of(context)!;
     final totals = ReservationDetailsCalculations.totals(services);
 
     return Container(
@@ -3103,7 +3095,7 @@ class _ReservationDetailsScreenState
           SizedBox(
             width: 140,
             child: _buildServiceInfoColumn(
-              AppStrings.totalSale,
+              l10n.totalSale,
               _formatMoney(totals.totalSale),
             ),
           ),
@@ -3111,7 +3103,7 @@ class _ReservationDetailsScreenState
           SizedBox(
             width: 140,
             child: _buildServiceInfoColumn(
-              AppStrings.totalCost,
+              l10n.totalCost,
               _formatMoney(totals.totalCost),
             ),
           ),
@@ -3151,6 +3143,7 @@ class _ReservationDetailsScreenState
     String? iconMessage,
     bool emphasizeValue = false,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -3169,8 +3162,7 @@ class _ReservationDetailsScreenState
               const SizedBox(width: 6),
               Tooltip(
                 message:
-                    indicatorMessage ??
-                    AppStrings.warningIndicatorDefaultTooltip,
+                    indicatorMessage ?? l10n.warningIndicatorDefaultTooltip,
                 child: Container(
                   width: 7,
                   height: 7,
@@ -3234,6 +3226,7 @@ class _ReservationDetailsScreenState
   }
 
   List<String> _partyPaxMismatchLines(
+    AppLocalizations l10n,
     int manual,
     List<ReservationServiceSummary> services,
   ) {
@@ -3254,10 +3247,10 @@ class _ReservationDetailsScreenState
       final city = a.hotelCity?.trim();
       final place = (location != null && location.isNotEmpty)
           ? location
-          : (city != null && city.isNotEmpty ? city : AppStrings.hotel);
+          : (city != null && city.isNotEmpty ? city : l10n.hotel);
       final hotelName = a.hotelName?.trim().isNotEmpty == true
           ? a.hotelName!.trim()
-          : AppStrings.hotel;
+          : l10n.hotel;
       lines.add('$place — $hotelName — $p');
     }
     return lines;
@@ -3268,12 +3261,11 @@ class _ReservationDetailsScreenState
   }
 
   Future<void> _showPrintUsageDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AppDialog.show<void>(
       context: context,
-      title: const Text(AppStrings.printUsageTitle),
-      content: const SingleChildScrollView(
-        child: Text(AppStrings.printUsageBody),
-      ),
+      title: Text(l10n.printUsageTitle),
+      content: SingleChildScrollView(child: Text(l10n.printUsageBody)),
       maxWidth: 640,
       barrierDismissible: false,
       actions: [
@@ -3281,7 +3273,7 @@ class _ReservationDetailsScreenState
           builder: (dialogContext) {
             return TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text(AppStrings.close),
+              child: Text(l10n.close),
             );
           },
         ),
@@ -3290,219 +3282,25 @@ class _ReservationDetailsScreenState
   }
 
   Future<void> _showPrintQaDialog(BuildContext context) {
-    var isArabic = true;
-    Widget languageChip({
-      required String label,
-      required bool isSelected,
-      required VoidCallback onTap,
-    }) {
-      return Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(AppRadii.r8),
-          hoverColor: AppColors.primary.withValues(alpha: 0.06),
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 160),
-            curve: Curves.easeOut,
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.s10,
-              vertical: AppSpacing.s6,
-            ),
-            decoration: BoxDecoration(
-              color: isSelected ? AppColors.primary : Colors.transparent,
-              borderRadius: BorderRadius.circular(AppRadii.r8),
-            ),
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: AppFontSizes.label11,
-                fontWeight: FontWeight.w700,
-                color: isSelected ? Colors.white : AppColors.textPrimary,
-                height: 1.0,
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    Widget languageToggle({
-      required bool isArabicSelected,
-      required ValueChanged<bool> onChanged,
-    }) {
-      return Align(
-        alignment: Alignment.center,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: AppColors.light,
-            borderRadius: BorderRadius.circular(AppRadii.r12),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(3),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                languageChip(
-                  label: AppStrings.printQaLanguageAr,
-                  isSelected: isArabicSelected,
-                  onTap: () => onChanged(true),
-                ),
-                const SizedBox(width: AppSpacing.s6),
-                languageChip(
-                  label: AppStrings.printQaLanguageEn,
-                  isSelected: !isArabicSelected,
-                  onTap: () => onChanged(false),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    Widget qaTile({
-      required String question,
-      required String answer,
-      required TextAlign textAlign,
-    }) {
-      return DecoratedBox(
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(AppRadii.r12),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(AppRadii.r12),
-          child: ExpansionTile(
-            tilePadding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.s12,
-              vertical: AppSpacing.s4,
-            ),
-            childrenPadding: const EdgeInsets.fromLTRB(
-              AppSpacing.s12,
-              AppSpacing.s0,
-              AppSpacing.s12,
-              AppSpacing.s12,
-            ),
-            title: Text(
-              question,
-              textAlign: textAlign,
-              style: const TextStyle(
-                fontWeight: FontWeight.w800,
-                fontSize: AppFontSizes.title13,
-              ),
-            ),
-            children: [
-              SelectableText(
-                answer,
-                textAlign: textAlign,
-                style: const TextStyle(
-                  fontSize: AppFontSizes.body12,
-                  height: 1.35,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return showDialog<void>(
+    final l10n = AppLocalizations.of(context)!;
+    return AppDialog.show<void>(
       context: context,
+      title: Text(l10n.calculationsGuide),
+      content: SingleChildScrollView(
+        child: SelectableText(l10n.calculationsGuideBody),
+      ),
+      maxWidth: 720,
       barrierDismissible: false,
-      builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            final textDirection = isArabic
-                ? ui.TextDirection.rtl
-                : ui.TextDirection.ltr;
-            final textAlign = isArabic ? TextAlign.right : TextAlign.left;
-
-            final q1 = isArabic
-                ? AppStrings.printQaQ1Ar
-                : AppStrings.printQaQ1En;
-            final a1 = isArabic
-                ? AppStrings.printQaA1Ar
-                : AppStrings.printQaA1En;
-            final q2 = isArabic
-                ? AppStrings.printQaQuestionAr
-                : AppStrings.printQaQuestionEn;
-            final a2 = isArabic
-                ? AppStrings.printQaAnswerAr
-                : AppStrings.printQaAnswerEn;
-            final q3 = isArabic
-                ? AppStrings.printQaQ3Ar
-                : AppStrings.printQaQ3En;
-            final a3 = isArabic
-                ? AppStrings.printQaA3Ar
-                : AppStrings.printQaA3En;
-
-            return Directionality(
-              textDirection: textDirection,
-              child: AppDialog(
-                title: const Text(AppStrings.calculationsGuide),
-                maxWidth: 720,
-                barrierDismissible: false,
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    languageToggle(
-                      isArabicSelected: isArabic,
-                      onChanged: (value) => setState(() => isArabic = value),
-                    ),
-                    const SizedBox(height: AppSpacing.s10),
-                    Flexible(
-                      child: SingleChildScrollView(
-                        child: Theme(
-                          data: Theme.of(
-                            context,
-                          ).copyWith(dividerColor: Colors.transparent),
-                          child: Column(
-                            children: [
-                              qaTile(
-                                question: q1,
-                                answer: a1,
-                                textAlign: textAlign,
-                              ),
-                              const SizedBox(height: AppSpacing.s6),
-                              qaTile(
-                                question: q2,
-                                answer: a2,
-                                textAlign: textAlign,
-                              ),
-                              const SizedBox(height: AppSpacing.s6),
-                              qaTile(
-                                question: q3,
-                                answer: a3,
-                                textAlign: textAlign,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                actions: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () => Navigator.of(dialogContext).pop(),
-                        child: const Text(AppStrings.printQaClose),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+      actions: [
+        Builder(
+          builder: (dialogContext) {
+            return TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(l10n.close),
             );
           },
-        );
-      },
+        ),
+      ],
     );
   }
 
@@ -3623,15 +3421,16 @@ class _ReservationDetailsScreenState
     BuildContext context,
     List<String> diffLines,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final body = StringBuffer()
-      ..write(AppStrings.print1SimpleBlockedBodyIntro)
+      ..write(l10n.print1SimpleBlockedBodyIntro)
       ..writeAll(diffLines.map((l) => '• $l\n'))
       ..write('\n')
-      ..write('استخدم Print 2 — Mix detailed في الحالة دي.');
+      ..write(l10n.print1SimpleBlockedUsePrint2Hint);
 
     return AppDialog.show<void>(
       context: context,
-      title: const Text(AppStrings.print1SimpleBlockedTitle),
+      title: Text(l10n.print1SimpleBlockedTitle),
       content: SingleChildScrollView(child: Text(body.toString())),
       maxWidth: 640,
       barrierDismissible: false,
@@ -3802,14 +3601,15 @@ class _AddMoreForReservationSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(top: 16.25),
           child: Text(
-            AppStrings.addMoreForYourReservation,
+            l10n.addMoreForYourReservation,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: AppColors.textSecondary,
@@ -3829,7 +3629,7 @@ class _AddMoreForReservationSection extends StatelessWidget {
               children: [
                 _AddMoreDropdown(
                   width: 85.8359,
-                  label: AppStrings.hotels,
+                  label: l10n.hotels,
                   icon: const FaIcon(
                     FontAwesomeIcons.hotel,
                     size: 17.7812,
@@ -3837,7 +3637,7 @@ class _AddMoreForReservationSection extends StatelessWidget {
                   ),
                   items: [
                     _AddMoreMenuItem(
-                      label: AppStrings.agentDirectReservation,
+                      label: l10n.agentDirectReservation,
                       onTap: () {
                         context.go(
                           '/reservations/create-agent?reservationId=$reservationId',
@@ -3848,7 +3648,7 @@ class _AddMoreForReservationSection extends StatelessWidget {
                 ),
                 _AddMoreDropdown(
                   width: 103.508,
-                  label: AppStrings.services,
+                  label: l10n.services,
                   icon: const FaIcon(
                     FontAwesomeIcons.cartShopping,
                     size: 20,
@@ -3856,7 +3656,7 @@ class _AddMoreForReservationSection extends StatelessWidget {
                   ),
                   items: [
                     _AddMoreMenuItem(
-                      label: AppStrings.generalService,
+                      label: l10n.generalService,
                       onTap: () {
                         context.go(
                           '/reservations/create-general?reservationId=$reservationId',
@@ -3864,7 +3664,7 @@ class _AddMoreForReservationSection extends StatelessWidget {
                       },
                     ),
                     _AddMoreMenuItem(
-                      label: AppStrings.transportation,
+                      label: l10n.transportationService,
                       onTap: () {
                         context.go(
                           '/reservations/create-transportation?reservationId=$reservationId',
@@ -4159,6 +3959,7 @@ class _ServiceAccordionCardState extends State<_ServiceAccordionCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppRadii.r6),
       child: Container(
@@ -4297,7 +4098,7 @@ class _ServiceAccordionCardState extends State<_ServiceAccordionCard> {
                         Tooltip(
                           message:
                               widget.indicatorDotMessage ??
-                              AppStrings.warningIndicatorDefaultTooltip,
+                              l10n.warningIndicatorDefaultTooltip,
                           child: Container(
                             width: 8,
                             height: 8,
@@ -4322,7 +4123,7 @@ class _ServiceAccordionCardState extends State<_ServiceAccordionCard> {
                         ),
                         padding: EdgeInsets.zero,
                         visualDensity: VisualDensity.compact,
-                        tooltip: AppStrings.edit,
+                        tooltip: l10n.edit,
                       ),
                       const SizedBox(width: AppSpacing.s6),
                       AppDropMenuButton<_ServiceAction>(
@@ -4337,17 +4138,17 @@ class _ServiceAccordionCardState extends State<_ServiceAccordionCard> {
                         triggerHoverColor: Colors.white.withValues(
                           alpha: AppAlphas.hover08,
                         ),
-                        entries: const [
+                        entries: [
                           AppDropMenuEntry.action(
                             value: _ServiceAction.print,
-                            label: AppStrings.print,
+                            label: l10n.print,
                             icon: Icons.print_outlined,
                             isDanger: true,
                           ),
-                          AppDropMenuEntry.divider(),
+                          const AppDropMenuEntry.divider(),
                           AppDropMenuEntry.action(
                             value: _ServiceAction.delete,
-                            label: AppStrings.delete,
+                            label: l10n.delete,
                             icon: Icons.delete_outline,
                             isDanger: true,
                           ),
@@ -4359,7 +4160,7 @@ class _ServiceAccordionCardState extends State<_ServiceAccordionCard> {
                               return;
                             case _ServiceAction.print:
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text(AppStrings.print)),
+                                SnackBar(content: Text(l10n.print)),
                               );
                               return;
                             case _ServiceAction.attachments:
@@ -4376,26 +4177,26 @@ class _ServiceAccordionCardState extends State<_ServiceAccordionCard> {
                             color: AppColors.primary,
                             borderRadius: BorderRadius.circular(AppRadii.r6),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.more_vert,
                                 size: AppIconSizes.s12,
                                 color: Colors.white,
                               ),
-                              SizedBox(width: AppSpacing.s5),
+                              const SizedBox(width: AppSpacing.s5),
                               Text(
-                                AppStrings.actions,
-                                style: TextStyle(
+                                l10n.actions,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: AppFontSizes.label11,
                                   fontWeight: FontWeight.w600,
                                   height: 1.0,
                                 ),
                               ),
-                              SizedBox(width: AppSpacing.s4),
-                              Icon(
+                              const SizedBox(width: AppSpacing.s4),
+                              const Icon(
                                 Icons.keyboard_arrow_down,
                                 size: AppIconSizes.s13,
                                 color: Colors.white,
@@ -4479,6 +4280,7 @@ class _TripDetailsAccordionCardState extends State<_TripDetailsAccordionCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppRadii.r6),
       child: Container(
@@ -4633,21 +4435,21 @@ class _TripDetailsAccordionCardState extends State<_TripDetailsAccordionCard> {
                               SizedBox(
                                 width: fixed,
                                 child: _TripLabelValue(
-                                  label: AppStrings.totalSale,
+                                  label: l10n.totalSale,
                                   value: widget.totalSale,
                                 ),
                               ),
                               SizedBox(
                                 width: fixed,
                                 child: _TripLabelValue(
-                                  label: AppStrings.totalCost,
+                                  label: l10n.totalCost,
                                   value: widget.totalCost,
                                 ),
                               ),
                               SizedBox(
                                 width: remaining,
                                 child: _TripLabelValue(
-                                  label: AppStrings.tripNotes,
+                                  label: l10n.tripNotes,
                                   value: widget.notes,
                                 ),
                               ),
@@ -4704,11 +4506,12 @@ class ReservationDetailsPdfPreviewScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final id = reservationId;
     if (id == null || id.trim().isEmpty) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: Colors.transparent,
-        body: Center(child: Text(AppStrings.missingReservationId)),
+        body: Center(child: Text(l10n.missingReservationId)),
       );
     }
 
@@ -4724,7 +4527,7 @@ class ReservationDetailsPdfPreviewScreen extends ConsumerWidget {
               context.go('/reservations/details?reservationId=$id'),
           icon: const Icon(Icons.chevron_left),
         ),
-        title: const Text(AppStrings.pdfPreview),
+        title: Text(l10n.pdfPreview),
       ),
       body: detailsAsync.when(
         data: (details) {
@@ -4750,11 +4553,12 @@ class _TripQtyItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text(
-          AppStrings.qty,
+        Text(
+          l10n.qty,
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,

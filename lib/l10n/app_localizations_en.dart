@@ -165,6 +165,69 @@ class AppLocalizationsEn extends AppLocalizations {
   String get print => 'Print';
 
   @override
+  String get print1Summary => 'Print 1 — Simple';
+
+  @override
+  String get print2Summary => 'Print 2 — Mix detailed';
+
+  @override
+  String get partyPaxManual => 'Party Pax (Manual)';
+
+  @override
+  String get partyPaxManualHint => 'Optional. Used to validate hotel segments and distribute add-ons.';
+
+  @override
+  String get partyPaxManualIndicatorTooltip => 'If any segments have PAX different from Party Pax (Manual), a warning will appear.';
+
+  @override
+  String get warningIndicatorDefaultTooltip => 'Warning: review details.';
+
+  @override
+  String get partyPaxMismatchTitle => 'Party Pax mismatch';
+
+  @override
+  String get partyPaxMismatchBodyPrefix => 'Some hotel segments have PAX different from Party Pax (Manual):';
+
+  @override
+  String get fixNow => 'Fix now';
+
+  @override
+  String generalQtyMismatchTemplate(String qty, String manualPax) {
+    return 'Warning: General service Qty ($qty) differs from Party Pax (Manual) ($manualPax). If Qty represents PAX for this service, review it.';
+  }
+
+  @override
+  String locationPaxMismatchTemplate(String place, String locationPax, String manualPax) {
+    return 'Warning: Total PAX in $place ($locationPax) differs from Party Pax (Manual) ($manualPax).';
+  }
+
+  @override
+  String locationPaxDifferenceTemplate(String place, String placePax, String otherPlace, String otherPax) {
+    return 'Warning: Total PAX in $place ($placePax) differs from $otherPlace ($otherPax).';
+  }
+
+  @override
+  String get print1SimpleBlockedTitle => 'Print 1 — Simple is not available';
+
+  @override
+  String get print1SimpleBlockedBodyIntro => 'Print 1 — Simple cannot be used because room distribution differs between MED and MAK.\n\nPrint 1 requires:\n- Total Qty for each room type in MED must equal total Qty for the same type in MAK.\n\nQuick example:\n- Quad: MED=25 and MAK=25 → Print 1 works.\n- Quad: MED=25 and MAK=20 → Print 2 is required.\n\nCurrent differences:\n';
+
+  @override
+  String get print1SimpleBlockedUsePrint2Hint => 'Use Print 2 — Mix detailed in this case.';
+
+  @override
+  String get printUsageBody => 'شرح استخدام Print 1 (Simple) و Print 2 (Mix detailed)\n\nSwitch to Arabic to read the full guide.';
+
+  @override
+  String get calculationsGuideBody => 'Print 1 — Simple:\n- Qty (display) = Max rooms per day after merging hotel segments.\n- PAX# = Qty × Pax/Room (Double=2, Triple=3, Quad=4, Quint=5).\n- Add-ons / Pax = (Total Sale of General + Transportation) / Party Pax.\n- Party Pax = Party Pax (Manual) if entered, otherwise Qty Pax derived from rooms.\n\nPrint 2 — Mix detailed:\n- If hotel distribution differs by city/date segment, rows split by (city + date range).\n- If a room type keeps the same Qty across segments, it stays as a single row.\n- Add-ons are distributed by nights to avoid double counting across cities.\n- Final PDF Total equals the invoice total (sum of services.totalSale).\n\nParty Pax (Manual):\n- Optional number you enter to represent the real travelers count.\n- If any hotel segment has different PAX, the system shows a red warning dot.';
+
+  @override
+  String get mealPlan => 'Meal plan';
+
+  @override
+  String get noOfRooms => 'No. of rooms';
+
+  @override
   String get pdfPreview => 'PDF Preview';
 
   @override
@@ -379,4 +442,397 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get termsAndConditionsTrain => 'Train';
+
+  @override
+  String get dashboardSubtitle => 'Overview of your reservations and performance.';
+
+  @override
+  String get dashboardSelectPeriodTooltip => 'Select the time period for dashboard statistics.';
+
+  @override
+  String dashboardErrorLoading(String error) {
+    return 'Error loading dashboard: $error';
+  }
+
+  @override
+  String dashboardLastDays(int days) {
+    return 'Last $days days';
+  }
+
+  @override
+  String dashboardLastDaysShort(int days) {
+    return 'Last $days Days';
+  }
+
+  @override
+  String get dashboardTodaysReservationsTitle => 'Today\'s Reservations';
+
+  @override
+  String get dashboardTodaysReservationsTooltip => 'Number of reservations created today.';
+
+  @override
+  String get dashboardThisWeekTitle => 'This Week';
+
+  @override
+  String get dashboardThisWeekTooltip => 'Number of reservations created this week.';
+
+  @override
+  String dashboardPeriodTotalTitle(int days) {
+    return 'Period Total ($days Days)';
+  }
+
+  @override
+  String get dashboardPeriodTotalTooltip => 'Total reservations created within the selected period.';
+
+  @override
+  String get dashboardNeedsAttentionTitle => 'Needs Attention';
+
+  @override
+  String get dashboardNeedsAttentionTooltip => 'Reservations needing RMS Invoice within the follow-up period.';
+
+  @override
+  String get dashboardReservationsOverviewTitle => 'Reservations Overview';
+
+  @override
+  String get dashboardReservationsOverviewTooltip => 'Shows a visual trend of daily reservations over the selected period.';
+
+  @override
+  String get dashboardDailyVolumeSubtitle => 'Daily volume of reservations created.';
+
+  @override
+  String dashboardReservationsCount(int count) {
+    return '$count Reservations';
+  }
+
+  @override
+  String get dashboardNeedsAttentionListTooltip => 'List of recent reservations that still need an RMS invoice number.';
+
+  @override
+  String get dashboardFollowUpPeriodTooltip => 'Select how many days back to check for missing RMS invoices.';
+
+  @override
+  String get dashboardNeedsAttentionSubtitle => 'Recent reservations missing RMS Invoice.';
+
+  @override
+  String get dashboardAllCaughtUp => 'All caught up!';
+
+  @override
+  String dashboardPpsNumber(int reservationNo) {
+    return 'PPS: #$reservationNo';
+  }
+
+  @override
+  String dashboardRmsInvoice(String value) {
+    return 'RMS: $value';
+  }
+
+  @override
+  String get dashboardTopClientsTitle => 'Top Clients';
+
+  @override
+  String get dashboardTopClientsTooltip => 'Shows the top 5 clients based on the number of reservations created in the selected period.';
+
+  @override
+  String get dashboardTopClientsSubtitle => 'Clients with the highest volume of reservations in the selected period.';
+
+  @override
+  String get dashboardRankFirstTooltip => '1st Place - Gold Cup';
+
+  @override
+  String get dashboardRankSecondTooltip => '2nd Place - Silver Cup';
+
+  @override
+  String get dashboardRankThirdTooltip => '3rd Place - Gold Medal';
+
+  @override
+  String get dashboardRankFourthTooltip => '4th Place - Silver Medal';
+
+  @override
+  String dashboardReservationsAbbrev(int count) {
+    return '$count Res.';
+  }
+
+  @override
+  String get search => 'Search';
+
+  @override
+  String get reset => 'Reset';
+
+  @override
+  String get exportToExcel => 'Export to Excel';
+
+  @override
+  String get exportToPdf => 'Export to PDF';
+
+  @override
+  String get createReservation => 'Create reservation';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get reservationFiltersInfoGroup => 'Reservation info';
+
+  @override
+  String get reservationFiltersDatesGroup => 'Reservation dates';
+
+  @override
+  String get reservationFiltersGuestNationality => 'Guest nationality';
+
+  @override
+  String get reservationFiltersClientNationality => 'Client nationality';
+
+  @override
+  String get reservationFiltersHotelCity => 'Hotel city';
+
+  @override
+  String get reservationFiltersHotelCategory => 'Hotel category';
+
+  @override
+  String get reservationFiltersSaleAllotment => 'Sale allotment';
+
+  @override
+  String get reservationFiltersArrivalDateRange => 'Arrival date range';
+
+  @override
+  String get reservationFiltersDepartureDateRange => 'Departure date range';
+
+  @override
+  String get reservationFiltersCreationDateRange => 'Creation date range';
+
+  @override
+  String get reservationFiltersClientOptionDateRange => 'Client option date range';
+
+  @override
+  String get reservationFiltersHotelOptionDateRange => 'Hotel option date range';
+
+  @override
+  String get reservationFiltersAgentOptionDateRange => 'Agent option date range';
+
+  @override
+  String get reservationFiltersServiceDateRange => 'Service date range';
+
+  @override
+  String get reservationFiltersIncludeServices => 'Include services';
+
+  @override
+  String get reservationFiltersTypesGroup => 'Types & status';
+
+  @override
+  String get reservationFiltersReservationType => 'Reservation type';
+
+  @override
+  String get reservationFiltersServiceType => 'Service type';
+
+  @override
+  String get reservationFiltersMyReservations => 'My reservations';
+
+  @override
+  String get reservationFiltersType => 'Type';
+
+  @override
+  String get reservationFiltersIsSent => 'Is sent';
+
+  @override
+  String get status => 'Status';
+
+  @override
+  String get reservationFiltersFinancialStatus => 'Financial status';
+
+  @override
+  String get reservationFiltersPaymentStatus => 'Payment status';
+
+  @override
+  String get reservationFiltersInvoiced => 'Invoiced';
+
+  @override
+  String get reservationFiltersSplitReservation => 'Split reservation';
+
+  @override
+  String get reservationFiltersExtraGroup => 'Extra details';
+
+  @override
+  String get reservationFiltersConfirmation => 'Conf.';
+
+  @override
+  String get reservationFiltersVoucher => 'Voucher';
+
+  @override
+  String get reservationFiltersFileNo => 'File No.';
+
+  @override
+  String get reservationFiltersReferenceNo => 'Reference No.';
+
+  @override
+  String get reservationFiltersAgreementNo => 'Agreement No.';
+
+  @override
+  String get reservationFiltersEnteredBy => 'Entered by';
+
+  @override
+  String get reservationFiltersB2bStatus => 'B2B status';
+
+  @override
+  String get company => 'Company';
+
+  @override
+  String get reservationFiltersSubClient => 'Sub client';
+
+  @override
+  String get reservationFiltersSalesperson => 'Salesperson';
+
+  @override
+  String get creator => 'Creator';
+
+  @override
+  String get tag => 'Tag';
+
+  @override
+  String get reservationFiltersOrderBy => 'Order by';
+
+  @override
+  String get reservationFiltersDirection => 'Direction';
+
+  @override
+  String get reservationFiltersRemarksGroup => 'Remarks';
+
+  @override
+  String get reservationFiltersReservationRemarks => 'Reservation remarks';
+
+  @override
+  String get reservationFiltersDetailRemarks => 'Detail remarks';
+
+  @override
+  String get reservationFiltersClientRemarks => 'Client remarks';
+
+  @override
+  String get reservationFiltersHotelRemarks => 'Hotel remarks';
+
+  @override
+  String get reservationFiltersAgentRemarks => 'Agent remarks';
+
+  @override
+  String get fromToHint => 'From - To';
+
+  @override
+  String get all => 'All';
+
+  @override
+  String get expandAll => 'Expand all';
+
+  @override
+  String get collapseAll => 'Collapse all';
+
+  @override
+  String get loading => 'Loading...';
+
+  @override
+  String get loadingServices => 'Loading services...';
+
+  @override
+  String get noReservationsFound => 'No reservations found.';
+
+  @override
+  String get noServicesFoundForReservation => 'No services found for this reservation.';
+
+  @override
+  String get confirmed => 'Confirmed';
+
+  @override
+  String get from => 'From';
+
+  @override
+  String get to => 'To';
+
+  @override
+  String get tags => 'Tags';
+
+  @override
+  String get sale => 'Sale';
+
+  @override
+  String get paid => 'Paid';
+
+  @override
+  String get remaining => 'Remaining';
+
+  @override
+  String get show => 'Show';
+
+  @override
+  String get entries => 'entries';
+
+  @override
+  String showingEntriesRange(int from, int to, int total) {
+    return 'Showing $from to $to of $total entries';
+  }
+
+  @override
+  String get rooms => 'Rooms';
+
+  @override
+  String get rn => 'RN';
+
+  @override
+  String get cost => 'Cost';
+
+  @override
+  String get provider => 'Provider';
+
+  @override
+  String get date => 'Date';
+
+  @override
+  String get desc => 'Desc';
+
+  @override
+  String get service => 'Service';
+
+  @override
+  String get qtyShort => 'Qty';
+
+  @override
+  String get grandTotal => 'Grand total';
+
+  @override
+  String get view => 'View';
+
+  @override
+  String get unpost => 'Unpost';
+
+  @override
+  String get sendEmail => 'Send email';
+
+  @override
+  String get transactionsDetails => 'Transactions details';
+
+  @override
+  String get auditLog => 'Audit log';
+
+  @override
+  String get agentDirect => 'Agent Direct';
+
+  @override
+  String get hotelDirect => 'Hotel Direct';
+
+  @override
+  String tripWithNumber(String no) {
+    return 'Trip $no';
+  }
+
+  @override
+  String serviceWithNumber(String no) {
+    return 'Service $no';
+  }
+
+  @override
+  String generalServiceWithName(String name) {
+    return 'General service - $name';
+  }
+
+  @override
+  String get providerFallback => 'Provider';
+
+  @override
+  String get notEnoughData => 'Not enough data.';
 }

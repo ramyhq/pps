@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:decimal/decimal.dart';
 
 import 'package:pps/core/constants/app_colors.dart';
-import 'package:pps/core/constants/app_strings.dart';
 import 'package:pps/core/widgets/app_dialog.dart';
 import 'package:pps/core/widgets/app_drop_menu_button.dart';
 import 'package:pps/core/widgets/custom_form_fields.dart';
@@ -14,6 +13,19 @@ import 'package:pps/features/reservations/data/models/reservation_details.dart';
 import 'package:pps/features/reservations/data/models/reservation_order.dart';
 import 'package:pps/features/reservations/data/models/reservation_service.dart';
 import 'package:pps/features/reservations/provider/reservations_data_providers.dart';
+import 'package:pps/l10n/app_localizations.dart';
+
+enum _FilterFieldType { dropdown, dateRange }
+
+class _FilterFieldSpec {
+  const _FilterFieldSpec.dropdown(this.label)
+    : type = _FilterFieldType.dropdown;
+  const _FilterFieldSpec.dateRange(this.label)
+    : type = _FilterFieldType.dateRange;
+
+  final String label;
+  final _FilterFieldType type;
+}
 
 class ReservationListScreen extends ConsumerStatefulWidget {
   const ReservationListScreen({super.key});
@@ -52,6 +64,7 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SingleChildScrollView(
@@ -60,11 +73,11 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Top Bar
-            _buildTopBar(context),
+            _buildTopBar(context, l10n),
             const SizedBox(height: AppSpacing.s16),
 
             // Filters Section
-            _buildFiltersCard(),
+            _buildFiltersCard(context, l10n),
             const SizedBox(height: AppSpacing.s16),
 
             // Search Actions
@@ -73,7 +86,7 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
                 ElevatedButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.search, size: AppIconSizes.s16),
-                  label: const Text('Search'),
+                  label: Text(l10n.search),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
@@ -90,7 +103,7 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
                 OutlinedButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.close, size: AppIconSizes.s16),
-                  label: const Text('Reset'),
+                  label: Text(l10n.reset),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.textSecondary,
                     side: const BorderSide(color: AppColors.border),
@@ -112,37 +125,42 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
             const SizedBox(height: AppSpacing.s16),
 
             // Pagination
-            _buildPagination(),
+            _buildPagination(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTopBar(BuildContext context) {
+  Widget _buildTopBar(BuildContext context, AppLocalizations l10n) {
     return Row(
       children: [
-        const Text(
-          'Reservations',
-          style: TextStyle(
+        Text(
+          l10n.reservationsTitle,
+          style: const TextStyle(
             fontSize: AppFontSizes.pageTitle24,
             fontWeight: FontWeight.bold,
             color: AppColors.textPrimary,
           ),
         ),
         const Spacer(),
-        _buildTopButton(Icons.print, 'Print', Colors.white, AppColors.primary),
+        _buildTopButton(
+          Icons.print,
+          l10n.print,
+          Colors.white,
+          AppColors.primary,
+        ),
         const SizedBox(width: AppSpacing.s8),
         _buildTopButton(
           FontAwesomeIcons.fileExcel,
-          'Export to Excel',
+          l10n.exportToExcel,
           Colors.white,
           AppColors.success,
         ),
         const SizedBox(width: AppSpacing.s8),
         _buildTopButton(
           FontAwesomeIcons.filePdf,
-          'Export to PDF',
+          l10n.exportToPdf,
           Colors.white,
           AppColors.danger,
         ),
@@ -150,7 +168,7 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
         ElevatedButton.icon(
           onPressed: () {},
           icon: const Icon(Icons.more_vert, size: AppIconSizes.s16),
-          label: const Text('Actions'),
+          label: Text(l10n.actions),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
@@ -160,7 +178,7 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
         ElevatedButton.icon(
           onPressed: () => _openCreateReservationDialog(context),
           icon: const Icon(Icons.add, size: AppIconSizes.s16),
-          label: const Text('Create Reservation'),
+          label: Text(l10n.createReservation),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
@@ -174,11 +192,12 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
     final selected = await showDialog<String>(
       context: context,
       builder: (dialogContext) {
+        final l10n = AppLocalizations.of(dialogContext)!;
         return AppDialog(
           maxWidth: ReservationDetailsLayout.editClientWidthLg,
-          title: const Text(
-            'Create',
-            style: TextStyle(
+          title: Text(
+            l10n.create,
+            style: const TextStyle(
               fontSize: AppFontSizes.title14,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
@@ -189,17 +208,17 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
             children: [
               ListTile(
                 leading: const Icon(Icons.hotel),
-                title: const Text('Agent Direct Reservation'),
+                title: Text(l10n.agentDirectReservation),
                 onTap: () => Navigator.of(dialogContext).pop('agent'),
               ),
               ListTile(
                 leading: const Icon(Icons.miscellaneous_services),
-                title: const Text('General service'),
+                title: Text(l10n.generalService),
                 onTap: () => Navigator.of(dialogContext).pop('general'),
               ),
               ListTile(
                 leading: const Icon(Icons.directions_car),
-                title: const Text('Transportation'),
+                title: Text(l10n.transportationService),
                 onTap: () => Navigator.of(dialogContext).pop('transportation'),
               ),
             ],
@@ -217,7 +236,7 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
                   borderRadius: BorderRadius.circular(AppRadii.r8),
                 ),
               ),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
           ],
         );
@@ -268,7 +287,7 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
     );
   }
 
-  Widget _buildFiltersCard() {
+  Widget _buildFiltersCard(BuildContext context, AppLocalizations l10n) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.s16),
@@ -280,42 +299,70 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: _buildFilterGroup('Reservation Info', [
-                    _buildFilterRow(const ['Client', 'Hotel']),
-                    _buildFilterRow(const ['Guest name', 'Supplier']),
-                    _buildFilterRow(const [
-                      'Guest nationality',
-                      'Client nationality',
-                      'Hotel city',
-                      'Hotel category',
+                  child: _buildFilterGroup(l10n.reservationFiltersInfoGroup, [
+                    _buildFilterRow(l10n, [
+                      _FilterFieldSpec.dropdown(l10n.client),
+                      _FilterFieldSpec.dropdown(l10n.hotel),
                     ]),
-                    _buildFilterRow([
-                      AppStrings.ppsResNumber,
-                      'Sale allotment',
+                    _buildFilterRow(l10n, [
+                      _FilterFieldSpec.dropdown(l10n.guestName),
+                      _FilterFieldSpec.dropdown(l10n.supplier),
+                    ]),
+                    _buildFilterRow(l10n, [
+                      _FilterFieldSpec.dropdown(
+                        l10n.reservationFiltersGuestNationality,
+                      ),
+                      _FilterFieldSpec.dropdown(
+                        l10n.reservationFiltersClientNationality,
+                      ),
+                      _FilterFieldSpec.dropdown(
+                        l10n.reservationFiltersHotelCity,
+                      ),
+                      _FilterFieldSpec.dropdown(
+                        l10n.reservationFiltersHotelCategory,
+                      ),
+                    ]),
+                    _buildFilterRow(l10n, [
+                      _FilterFieldSpec.dropdown(l10n.ppsResNumber),
+                      _FilterFieldSpec.dropdown(
+                        l10n.reservationFiltersSaleAllotment,
+                      ),
                     ]),
                   ]),
                 ),
                 const SizedBox(width: AppSpacing.s16),
                 Expanded(
-                  child: _buildFilterGroup('Reservation dates', [
-                    _buildFilterRow(const [
-                      'Arrival date range',
-                      'Departure date range',
+                  child: _buildFilterGroup(l10n.reservationFiltersDatesGroup, [
+                    _buildFilterRow(l10n, [
+                      _FilterFieldSpec.dateRange(
+                        l10n.reservationFiltersArrivalDateRange,
+                      ),
+                      _FilterFieldSpec.dateRange(
+                        l10n.reservationFiltersDepartureDateRange,
+                      ),
                     ]),
-                    _buildFilterRow(const [
-                      'Creation date range',
-                      'Client option date range',
+                    _buildFilterRow(l10n, [
+                      _FilterFieldSpec.dateRange(
+                        l10n.reservationFiltersCreationDateRange,
+                      ),
+                      _FilterFieldSpec.dateRange(
+                        l10n.reservationFiltersClientOptionDateRange,
+                      ),
                     ]),
-                    _buildFilterRow(const [
-                      'Hotel option date range',
-                      'Agent option date range',
+                    _buildFilterRow(l10n, [
+                      _FilterFieldSpec.dateRange(
+                        l10n.reservationFiltersHotelOptionDateRange,
+                      ),
+                      _FilterFieldSpec.dateRange(
+                        l10n.reservationFiltersAgentOptionDateRange,
+                      ),
                     ]),
                     Row(
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: CustomDropdown(
-                            label: 'Service date range',
-                            items: [],
+                            label: l10n.reservationFiltersServiceDateRange,
+                            items: const [],
                           ),
                         ),
                         const SizedBox(width: AppSpacing.s16),
@@ -325,9 +372,9 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
                             child: Row(
                               children: [
                                 Checkbox(value: true, onChanged: (v) {}),
-                                const Text(
-                                  'Include services',
-                                  style: TextStyle(
+                                Text(
+                                  l10n.reservationFiltersIncludeServices,
+                                  style: const TextStyle(
                                     fontSize: AppFontSizes.title13,
                                   ),
                                 ),
@@ -347,8 +394,15 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: _buildFilterGroup('Types & status', [
-                    _buildFilterRow(const ['Reservation type', 'Service type']),
+                  child: _buildFilterGroup(l10n.reservationFiltersTypesGroup, [
+                    _buildFilterRow(l10n, [
+                      _FilterFieldSpec.dropdown(
+                        l10n.reservationFiltersReservationType,
+                      ),
+                      _FilterFieldSpec.dropdown(
+                        l10n.reservationFiltersServiceType,
+                      ),
+                    ]),
                     Row(
                       children: [
                         Expanded(
@@ -357,9 +411,9 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
                             child: Row(
                               children: [
                                 Checkbox(value: false, onChanged: (v) {}),
-                                const Text(
-                                  'My reservations',
-                                  style: TextStyle(
+                                Text(
+                                  l10n.reservationFiltersMyReservations,
+                                  style: const TextStyle(
                                     fontSize: AppFontSizes.title13,
                                   ),
                                 ),
@@ -368,50 +422,102 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
                           ),
                         ),
                         const SizedBox(width: AppSpacing.s16),
-                        const Expanded(
-                          child: CustomDropdown(label: 'Type', items: []),
+                        Expanded(
+                          child: CustomDropdown(
+                            label: l10n.reservationFiltersType,
+                            items: const [],
+                          ),
                         ),
                         const SizedBox(width: AppSpacing.s16),
-                        const Expanded(
-                          child: CustomDropdown(label: 'Is sent', items: []),
+                        Expanded(
+                          child: CustomDropdown(
+                            label: l10n.reservationFiltersIsSent,
+                            items: const [],
+                          ),
                         ),
                       ],
                     ),
-                    _buildFilterRow(const ['Status', 'Financial status']),
-                    _buildFilterRow(const ['Payment status', 'Invoiced']),
-                    _buildFilterRow(const ['Split reservation']),
+                    _buildFilterRow(l10n, [
+                      _FilterFieldSpec.dropdown(l10n.status),
+                      _FilterFieldSpec.dropdown(
+                        l10n.reservationFiltersFinancialStatus,
+                      ),
+                    ]),
+                    _buildFilterRow(l10n, [
+                      _FilterFieldSpec.dropdown(
+                        l10n.reservationFiltersPaymentStatus,
+                      ),
+                      _FilterFieldSpec.dropdown(
+                        l10n.reservationFiltersInvoiced,
+                      ),
+                    ]),
+                    _buildFilterRow(l10n, [
+                      _FilterFieldSpec.dropdown(
+                        l10n.reservationFiltersSplitReservation,
+                      ),
+                    ]),
                   ]),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: _buildFilterGroup('Extra details', [
-                    _buildFilterRow(const [
-                      'Conf.',
-                      'Voucher',
-                      'File No.',
-                      'Reference No.',
+                  child: _buildFilterGroup(l10n.reservationFiltersExtraGroup, [
+                    _buildFilterRow(l10n, [
+                      _FilterFieldSpec.dropdown(
+                        l10n.reservationFiltersConfirmation,
+                      ),
+                      _FilterFieldSpec.dropdown(l10n.reservationFiltersVoucher),
+                      _FilterFieldSpec.dropdown(l10n.reservationFiltersFileNo),
+                      _FilterFieldSpec.dropdown(
+                        l10n.reservationFiltersReferenceNo,
+                      ),
                     ]),
-                    _buildFilterRow(const [
-                      'Agreement No.',
-                      'Entered by',
-                      'B2B status',
+                    _buildFilterRow(l10n, [
+                      _FilterFieldSpec.dropdown(
+                        l10n.reservationFiltersAgreementNo,
+                      ),
+                      _FilterFieldSpec.dropdown(
+                        l10n.reservationFiltersEnteredBy,
+                      ),
+                      _FilterFieldSpec.dropdown(
+                        l10n.reservationFiltersB2bStatus,
+                      ),
                     ]),
-                    _buildFilterRow(const ['Company', 'Sub Client']),
-                    _buildFilterRow(const ['Salesperson', 'Creator']),
-                    _buildFilterRow(const ['Tag', 'Order by', 'Direction']),
+                    _buildFilterRow(l10n, [
+                      _FilterFieldSpec.dropdown(l10n.company),
+                      _FilterFieldSpec.dropdown(
+                        l10n.reservationFiltersSubClient,
+                      ),
+                    ]),
+                    _buildFilterRow(l10n, [
+                      _FilterFieldSpec.dropdown(
+                        l10n.reservationFiltersSalesperson,
+                      ),
+                      _FilterFieldSpec.dropdown(l10n.creator),
+                    ]),
+                    _buildFilterRow(l10n, [
+                      _FilterFieldSpec.dropdown(l10n.tag),
+                      _FilterFieldSpec.dropdown(l10n.reservationFiltersOrderBy),
+                      _FilterFieldSpec.dropdown(
+                        l10n.reservationFiltersDirection,
+                      ),
+                    ]),
                   ]),
                 ),
               ],
             ),
             const Divider(height: AppSpacing.s24),
-            _buildFilterGroup('Remarks', [
-              _buildFilterRow(const [
-                'Reservation remarks',
-                'Detail remarks',
-                'Client remarks',
-                'Hotel remarks',
+            _buildFilterGroup(l10n.reservationFiltersRemarksGroup, [
+              _buildFilterRow(l10n, [
+                _FilterFieldSpec.dropdown(
+                  l10n.reservationFiltersReservationRemarks,
+                ),
+                _FilterFieldSpec.dropdown(l10n.reservationFiltersDetailRemarks),
+                _FilterFieldSpec.dropdown(l10n.reservationFiltersClientRemarks),
+                _FilterFieldSpec.dropdown(l10n.reservationFiltersHotelRemarks),
               ]),
-              _buildFilterRow(const ['Agent remarks']),
+              _buildFilterRow(l10n, [
+                _FilterFieldSpec.dropdown(l10n.reservationFiltersAgentRemarks),
+              ]),
             ]),
           ],
         ),
@@ -450,15 +556,19 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
     );
   }
 
-  Widget _buildFilterRow(List<String> labels) {
+  Widget _buildFilterRow(AppLocalizations l10n, List<_FilterFieldSpec> fields) {
     return Row(
-      children: labels.map((label) {
+      children: fields.map((field) {
         return Expanded(
           child: Padding(
             padding: const EdgeInsets.only(right: AppSpacing.s8),
-            child: label.contains('date') || label.contains('range')
-                ? CustomTextField(label: label, hintText: 'From - To')
-                : CustomDropdown(label: label, items: const [], hint: 'All'),
+            child: field.type == _FilterFieldType.dateRange
+                ? CustomTextField(label: field.label, hintText: l10n.fromToHint)
+                : CustomDropdown(
+                    label: field.label,
+                    items: const [],
+                    hint: l10n.all,
+                  ),
           ),
         );
       }).toList(),
@@ -466,6 +576,7 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
   }
 
   Widget _buildDataTable(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final ordersAsync = ref.watch(reservationOrdersProvider);
     return Container(
       decoration: BoxDecoration(
@@ -492,13 +603,13 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       _buildTableControlLink(
-                        label: 'Expand All',
+                        label: l10n.expandAll,
                         icon: Icons.keyboard_arrow_down,
                         onTap: () => _expandAll(ordersAsync.value ?? const []),
                       ),
                       const SizedBox(width: AppSpacing.s14),
                       _buildTableControlLink(
-                        label: 'Collapse All',
+                        label: l10n.collapseAll,
                         icon: Icons.keyboard_arrow_up,
                         onTap: _collapseAll,
                       ),
@@ -514,15 +625,17 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
                 ),
                 child: Column(
                   children: [
-                    _buildOrdersTableHeader(),
+                    _buildOrdersTableHeader(l10n),
                     if (ordersAsync.isLoading)
-                      const Padding(
-                        padding: EdgeInsets.all(AppSpacing.s16),
+                      Padding(
+                        padding: const EdgeInsets.all(AppSpacing.s16),
                         child: Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            'Loading...',
-                            style: TextStyle(fontSize: AppFontSizes.title13),
+                            l10n.loading,
+                            style: const TextStyle(
+                              fontSize: AppFontSizes.title13,
+                            ),
                           ),
                         ),
                       )
@@ -543,6 +656,7 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
                     else
                       ..._buildOrdersRows(
                         context: context,
+                        l10n: l10n,
                         orders: ordersAsync.value ?? const <ReservationOrder>[],
                       ),
                   ],
@@ -584,7 +698,7 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
     );
   }
 
-  Widget _buildOrdersTableHeader() {
+  Widget _buildOrdersTableHeader(AppLocalizations l10n) {
     return Container(
       width: _ReservationTableMetrics.mainTableWidth,
       padding: const EdgeInsets.symmetric(
@@ -600,55 +714,55 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
           _buildHeaderTableCell(width: _ReservationTableMetrics.expandWidth),
           _buildHeaderTableCell(width: _ReservationTableMetrics.checkboxWidth),
           _buildHeaderTableCell(
-            text: 'Actions',
+            text: l10n.actions,
             width: _ReservationTableMetrics.actionsWidth,
           ),
           _buildHeaderTableCell(
-            text: AppStrings.ppsResNumber,
+            text: l10n.ppsResNumber,
             width: _ReservationTableMetrics.idWidth,
             sortable: true,
           ),
           _buildHeaderTableCell(
-            text: 'From',
+            text: l10n.from,
             width: _ReservationTableMetrics.dateWidth,
           ),
           _buildHeaderTableCell(
-            text: 'To',
+            text: l10n.to,
             width: _ReservationTableMetrics.dateWidth,
           ),
           _buildHeaderTableCell(
-            text: 'Client',
+            text: l10n.client,
             width: _ReservationTableMetrics.clientWidth,
             sortable: true,
           ),
           _buildHeaderTableCell(
-            text: 'Guest',
+            text: l10n.guestName,
             width: _ReservationTableMetrics.guestWidth,
             sortable: true,
           ),
           _buildHeaderTableCell(
-            text: 'Details',
+            text: l10n.detailsTitle,
             width: _ReservationTableMetrics.detailsWidth,
           ),
           _buildHeaderTableCell(
-            text: 'Tags',
+            text: l10n.tags,
             width: _ReservationTableMetrics.tagsWidth,
           ),
           _buildHeaderTableCell(
-            text: 'Status',
+            text: l10n.status,
             width: _ReservationTableMetrics.statusWidth,
             sortable: true,
           ),
           _buildHeaderTableCell(
-            text: 'Sale',
+            text: l10n.sale,
             width: _ReservationTableMetrics.moneyWidth,
           ),
           _buildHeaderTableCell(
-            text: 'Paid',
+            text: l10n.paid,
             width: _ReservationTableMetrics.moneyWidth,
           ),
           _buildHeaderTableCell(
-            text: 'Remaining',
+            text: l10n.remaining,
             width: _ReservationTableMetrics.remainingWidth,
           ),
         ],
@@ -658,17 +772,18 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
 
   List<Widget> _buildOrdersRows({
     required BuildContext context,
+    required AppLocalizations l10n,
     required List<ReservationOrder> orders,
   }) {
     if (orders.isEmpty) {
-      return const <Widget>[
+      return <Widget>[
         Padding(
-          padding: EdgeInsets.all(AppSpacing.s16),
+          padding: const EdgeInsets.all(AppSpacing.s16),
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'No reservations found.',
-              style: TextStyle(fontSize: AppFontSizes.title13),
+              l10n.noReservationsFound,
+              style: const TextStyle(fontSize: AppFontSizes.title13),
             ),
           ),
         ),
@@ -722,10 +837,11 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
     );
   }
 
-  Widget _buildPagination() {
+  Widget _buildPagination(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
-        const Text('Show', style: TextStyle(fontSize: AppFontSizes.body12)),
+        Text(l10n.show, style: const TextStyle(fontSize: AppFontSizes.body12)),
         const SizedBox(width: AppSpacing.s8),
         Container(
           padding: const EdgeInsets.symmetric(
@@ -742,11 +858,14 @@ class _ReservationListScreenState extends ConsumerState<ReservationListScreen> {
           ),
         ),
         const SizedBox(width: AppSpacing.s8),
-        const Text('entries', style: TextStyle(fontSize: AppFontSizes.body12)),
+        Text(
+          l10n.entries,
+          style: const TextStyle(fontSize: AppFontSizes.body12),
+        ),
         const SizedBox(width: AppSpacing.s16),
-        const Text(
-          'Showing 1 to 10 of 2,144 entries',
-          style: TextStyle(
+        Text(
+          l10n.showingEntriesRange(1, 10, 2144),
+          style: const TextStyle(
             fontSize: AppFontSizes.body12,
             color: AppColors.textSecondary,
           ),
@@ -856,6 +975,7 @@ class _ReservationOrderRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final detailsAsync = ref.watch(reservationDetailsProvider(order.id));
     final details = detailsAsync.hasValue ? detailsAsync.value : null;
     final services = details?.services ?? const <ReservationServiceSummary>[];
@@ -1018,9 +1138,9 @@ class _ReservationOrderRow extends ConsumerWidget {
                       color: AppColors.actionGreen,
                       borderRadius: BorderRadius.circular(AppRadii.r4),
                     ),
-                    child: const Text(
-                      'Confirmed',
-                      style: TextStyle(
+                    child: Text(
+                      l10n.confirmed,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: AppFontSizes.label11,
                         fontWeight: FontWeight.w600,
@@ -1080,6 +1200,7 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: _ReservationTableMetrics.mainTableWidth,
       color: const Color(0xFFF8FBFF),
@@ -1098,13 +1219,13 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
             child: Column(
               children: [
                 if (detailsAsync.isLoading)
-                  const Padding(
-                    padding: EdgeInsets.all(AppSpacing.s16),
+                  Padding(
+                    padding: const EdgeInsets.all(AppSpacing.s16),
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'Loading services...',
-                        style: TextStyle(fontSize: AppFontSizes.body12),
+                        l10n.loadingServices,
+                        style: const TextStyle(fontSize: AppFontSizes.body12),
                       ),
                     ),
                   )
@@ -1125,6 +1246,7 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
                 else
                   ..._buildGroupedServiceRows(
                     context,
+                    l10n,
                     detailsAsync.hasValue
                         ? detailsAsync.value!.services
                         : const <ReservationServiceSummary>[],
@@ -1139,17 +1261,18 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
 
   List<Widget> _buildGroupedServiceRows(
     BuildContext context,
+    AppLocalizations l10n,
     List<ReservationServiceSummary> services,
   ) {
     if (services.isEmpty) {
-      return const [
+      return [
         Padding(
-          padding: EdgeInsets.all(AppSpacing.s16),
+          padding: const EdgeInsets.all(AppSpacing.s16),
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'No services found for this reservation.',
-              style: TextStyle(fontSize: AppFontSizes.body12),
+              l10n.noServicesFoundForReservation,
+              style: const TextStyle(fontSize: AppFontSizes.body12),
             ),
           ),
         ),
@@ -1164,7 +1287,7 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
     for (final service in services) {
       switch (service.type) {
         case ReservationServiceType.agent:
-          final hotelName = _serviceGroupTitle(service);
+          final hotelName = _serviceGroupTitle(l10n, service);
           hotelServicesByName.putIfAbsent(hotelName, () => []).add(service);
         case ReservationServiceType.general:
           generalServices.add(service);
@@ -1194,7 +1317,7 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
       sections.add(
         _buildCompactServicesGroupSection(
           context,
-          title: 'General Service',
+          title: l10n.generalService,
           bannerType: ReservationServiceType.general,
           services: generalServices,
         ),
@@ -1208,14 +1331,14 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
       sections.add(
         _buildCompactServicesGroupSection(
           context,
-          title: 'Transportation Service',
+          title: l10n.transportationService,
           bannerType: ReservationServiceType.transportation,
           services: transportationServices,
         ),
       );
     }
 
-    sections.add(_buildGrandTotalRow(services));
+    sections.add(_buildGrandTotalRow(l10n, services));
     return sections;
   }
 
@@ -1232,9 +1355,10 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
           bannerType: bannerType,
           count: services.length,
         ),
-        _buildAgentHeader(),
+        _buildAgentHeader(AppLocalizations.of(context)!),
         for (final service in services) _buildServiceRow(context, service),
         _buildAgentTotalRow(
+          AppLocalizations.of(context)!,
           services.length,
           //CALCULATIONS إجمالي بيع مجموعة الفنادق = مجموع totalSale لكل خدمات Agent داخل المجموعة.
           services.fold<Decimal>(
@@ -1264,9 +1388,10 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
           bannerType: bannerType,
           count: services.length,
         ),
-        _buildGeneralHeader(),
+        _buildGeneralHeader(AppLocalizations.of(context)!),
         for (final service in services) _buildServiceRow(context, service),
         _buildCompactTotalRow(
+          AppLocalizations.of(context)!,
           services.length,
           //CALCULATIONS إجمالي بيع المجموعة المدمجة = مجموع totalSale لكل الخدمات العامة/المواصلات داخل المجموعة.
           services.fold<Decimal>(
@@ -1339,7 +1464,7 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
     );
   }
 
-  Widget _buildAgentHeader() {
+  Widget _buildAgentHeader(AppLocalizations l10n) {
     return Container(
       width: _ReservationTableMetrics.groupedTableWidth,
       padding: const EdgeInsets.symmetric(
@@ -1350,54 +1475,54 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
         color: AppColors.primarySurfaceAlt,
         border: Border(bottom: BorderSide(color: AppColors.secondary)),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          _TableBox(
+          const _TableBox(
             width: _ReservationTableMetrics.checkboxWidth,
             child: SizedBox(),
           ),
-          _TableBox(
+          const _TableBox(
             width: _ReservationTableMetrics.nestedActionsWidth,
             child: Text('', style: TextStyle(fontSize: AppFontSizes.label11)),
           ),
-          _NestedHeaderCell(
+          const _NestedHeaderCell(
             '#',
             width: _ReservationTableMetrics.nestedNumberWidth,
           ),
           _NestedHeaderCell(
-            'Hotel',
+            l10n.hotel,
             width: _ReservationTableMetrics.groupedTitleWidth,
           ),
           _NestedHeaderCell(
-            'Provider',
+            l10n.provider,
             width: _ReservationTableMetrics.groupedProviderWidth,
           ),
           _NestedHeaderCell(
-            'Arrival',
+            l10n.arrivalDate,
             width: _ReservationTableMetrics.groupedDateWidth,
           ),
           _NestedHeaderCell(
-            'Departure',
+            l10n.departureDate,
             width: _ReservationTableMetrics.groupedDateWidth,
           ),
           _NestedHeaderCell(
-            'Rooms',
+            l10n.rooms,
             width: _ReservationTableMetrics.groupedQtyWidth,
           ),
           _NestedHeaderCell(
-            'RN',
+            l10n.rn,
             width: _ReservationTableMetrics.groupedQtyWidth,
           ),
           _NestedHeaderCell(
-            'Sale',
+            l10n.sale,
             width: _ReservationTableMetrics.nestedMoneyWidth,
           ),
           _NestedHeaderCell(
-            'Cost',
+            l10n.cost,
             width: _ReservationTableMetrics.nestedMoneyWidth,
           ),
           _NestedHeaderCell(
-            'Supplier',
+            l10n.supplier,
             width: _ReservationTableMetrics.groupedSupplierWidth,
           ),
         ],
@@ -1405,7 +1530,7 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
     );
   }
 
-  Widget _buildGeneralHeader() {
+  Widget _buildGeneralHeader(AppLocalizations l10n) {
     return Container(
       width: _ReservationTableMetrics.groupedTableWidth,
       padding: const EdgeInsets.symmetric(
@@ -1416,46 +1541,46 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
         color: AppColors.primarySurfaceAlt,
         border: Border(bottom: BorderSide(color: AppColors.secondary)),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          _TableBox(
+          const _TableBox(
             width: _ReservationTableMetrics.checkboxWidth,
             child: SizedBox(),
           ),
-          _TableBox(
+          const _TableBox(
             width: _ReservationTableMetrics.nestedActionsWidth,
             child: Text('', style: TextStyle(fontSize: AppFontSizes.label11)),
           ),
-          _NestedHeaderCell(
+          const _NestedHeaderCell(
             '#',
             width: _ReservationTableMetrics.nestedNumberWidth,
           ),
           _NestedHeaderCell(
-            'Service',
+            l10n.service,
             width: _ReservationTableMetrics.groupedTitleWidth,
           ),
           _NestedHeaderCell(
-            'Provider',
+            l10n.provider,
             width: _ReservationTableMetrics.groupedProviderWidth,
           ),
           _NestedHeaderCell(
-            'Date',
+            l10n.date,
             width: _ReservationTableMetrics.groupedDateWidth,
           ),
           _NestedHeaderCell(
-            'Qty',
+            l10n.qtyShort,
             width: _ReservationTableMetrics.groupedQtyWidth,
           ),
           _NestedHeaderCell(
-            'Desc',
+            l10n.desc,
             width: _ReservationTableMetrics.groupedDescriptionWidth,
           ),
           _NestedHeaderCell(
-            'Sale',
+            l10n.sale,
             width: _ReservationTableMetrics.nestedMoneyWidth,
           ),
           _NestedHeaderCell(
-            'Cost',
+            l10n.cost,
             width: _ReservationTableMetrics.nestedMoneyWidth,
           ),
         ],
@@ -1481,6 +1606,7 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
     BuildContext context,
     ReservationServiceSummary service,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final hasCostAlert = service.totalCost > service.totalSale;
     final borderColor = hasCostAlert
         ? AppColors.dangerAccent
@@ -1519,7 +1645,7 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
           _TableBox(
             width: _ReservationTableMetrics.groupedTitleWidth,
             child: Text(
-              _servicePrimaryValue(service),
+              _servicePrimaryValue(l10n, service),
               style: const TextStyle(fontSize: AppFontSizes.title13),
             ),
           ),
@@ -1613,6 +1739,7 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
     BuildContext context,
     ReservationServiceSummary service,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final general = service.generalDetails;
     final hasCostAlert = service.totalCost > service.totalSale;
     final borderColor = hasCostAlert
@@ -1652,14 +1779,14 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
           _TableBox(
             width: _ReservationTableMetrics.groupedTitleWidth,
             child: Text(
-              _servicePrimaryValue(service),
+              _servicePrimaryValue(l10n, service),
               style: const TextStyle(fontSize: AppFontSizes.title13),
             ),
           ),
           _TableBox(
             width: _ReservationTableMetrics.groupedProviderWidth,
             child: Text(
-              _serviceProviderValue(service),
+              _serviceProviderValue(l10n, service),
               style: const TextStyle(
                 fontSize: AppFontSizes.body12,
                 height: 1.4,
@@ -1685,7 +1812,7 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
           _TableBox(
             width: _ReservationTableMetrics.groupedDescriptionWidth,
             child: Text(
-              _serviceDescriptionValue(service),
+              _serviceDescriptionValue(l10n, service),
               style: const TextStyle(
                 fontSize: AppFontSizes.body12,
                 color: AppColors.textSecondary,
@@ -1703,6 +1830,7 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
     BuildContext context,
     ReservationServiceSummary service,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final transportation = service.transportationDetails;
     final firstTrip = transportation == null || transportation.trips.isEmpty
         ? null
@@ -1745,14 +1873,14 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
           _TableBox(
             width: _ReservationTableMetrics.groupedTitleWidth,
             child: Text(
-              _servicePrimaryValue(service),
+              _servicePrimaryValue(l10n, service),
               style: const TextStyle(fontSize: AppFontSizes.title13),
             ),
           ),
           _TableBox(
             width: _ReservationTableMetrics.groupedProviderWidth,
             child: Text(
-              _serviceProviderValue(service),
+              _serviceProviderValue(l10n, service),
               style: const TextStyle(
                 fontSize: AppFontSizes.body12,
                 height: 1.4,
@@ -1778,7 +1906,7 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
           _TableBox(
             width: _ReservationTableMetrics.groupedDescriptionWidth,
             child: Text(
-              _serviceDescriptionValue(service),
+              _serviceDescriptionValue(l10n, service),
               style: const TextStyle(
                 fontSize: AppFontSizes.body12,
                 color: AppColors.textSecondary,
@@ -1792,7 +1920,12 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
     );
   }
 
-  Widget _buildAgentTotalRow(int count, Decimal totalSale, Decimal totalCost) {
+  Widget _buildAgentTotalRow(
+    AppLocalizations l10n,
+    int count,
+    Decimal totalSale,
+    Decimal totalCost,
+  ) {
     return Container(
       width: _ReservationTableMetrics.groupedTableWidth,
       padding: const EdgeInsets.symmetric(
@@ -1817,11 +1950,11 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
             width: _ReservationTableMetrics.nestedNumberWidth,
             child: SizedBox(),
           ),
-          const _TableBox(
+          _TableBox(
             width: _ReservationTableMetrics.groupedTitleWidth,
             child: Text(
-              'Total',
-              style: TextStyle(
+              l10n.total,
+              style: const TextStyle(
                 fontSize: AppFontSizes.title13,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
@@ -1868,6 +2001,7 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
   }
 
   Widget _buildCompactTotalRow(
+    AppLocalizations l10n,
     int count,
     Decimal totalSale,
     Decimal totalCost,
@@ -1896,11 +2030,11 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
             width: _ReservationTableMetrics.nestedNumberWidth,
             child: SizedBox(),
           ),
-          const _TableBox(
+          _TableBox(
             width: _ReservationTableMetrics.groupedTitleWidth,
             child: Text(
-              'Total',
-              style: TextStyle(
+              l10n.total,
+              style: const TextStyle(
                 fontSize: AppFontSizes.title13,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
@@ -1937,7 +2071,10 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
     );
   }
 
-  Widget _buildGrandTotalRow(List<ReservationServiceSummary> services) {
+  Widget _buildGrandTotalRow(
+    AppLocalizations l10n,
+    List<ReservationServiceSummary> services,
+  ) {
     //CALCULATIONS Grand Total Sale = مجموع totalSale لكل خدمات الحجز المعروضة بعد التجميع.
     final totalSale = services.fold<Decimal>(
       Decimal.parse('0'),
@@ -1961,10 +2098,10 @@ class _ExpandedReservationServicesTable extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             child: Text(
-              'Grand total',
-              style: TextStyle(
+              l10n.grandTotal,
+              style: const TextStyle(
                 fontSize: AppFontSizes.title13,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
@@ -2099,6 +2236,7 @@ class _ReservationActionsMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AppDropMenuButton<_ReservationRowAction>(
       onSelected: (action) {
         switch (action) {
@@ -2113,36 +2251,36 @@ class _ReservationActionsMenu extends StatelessWidget {
             return;
         }
       },
-      entries: const [
+      entries: [
         AppDropMenuEntry.action(
           value: _ReservationRowAction.view,
-          label: 'View',
+          label: l10n.view,
           icon: Icons.visibility,
         ),
         AppDropMenuEntry.action(
           value: _ReservationRowAction.unpost,
-          label: 'Unpost',
+          label: l10n.unpost,
           icon: Icons.undo,
         ),
         AppDropMenuEntry.action(
           value: _ReservationRowAction.cancel,
-          label: 'Cancel',
+          label: l10n.cancel,
           icon: Icons.cancel,
           isDanger: true,
         ),
         AppDropMenuEntry.action(
           value: _ReservationRowAction.sendEmail,
-          label: 'Send email',
+          label: l10n.sendEmail,
           icon: Icons.email,
         ),
         AppDropMenuEntry.action(
           value: _ReservationRowAction.transactionsDetails,
-          label: 'Transactions details',
+          label: l10n.transactionsDetails,
           icon: Icons.receipt_long,
         ),
         AppDropMenuEntry.action(
           value: _ReservationRowAction.auditLog,
-          label: 'Audit log',
+          label: l10n.auditLog,
           icon: Icons.history,
         ),
       ],
@@ -2279,46 +2417,60 @@ Color _groupBannerColor(ReservationServiceType type) {
   }
 }
 
-String _servicePrimaryValue(ReservationServiceSummary service) {
+String _servicePrimaryValue(
+  AppLocalizations l10n,
+  ReservationServiceSummary service,
+) {
   switch (service.type) {
     case ReservationServiceType.agent:
       final hotelName = service.agentDetails?.hotelName?.trim() ?? '';
-      return hotelName.isEmpty ? 'Agent Direct' : hotelName;
+      return hotelName.isEmpty ? l10n.agentDirect : hotelName;
     case ReservationServiceType.general:
       final name = service.generalDetails?.serviceName.trim() ?? '';
-      return name.isEmpty ? 'General service' : 'General service - $name';
+      return name.isEmpty
+          ? l10n.generalService
+          : l10n.generalServiceWithName(name);
     case ReservationServiceType.transportation:
-      return 'Transportation Service';
+      return l10n.transportationService;
   }
 }
 
-String _serviceGroupTitle(ReservationServiceSummary service) {
+String _serviceGroupTitle(
+  AppLocalizations l10n,
+  ReservationServiceSummary service,
+) {
   switch (service.type) {
     case ReservationServiceType.agent:
       final hotelName = service.agentDetails?.hotelName?.trim() ?? '';
-      return hotelName.isEmpty ? 'Hotel Direct' : hotelName;
+      return hotelName.isEmpty ? l10n.hotelDirect : hotelName;
     case ReservationServiceType.general:
-      return 'General Service';
+      return l10n.generalService;
     case ReservationServiceType.transportation:
-      return 'Transportation Service';
+      return l10n.transportationService;
   }
 }
 
-String _serviceProviderValue(ReservationServiceSummary service) {
+String _serviceProviderValue(
+  AppLocalizations l10n,
+  ReservationServiceSummary service,
+) {
   switch (service.type) {
     case ReservationServiceType.agent:
       final supplierName = service.agentDetails?.supplierName?.trim() ?? '';
       return supplierName.isEmpty ? '-' : supplierName;
     case ReservationServiceType.general:
-      return 'Provider';
+      return l10n.providerFallback;
     case ReservationServiceType.transportation:
       final supplierName =
           service.transportationDetails?.supplierName?.trim() ?? '';
-      return supplierName.isEmpty ? 'Provider' : supplierName;
+      return supplierName.isEmpty ? l10n.providerFallback : supplierName;
   }
 }
 
-String _serviceDescriptionValue(ReservationServiceSummary service) {
+String _serviceDescriptionValue(
+  AppLocalizations l10n,
+  ReservationServiceSummary service,
+) {
   switch (service.type) {
     case ReservationServiceType.agent:
       final agent = service.agentDetails;
@@ -2330,17 +2482,19 @@ String _serviceDescriptionValue(ReservationServiceSummary service) {
           agent.selectedRoomType!.trim(),
         if ((agent.selectedMealPlan ?? '').trim().isNotEmpty)
           agent.selectedMealPlan!.trim(),
-        if (agent.totalPax > 0) '${agent.totalPax} PAX',
+        if (agent.totalPax > 0) '${agent.totalPax} ${l10n.pax}',
       ];
       return parts.isEmpty ? '-' : parts.join(' • ');
     case ReservationServiceType.general:
       final description = service.generalDetails?.description.trim() ?? '';
-      return description.isEmpty ? 'Service ${service.displayNo}' : description;
+      return description.isEmpty
+          ? l10n.serviceWithNumber(service.displayNo)
+          : description;
     case ReservationServiceType.transportation:
       final trips = service.transportationDetails?.trips;
       final firstTrip = trips == null || trips.isEmpty ? null : trips.first;
       if (firstTrip == null) {
-        return 'Trip ${service.displayNo}';
+        return l10n.tripWithNumber(service.displayNo);
       }
       final type = firstTrip.type.trim();
       final route = _routeLabel(
@@ -2348,7 +2502,7 @@ String _serviceDescriptionValue(ReservationServiceSummary service) {
         firstTrip.toDestination.trim(),
       );
       if (type.isEmpty && route.isEmpty) {
-        return 'Trip ${service.displayNo}';
+        return l10n.tripWithNumber(service.displayNo);
       }
       if (type.isEmpty) {
         return route;

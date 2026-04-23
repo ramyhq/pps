@@ -7,12 +7,14 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:pps/core/constants/app_colors.dart';
 import 'package:pps/core/widgets/app_drop_menu_button.dart';
 import 'package:pps/features/dashboard/provider/dashboard_provider.dart';
+import 'package:pps/l10n/app_localizations.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final statsAsync = ref.watch(dashboardStatsProvider);
     final selectedPeriod = ref.watch(dashboardPeriodProvider);
 
@@ -26,22 +28,22 @@ class DashboardScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Dashboard',
-                    style: TextStyle(
+                    l10n.dashboardTitle,
+                    style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
                       letterSpacing: -0.5,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
-                    'Overview of your reservations and performance.',
-                    style: TextStyle(
+                    l10n.dashboardSubtitle,
+                    style: const TextStyle(
                       fontSize: 14,
                       color: AppColors.textSecondary,
                     ),
@@ -49,7 +51,7 @@ class DashboardScreen extends ConsumerWidget {
                 ],
               ),
               Tooltip(
-                message: "Select the time period for dashboard statistics.",
+                message: l10n.dashboardSelectPeriodTooltip,
                 waitDuration: const Duration(seconds: 2),
                 child: _buildPeriodSelector(context, ref, selectedPeriod),
               ),
@@ -68,7 +70,7 @@ class DashboardScreen extends ConsumerWidget {
               height: 400,
               child: Center(
                 child: Text(
-                  'Error loading dashboard: $err',
+                  l10n.dashboardErrorLoading(err.toString()),
                   style: const TextStyle(color: AppColors.danger),
                 ),
               ),
@@ -84,6 +86,7 @@ class DashboardScreen extends ConsumerWidget {
     WidgetRef ref,
     int selectedPeriod,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return AppDropMenuButton<int>(
       onSelected: (value) {
         ref.read(dashboardPeriodProvider.notifier).setPeriod(value);
@@ -94,10 +97,10 @@ class DashboardScreen extends ConsumerWidget {
       menuOffsetY: 8,
       triggerBorderRadius: BorderRadius.circular(8),
       triggerHoverColor: AppColors.border.withValues(alpha: 0.20),
-      entries: const [
-        AppDropMenuEntry.action(value: 7, label: 'Last 7 days'),
-        AppDropMenuEntry.action(value: 30, label: 'Last 30 days'),
-        AppDropMenuEntry.action(value: 90, label: 'Last 90 days'),
+      entries: [
+        AppDropMenuEntry.action(value: 7, label: l10n.dashboardLastDays(7)),
+        AppDropMenuEntry.action(value: 30, label: l10n.dashboardLastDays(30)),
+        AppDropMenuEntry.action(value: 90, label: l10n.dashboardLastDays(90)),
       ],
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -123,7 +126,7 @@ class DashboardScreen extends ConsumerWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              'Last $selectedPeriod days',
+              l10n.dashboardLastDays(selectedPeriod),
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -148,6 +151,7 @@ class DashboardScreen extends ConsumerWidget {
     DashboardStats stats,
     int period,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -157,35 +161,34 @@ class DashboardScreen extends ConsumerWidget {
           runSpacing: 16,
           children: [
             _buildPremiumKpiCard(
-              title: "Today's Reservations",
+              title: l10n.dashboardTodaysReservationsTitle,
               value: '${stats.todayCount}',
               icon: Icons.today_rounded,
               color: AppColors.primary,
-              tooltip: "Number of reservations created today.",
+              tooltip: l10n.dashboardTodaysReservationsTooltip,
             ),
             _buildPremiumKpiCard(
-              title: "This Week",
+              title: l10n.dashboardThisWeekTitle,
               value: '${stats.thisWeekCount}',
               icon: Icons.calendar_view_week_rounded,
               color: const Color(0xFFF59E0B), // Amber
-              tooltip: "Number of reservations created this week.",
+              tooltip: l10n.dashboardThisWeekTooltip,
             ),
             _buildPremiumKpiCard(
-              title: "Period Total ($period Days)",
+              title: l10n.dashboardPeriodTotalTitle(period),
               value: '${stats.currentPeriodCount}',
               icon: Icons.bar_chart_rounded,
               color: const Color(0xFF10B981), // Yellow/Green
-              tooltip: "Total reservations created within the selected period.",
+              tooltip: l10n.dashboardPeriodTotalTooltip,
               trendPercentage: stats.performancePercentage,
               isTrendPositive: stats.isPerformancePositive,
             ),
             _buildPremiumKpiCard(
-              title: "Needs Attention",
+              title: l10n.dashboardNeedsAttentionTitle,
               value: '${stats.needsFollowUp.length}',
               icon: Icons.schedule_rounded,
               color: AppColors.danger,
-              tooltip:
-                  "Reservations needing RMS Invoice within the follow-up period.",
+              tooltip: l10n.dashboardNeedsAttentionTooltip,
             ),
           ],
         ),
@@ -200,7 +203,7 @@ class DashboardScreen extends ConsumerWidget {
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(flex: 7, child: _buildChartSection(stats)),
+                  Expanded(flex: 7, child: _buildChartSection(context, stats)),
                   const SizedBox(width: 24),
                   Expanded(
                     flex: 4,
@@ -211,7 +214,7 @@ class DashboardScreen extends ConsumerWidget {
             } else {
               return Column(
                 children: [
-                  _buildChartSection(stats),
+                  _buildChartSection(context, stats),
                   const SizedBox(height: 24),
                   _buildFollowUpSection(context, stats),
                 ],
@@ -223,7 +226,7 @@ class DashboardScreen extends ConsumerWidget {
         const SizedBox(height: 24),
 
         // Bottom Row: Top Clients
-        _buildTopClientsSection(stats),
+        _buildTopClientsSection(context, stats),
       ],
     );
   }
@@ -347,9 +350,13 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildChartSection(DashboardStats stats) {
+  Widget _buildChartSection(BuildContext context, DashboardStats stats) {
+    final l10n = AppLocalizations.of(context)!;
     if (stats.dailyStats.isEmpty) {
-      return _buildEmptySection("Reservations Overview");
+      return _buildEmptySection(
+        context,
+        l10n.dashboardReservationsOverviewTitle,
+      );
     }
 
     final maxY = stats.dailyStats
@@ -381,13 +388,12 @@ class DashboardScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Tooltip(
-            message:
-                "Shows a visual trend of daily reservations over the selected period.",
-            waitDuration: Duration(seconds: 2),
+          Tooltip(
+            message: l10n.dashboardReservationsOverviewTooltip,
+            waitDuration: const Duration(seconds: 2),
             child: Text(
-              "Reservations Overview",
-              style: TextStyle(
+              l10n.dashboardReservationsOverviewTitle,
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
@@ -395,9 +401,12 @@ class DashboardScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            "Daily volume of reservations created.",
-            style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+          Text(
+            l10n.dashboardDailyVolumeSubtitle,
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppColors.textSecondary,
+            ),
           ),
           const SizedBox(height: 32),
           Expanded(
@@ -520,7 +529,9 @@ class DashboardScreen extends ConsumerWidget {
                           ),
                           children: [
                             TextSpan(
-                              text: '${touchedSpot.y.toInt()} Reservations',
+                              text: l10n.dashboardReservationsCount(
+                                touchedSpot.y.toInt(),
+                              ),
                               style: const TextStyle(
                                 color: Colors.white70,
                                 fontWeight: FontWeight.normal,
@@ -542,6 +553,7 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   Widget _buildFollowUpSection(BuildContext context, DashboardStats stats) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       height: 420,
       padding: const EdgeInsets.all(24),
@@ -563,13 +575,12 @@ class DashboardScreen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Tooltip(
-                message:
-                    "List of recent reservations that still need an RMS invoice number.",
-                waitDuration: Duration(seconds: 2),
+              Tooltip(
+                message: l10n.dashboardNeedsAttentionListTooltip,
+                waitDuration: const Duration(seconds: 2),
                 child: Text(
-                  "Needs Attention",
-                  style: TextStyle(
+                  l10n.dashboardNeedsAttentionTitle,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary,
@@ -577,8 +588,7 @@ class DashboardScreen extends ConsumerWidget {
                 ),
               ),
               Tooltip(
-                message:
-                    "Select how many days back to check for missing RMS invoices.",
+                message: l10n.dashboardFollowUpPeriodTooltip,
                 waitDuration: const Duration(seconds: 2),
                 child: Consumer(
                   builder: (context, ref, child) {
@@ -599,25 +609,25 @@ class DashboardScreen extends ConsumerWidget {
                       triggerHoverColor: AppColors.danger.withValues(
                         alpha: 0.1,
                       ),
-                      entries: const [
+                      entries: [
                         AppDropMenuEntry.action(
                           value: 3,
-                          label: 'Last 3 Days',
+                          label: l10n.dashboardLastDaysShort(3),
                           isDanger: true,
                         ),
                         AppDropMenuEntry.action(
                           value: 7,
-                          label: 'Last 7 Days',
+                          label: l10n.dashboardLastDaysShort(7),
                           isDanger: true,
                         ),
                         AppDropMenuEntry.action(
                           value: 14,
-                          label: 'Last 14 Days',
+                          label: l10n.dashboardLastDaysShort(14),
                           isDanger: true,
                         ),
                         AppDropMenuEntry.action(
                           value: 30,
-                          label: 'Last 30 Days',
+                          label: l10n.dashboardLastDaysShort(30),
                           isDanger: true,
                         ),
                       ],
@@ -634,7 +644,7 @@ class DashboardScreen extends ConsumerWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'Last $followUpPeriod Days',
+                              l10n.dashboardLastDaysShort(followUpPeriod),
                               style: const TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
@@ -657,9 +667,12 @@ class DashboardScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 4),
-          const Text(
-            "Recent reservations missing RMS Invoice.",
-            style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+          Text(
+            l10n.dashboardNeedsAttentionSubtitle,
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppColors.textSecondary,
+            ),
           ),
           const SizedBox(height: 24),
           if (stats.needsFollowUp.isEmpty)
@@ -674,9 +687,9 @@ class DashboardScreen extends ConsumerWidget {
                       color: const Color(0xFF10B981).withValues(alpha: 0.5),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      "All caught up!",
-                      style: TextStyle(
+                    Text(
+                      l10n.dashboardAllCaughtUp,
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textSecondary,
@@ -752,7 +765,7 @@ class DashboardScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                'PPS: #${order.reservationNo}',
+                                l10n.dashboardPpsNumber(order.reservationNo),
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
@@ -761,7 +774,9 @@ class DashboardScreen extends ConsumerWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'RMS: ${hasRms ? order.rmsInvoiceNo : "-"}',
+                                l10n.dashboardRmsInvoice(
+                                  hasRms ? order.rmsInvoiceNo! : '-',
+                                ),
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
@@ -784,9 +799,10 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildTopClientsSection(DashboardStats stats) {
+  Widget _buildTopClientsSection(BuildContext context, DashboardStats stats) {
+    final l10n = AppLocalizations.of(context)!;
     if (stats.topClients.isEmpty) {
-      return _buildEmptySection("Top Clients");
+      return _buildEmptySection(context, l10n.dashboardTopClientsTitle);
     }
 
     final maxCount = stats.topClients
@@ -811,13 +827,12 @@ class DashboardScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Tooltip(
-            message:
-                "Shows the top 5 clients based on the number of reservations created in the selected period.",
-            waitDuration: Duration(seconds: 2),
+          Tooltip(
+            message: l10n.dashboardTopClientsTooltip,
+            waitDuration: const Duration(seconds: 2),
             child: Text(
-              "Top Clients",
-              style: TextStyle(
+              l10n.dashboardTopClientsTitle,
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
@@ -825,9 +840,12 @@ class DashboardScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            "Clients with the highest volume of reservations in the selected period.",
-            style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+          Text(
+            l10n.dashboardTopClientsSubtitle,
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppColors.textSecondary,
+            ),
           ),
           const SizedBox(height: 24),
           LayoutBuilder(
@@ -843,17 +861,17 @@ class DashboardScreen extends ConsumerWidget {
                   Widget rankIcon;
                   switch (index) {
                     case 0:
-                      rankIcon = const Tooltip(
-                        message: "1st Place - Gold Cup",
-                        waitDuration: Duration(seconds: 2),
-                        child: Text('🏆', style: TextStyle(fontSize: 20)),
+                      rankIcon = Tooltip(
+                        message: l10n.dashboardRankFirstTooltip,
+                        waitDuration: const Duration(seconds: 2),
+                        child: const Text('🏆', style: TextStyle(fontSize: 20)),
                       );
                       break;
                     case 1:
-                      rankIcon = const Tooltip(
-                        message: "2nd Place - Silver Cup",
-                        waitDuration: Duration(seconds: 2),
-                        child: Icon(
+                      rankIcon = Tooltip(
+                        message: l10n.dashboardRankSecondTooltip,
+                        waitDuration: const Duration(seconds: 2),
+                        child: const Icon(
                           Icons.emoji_events,
                           color: Color(0xFFC0C0C0),
                           size: 24,
@@ -861,17 +879,17 @@ class DashboardScreen extends ConsumerWidget {
                       );
                       break;
                     case 2:
-                      rankIcon = const Tooltip(
-                        message: "3rd Place - Gold Medal",
-                        waitDuration: Duration(seconds: 2),
-                        child: Text('🥇', style: TextStyle(fontSize: 20)),
+                      rankIcon = Tooltip(
+                        message: l10n.dashboardRankThirdTooltip,
+                        waitDuration: const Duration(seconds: 2),
+                        child: const Text('🥇', style: TextStyle(fontSize: 20)),
                       );
                       break;
                     case 3:
-                      rankIcon = const Tooltip(
-                        message: "4th Place - Silver Medal",
-                        waitDuration: Duration(seconds: 2),
-                        child: Text('🥈', style: TextStyle(fontSize: 20)),
+                      rankIcon = Tooltip(
+                        message: l10n.dashboardRankFourthTooltip,
+                        waitDuration: const Duration(seconds: 2),
+                        child: const Text('🥈', style: TextStyle(fontSize: 20)),
                       );
                       break;
                     default:
@@ -924,7 +942,9 @@ class DashboardScreen extends ConsumerWidget {
                                     ),
                                   ),
                                   Text(
-                                    '${client.count} Res.',
+                                    l10n.dashboardReservationsAbbrev(
+                                      client.count,
+                                    ),
                                     style: const TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w600,
@@ -940,7 +960,9 @@ class DashboardScreen extends ConsumerWidget {
                                     height: 6,
                                     width: double.infinity,
                                     decoration: BoxDecoration(
-                                      color: AppColors.border.withValues(alpha: 0.5),
+                                      color: AppColors.border.withValues(
+                                        alpha: 0.5,
+                                      ),
                                       borderRadius: BorderRadius.circular(3),
                                     ),
                                   ),
@@ -971,7 +993,7 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmptySection(String title) {
+  Widget _buildEmptySection(BuildContext context, String title) {
     return Container(
       height: 420,
       width: double.infinity,
@@ -992,16 +1014,22 @@ class DashboardScreen extends ConsumerWidget {
               color: AppColors.textPrimary,
             ),
           ),
-          const Expanded(
-            child: Center(
-              child: Text(
-                "Not enough data.",
-                style: TextStyle(color: AppColors.textSecondary),
-              ),
-            ),
-          ),
+          const Expanded(child: Center(child: _DashboardEmptyText())),
         ],
       ),
+    );
+  }
+}
+
+class _DashboardEmptyText extends StatelessWidget {
+  const _DashboardEmptyText();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Text(
+      l10n.notEnoughData,
+      style: const TextStyle(color: AppColors.textSecondary),
     );
   }
 }

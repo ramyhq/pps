@@ -52,6 +52,64 @@
   "delete": "Delete",
   "ok": "OK",
   "print": "Print",
+  "print1Summary": "Print 1 — Simple",
+  "print2Summary": "Print 2 — Mix detailed",
+  "partyPaxManual": "Party Pax (Manual)",
+  "partyPaxManualHint": "Optional. Used to validate hotel segments and distribute add-ons.",
+  "partyPaxManualIndicatorTooltip": "If any segments have PAX different from Party Pax (Manual), a warning will appear.",
+  "warningIndicatorDefaultTooltip": "Warning: review details.",
+  "partyPaxMismatchTitle": "Party Pax mismatch",
+  "partyPaxMismatchBodyPrefix": "Some hotel segments have PAX different from Party Pax (Manual):",
+  "fixNow": "Fix now",
+  "generalQtyMismatchTemplate": "Warning: General service Qty ({qty}) differs from Party Pax (Manual) ({manualPax}). If Qty represents PAX for this service, review it.",
+  "@generalQtyMismatchTemplate": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      },
+      "manualPax": {
+        "type": "String"
+      }
+    }
+  },
+  "locationPaxMismatchTemplate": "Warning: Total PAX in {place} ({locationPax}) differs from Party Pax (Manual) ({manualPax}).",
+  "@locationPaxMismatchTemplate": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      },
+      "locationPax": {
+        "type": "String"
+      },
+      "manualPax": {
+        "type": "String"
+      }
+    }
+  },
+  "locationPaxDifferenceTemplate": "Warning: Total PAX in {place} ({placePax}) differs from {otherPlace} ({otherPax}).",
+  "@locationPaxDifferenceTemplate": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      },
+      "placePax": {
+        "type": "String"
+      },
+      "otherPlace": {
+        "type": "String"
+      },
+      "otherPax": {
+        "type": "String"
+      }
+    }
+  },
+  "print1SimpleBlockedTitle": "Print 1 — Simple is not available",
+  "print1SimpleBlockedBodyIntro": "Print 1 — Simple cannot be used because room distribution differs between MED and MAK.\n\nPrint 1 requires:\n- Total Qty for each room type in MED must equal total Qty for the same type in MAK.\n\nQuick example:\n- Quad: MED=25 and MAK=25 → Print 1 works.\n- Quad: MED=25 and MAK=20 → Print 2 is required.\n\nCurrent differences:\n",
+  "print1SimpleBlockedUsePrint2Hint": "Use Print 2 — Mix detailed in this case.",
+  "printUsageBody": "شرح استخدام Print 1 (Simple) و Print 2 (Mix detailed)\n\nSwitch to Arabic to read the full guide.",
+  "calculationsGuideBody": "Print 1 — Simple:\n- Qty (display) = Max rooms per day after merging hotel segments.\n- PAX# = Qty × Pax/Room (Double=2, Triple=3, Quad=4, Quint=5).\n- Add-ons / Pax = (Total Sale of General + Transportation) / Party Pax.\n- Party Pax = Party Pax (Manual) if entered, otherwise Qty Pax derived from rooms.\n\nPrint 2 — Mix detailed:\n- If hotel distribution differs by city/date segment, rows split by (city + date range).\n- If a room type keeps the same Qty across segments, it stays as a single row.\n- Add-ons are distributed by nights to avoid double counting across cities.\n- Final PDF Total equals the invoice total (sum of services.totalSale).\n\nParty Pax (Manual):\n- Optional number you enter to represent the real travelers count.\n- If any hotel segment has different PAX, the system shows a red warning dot.",
+  "mealPlan": "Meal plan",
+  "noOfRooms": "No. of rooms",
   "pdfPreview": "PDF Preview",
   "reservationMainInfoTitle": "Reservation main info",
   "reservationDetailsTitle": "Reservation details",
@@ -118,12 +176,224 @@
   "continueAnyway": "Continue anyway",
   "editInfoTitle": "Edit info",
   "editInfoTooltip": "Edit",
-  "saveAndPrint": "Save & Print",
   "continueWithout": "Continue without",
   "deleteReservationTitle": "Delete",
   "deleteReservationMessage": "Delete this reservation?",
   "deleteServiceMessage": "Delete this service?",
   "deleted": "Deleted",
   "termsAndConditionsStandard": "Standard",
-  "termsAndConditionsTrain": "Train"
+  "termsAndConditionsTrain": "Train",
+  "dashboardSubtitle": "Overview of your reservations and performance.",
+  "dashboardSelectPeriodTooltip": "Select the time period for dashboard statistics.",
+  "dashboardErrorLoading": "Error loading dashboard: {error}",
+  "@dashboardErrorLoading": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardLastDays": "Last {days} days",
+  "@dashboardLastDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardLastDaysShort": "Last {days} Days",
+  "@dashboardLastDaysShort": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardTodaysReservationsTitle": "Today's Reservations",
+  "dashboardTodaysReservationsTooltip": "Number of reservations created today.",
+  "dashboardThisWeekTitle": "This Week",
+  "dashboardThisWeekTooltip": "Number of reservations created this week.",
+  "dashboardPeriodTotalTitle": "Period Total ({days} Days)",
+  "@dashboardPeriodTotalTitle": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardPeriodTotalTooltip": "Total reservations created within the selected period.",
+  "dashboardNeedsAttentionTitle": "Needs Attention",
+  "dashboardNeedsAttentionTooltip": "Reservations needing RMS Invoice within the follow-up period.",
+  "dashboardReservationsOverviewTitle": "Reservations Overview",
+  "dashboardReservationsOverviewTooltip": "Shows a visual trend of daily reservations over the selected period.",
+  "dashboardDailyVolumeSubtitle": "Daily volume of reservations created.",
+  "dashboardReservationsCount": "{count} Reservations",
+  "@dashboardReservationsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardNeedsAttentionListTooltip": "List of recent reservations that still need an RMS invoice number.",
+  "dashboardFollowUpPeriodTooltip": "Select how many days back to check for missing RMS invoices.",
+  "dashboardNeedsAttentionSubtitle": "Recent reservations missing RMS Invoice.",
+  "dashboardAllCaughtUp": "All caught up!",
+  "dashboardPpsNumber": "PPS: #{reservationNo}",
+  "@dashboardPpsNumber": {
+    "placeholders": {
+      "reservationNo": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardRmsInvoice": "RMS: {value}",
+  "@dashboardRmsInvoice": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardTopClientsTitle": "Top Clients",
+  "dashboardTopClientsTooltip": "Shows the top 5 clients based on the number of reservations created in the selected period.",
+  "dashboardTopClientsSubtitle": "Clients with the highest volume of reservations in the selected period.",
+  "dashboardRankFirstTooltip": "1st Place - Gold Cup",
+  "dashboardRankSecondTooltip": "2nd Place - Silver Cup",
+  "dashboardRankThirdTooltip": "3rd Place - Gold Medal",
+  "dashboardRankFourthTooltip": "4th Place - Silver Medal",
+  "dashboardReservationsAbbrev": "{count} Res.",
+  "@dashboardReservationsAbbrev": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "search": "Search",
+  "reset": "Reset",
+  "exportToExcel": "Export to Excel",
+  "exportToPdf": "Export to PDF",
+  "createReservation": "Create reservation",
+  "create": "Create",
+  "reservationFiltersInfoGroup": "Reservation info",
+  "reservationFiltersDatesGroup": "Reservation dates",
+  "reservationFiltersGuestNationality": "Guest nationality",
+  "reservationFiltersClientNationality": "Client nationality",
+  "reservationFiltersHotelCity": "Hotel city",
+  "reservationFiltersHotelCategory": "Hotel category",
+  "reservationFiltersSaleAllotment": "Sale allotment",
+  "reservationFiltersArrivalDateRange": "Arrival date range",
+  "reservationFiltersDepartureDateRange": "Departure date range",
+  "reservationFiltersCreationDateRange": "Creation date range",
+  "reservationFiltersClientOptionDateRange": "Client option date range",
+  "reservationFiltersHotelOptionDateRange": "Hotel option date range",
+  "reservationFiltersAgentOptionDateRange": "Agent option date range",
+  "reservationFiltersServiceDateRange": "Service date range",
+  "reservationFiltersIncludeServices": "Include services",
+  "reservationFiltersTypesGroup": "Types & status",
+  "reservationFiltersReservationType": "Reservation type",
+  "reservationFiltersServiceType": "Service type",
+  "reservationFiltersMyReservations": "My reservations",
+  "reservationFiltersType": "Type",
+  "reservationFiltersIsSent": "Is sent",
+  "status": "Status",
+  "reservationFiltersFinancialStatus": "Financial status",
+  "reservationFiltersPaymentStatus": "Payment status",
+  "reservationFiltersInvoiced": "Invoiced",
+  "reservationFiltersSplitReservation": "Split reservation",
+  "reservationFiltersExtraGroup": "Extra details",
+  "reservationFiltersConfirmation": "Conf.",
+  "reservationFiltersVoucher": "Voucher",
+  "reservationFiltersFileNo": "File No.",
+  "reservationFiltersReferenceNo": "Reference No.",
+  "reservationFiltersAgreementNo": "Agreement No.",
+  "reservationFiltersEnteredBy": "Entered by",
+  "reservationFiltersB2bStatus": "B2B status",
+  "company": "Company",
+  "reservationFiltersSubClient": "Sub client",
+  "reservationFiltersSalesperson": "Salesperson",
+  "creator": "Creator",
+  "tag": "Tag",
+  "reservationFiltersOrderBy": "Order by",
+  "reservationFiltersDirection": "Direction",
+  "reservationFiltersRemarksGroup": "Remarks",
+  "reservationFiltersReservationRemarks": "Reservation remarks",
+  "reservationFiltersDetailRemarks": "Detail remarks",
+  "reservationFiltersClientRemarks": "Client remarks",
+  "reservationFiltersHotelRemarks": "Hotel remarks",
+  "reservationFiltersAgentRemarks": "Agent remarks",
+  "fromToHint": "From - To",
+  "all": "All",
+  "expandAll": "Expand all",
+  "collapseAll": "Collapse all",
+  "loading": "Loading...",
+  "loadingServices": "Loading services...",
+  "noReservationsFound": "No reservations found.",
+  "noServicesFoundForReservation": "No services found for this reservation.",
+  "confirmed": "Confirmed",
+  "from": "From",
+  "to": "To",
+  "tags": "Tags",
+  "sale": "Sale",
+  "paid": "Paid",
+  "remaining": "Remaining",
+  "show": "Show",
+  "entries": "entries",
+  "showingEntriesRange": "Showing {from} to {to} of {total} entries",
+  "@showingEntriesRange": {
+    "placeholders": {
+      "from": {
+        "type": "int"
+      },
+      "to": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "rooms": "Rooms",
+  "rn": "RN",
+  "cost": "Cost",
+  "provider": "Provider",
+  "date": "Date",
+  "desc": "Desc",
+  "service": "Service",
+  "qtyShort": "Qty",
+  "grandTotal": "Grand total",
+  "view": "View",
+  "unpost": "Unpost",
+  "sendEmail": "Send email",
+  "transactionsDetails": "Transactions details",
+  "auditLog": "Audit log",
+  "agentDirect": "Agent Direct",
+  "hotelDirect": "Hotel Direct",
+  "tripWithNumber": "Trip {no}",
+  "@tripWithNumber": {
+    "placeholders": {
+      "no": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceWithNumber": "Service {no}",
+  "@serviceWithNumber": {
+    "placeholders": {
+      "no": {
+        "type": "String"
+      }
+    }
+  },
+  "generalServiceWithName": "General service - {name}",
+  "@generalServiceWithName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "providerFallback": "Provider",
+  "notEnoughData": "Not enough data."
 }

@@ -52,6 +52,64 @@
   "delete": "حذف",
   "ok": "موافق",
   "print": "طباعة",
+  "print1Summary": "طباعة 1 — بسيط",
+  "print2Summary": "طباعة 2 — مفصل (Mix)",
+  "partyPaxManual": "عدد الأفراد (يدوي)",
+  "partyPaxManualHint": "اختياري. بيستخدم لمراجعة سيجمنتات الفنادق وتوزيع الإضافات.",
+  "partyPaxManualIndicatorTooltip": "لو فيه سيجمنتات PAX مختلفة عن عدد الأفراد (يدوي) هيظهر تحذير.",
+  "warningIndicatorDefaultTooltip": "تحذير: راجع التفاصيل.",
+  "partyPaxMismatchTitle": "اختلاف عدد الأفراد",
+  "partyPaxMismatchBodyPrefix": "في سيجمنتات فنادق فيها PAX مختلف عن عدد الأفراد (يدوي):",
+  "fixNow": "إصلاح الآن",
+  "generalQtyMismatchTemplate": "تحذير: كمية الخدمة العامة ({qty}) مختلفة عن عدد الأفراد (يدوي) ({manualPax}). لو Qty المقصود بيه عدد الأشخاص للخدمة دي، راجعها.",
+  "@generalQtyMismatchTemplate": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      },
+      "manualPax": {
+        "type": "String"
+      }
+    }
+  },
+  "locationPaxMismatchTemplate": "تحذير: إجمالي PAX في {place} ({locationPax}) مختلف عن عدد الأفراد (يدوي) ({manualPax}).",
+  "@locationPaxMismatchTemplate": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      },
+      "locationPax": {
+        "type": "String"
+      },
+      "manualPax": {
+        "type": "String"
+      }
+    }
+  },
+  "locationPaxDifferenceTemplate": "تحذير: إجمالي PAX في {place} ({placePax}) مختلف عن {otherPlace} ({otherPax}).",
+  "@locationPaxDifferenceTemplate": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      },
+      "placePax": {
+        "type": "String"
+      },
+      "otherPlace": {
+        "type": "String"
+      },
+      "otherPax": {
+        "type": "String"
+      }
+    }
+  },
+  "print1SimpleBlockedTitle": "طباعة 1 — بسيط غير متاحة",
+  "print1SimpleBlockedBodyIntro": "لا يمكن استخدام طباعة 1 — بسيط لأن توزيع الغرف مختلف بين المدينة ومكة.\n\nالشرط لاستخدام طباعة 1:\n- مجموع Qty لكل نوع غرفة في MED لازم يساوي مجموع Qty لنفس النوع في MAK.\n\nمثال سريع:\n- Quad: MED=25 و MAK=25 → ينفع طباعة 1.\n- Quad: MED=25 و MAK=20 → لازم طباعة 2.\n\nالاختلافات الحالية:\n",
+  "print1SimpleBlockedUsePrint2Hint": "استخدم طباعة 2 — مفصل (Mix) في الحالة دي.",
+  "printUsageBody": "هشرح لك الموضوع كأنك أول مرة تستخدم النظام (بالعربي البسيط):\n\n1) يعني إيه (Qty / Nights / PAX)؟\n- Qty: عدد الغرف.\n- Nights: عدد الليالي.\n- PAX: عدد الأشخاص اللي الحساب بيتوزع عليهم.\n\n2) أهم قاعدة في الفاتورة\n- إجمالي الفاتورة (Total) = مجموع Total sale لكل الخدمات في الحجز.\n- جدول الغرف في الـ PDF وظيفته يشرح التوزيع، لكن رقم Total النهائي لازم يطابق الفاتورة.\n\n3) Party Pax (Manual) ده إيه؟\n- رقم اختياري إنت بتكتبه بنفسك.\n- المقصود منه: عدد المسافرين الحقيقي.\n- لو كتبته: بيتستخدم لتوزيع الإضافات (Add-ons) فقط.\n- لو ما كتبتهوش: النظام بيستخدم Qty Pax (محسوبة من توزيع الغرف) علشان يوزع الإضافات.\n\n4) النقطة الحمرا جنب Party Pax (Manual) معناها إيه؟\n- معناها إن فيه اختلاف بين PAX بتاع سيجمنت/فندق وبين Party Pax (Manual).\n- لازم تراجع الأرقام لأن ده بيأثر على توزيع الإضافات.\n\n5) إمتى أستخدم Print 1 (Simple)؟\n- لما يكون توزيع الغرف ثابت بين المدينة ومكة.\n- شرط أساسي: مجموع Qty لكل نوع غرفة في MED لازم يساوي مجموع Qty لنفس النوع في MAK.\n\n6) إمتى أستخدم Print 2 (Mix detailed)؟\n- لما توزيع الغرف مختلف بين المدينة ومكة (أو بين الفترات).\n- أو لما عايز تفاصيل أكتر عن تقسيم السكن حسب المدينة والفترات.\n\nملحوظة:\n- لو Print 1 مش متاح، النظام هيمنعك ويقولك ليه ويقترح Print 2.\n",
+  "calculationsGuideBody": "طباعة 1 — بسيط:\n- Qty (المعروض) = أكبر عدد غرف في اليوم بعد دمج سيجمنتات الفندق.\n- PAX# = Qty × عدد الأشخاص/غرفة (Double=2, Triple=3, Quad=4, Quint=5).\n- الإضافات/فرد = (إجمالي بيع General + Transportation) / عدد الأفراد.\n- عدد الأفراد = عدد الأفراد (يدوي) لو مكتوب، وإلا بيتحسب من الغرف.\n\nطباعة 2 — مفصل (Mix):\n- لو توزيع الفندق مختلف حسب المدينة/الفترة، الصفوف بتتفصل حسب (المدينة + الفترة).\n- لو نوع الغرفة نفس الـ Qty عبر الفترات يفضل صف واحد.\n- الإضافات بتتوزع على الليالي لتجنب التكرار بين المدن.\n- إجمالي الـ PDF النهائي = إجمالي الفاتورة (مجموع services.totalSale).\n\nعدد الأفراد (يدوي):\n- رقم اختياري بتمثّل به عدد المسافرين الحقيقي.\n- لو أي سيجمنت فندق PAX مختلف، هيظهر تحذير أحمر.",
+  "mealPlan": "نظام الوجبات",
+  "noOfRooms": "عدد الغرف",
   "pdfPreview": "معاينة PDF",
   "reservationMainInfoTitle": "معلومات الحجز الأساسية",
   "reservationDetailsTitle": "تفاصيل الحجز",
@@ -118,12 +176,224 @@
   "continueAnyway": "استمرار",
   "editInfoTitle": "تعديل البيانات",
   "editInfoTooltip": "تعديل",
-  "saveAndPrint": "حفظ وطباعة",
   "continueWithout": "استمرار بدون",
   "deleteReservationTitle": "حذف",
   "deleteReservationMessage": "حذف هذا الحجز؟",
   "deleteServiceMessage": "حذف هذه الخدمة؟",
   "deleted": "تم الحذف",
-  "termsAndConditionsStandard": "Standard",
-  "termsAndConditionsTrain": "Train"
+  "termsAndConditionsStandard": "قياسي",
+  "termsAndConditionsTrain": "قطار",
+  "dashboardSubtitle": "نظرة عامة على الحجوزات والأداء.",
+  "dashboardSelectPeriodTooltip": "اختر الفترة الزمنية لإحصائيات لوحة التحكم.",
+  "dashboardErrorLoading": "حصل خطأ أثناء تحميل لوحة التحكم: {error}",
+  "@dashboardErrorLoading": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardLastDays": "آخر {days} يوم",
+  "@dashboardLastDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardLastDaysShort": "آخر {days} يوم",
+  "@dashboardLastDaysShort": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardTodaysReservationsTitle": "حجوزات اليوم",
+  "dashboardTodaysReservationsTooltip": "عدد الحجوزات التي تم إنشاؤها اليوم.",
+  "dashboardThisWeekTitle": "هذا الأسبوع",
+  "dashboardThisWeekTooltip": "عدد الحجوزات التي تم إنشاؤها هذا الأسبوع.",
+  "dashboardPeriodTotalTitle": "إجمالي الفترة ({days} يوم)",
+  "@dashboardPeriodTotalTitle": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardPeriodTotalTooltip": "إجمالي الحجوزات التي تم إنشاؤها داخل الفترة المحددة.",
+  "dashboardNeedsAttentionTitle": "بحاجة لمتابعة",
+  "dashboardNeedsAttentionTooltip": "حجوزات تحتاج رقم فاتورة RMS داخل فترة المتابعة.",
+  "dashboardReservationsOverviewTitle": "نظرة عامة على الحجوزات",
+  "dashboardReservationsOverviewTooltip": "يعرض اتجاه يومي للحجوزات خلال الفترة المحددة.",
+  "dashboardDailyVolumeSubtitle": "حجم الحجوزات اليومية التي تم إنشاؤها.",
+  "dashboardReservationsCount": "{count} حجز",
+  "@dashboardReservationsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardNeedsAttentionListTooltip": "قائمة بآخر الحجوزات التي مازال ينقصها رقم فاتورة RMS.",
+  "dashboardFollowUpPeriodTooltip": "اختر عدد الأيام السابقة لفحص الحجوزات بدون رقم فاتورة RMS.",
+  "dashboardNeedsAttentionSubtitle": "آخر حجوزات ينقصها رقم فاتورة RMS.",
+  "dashboardAllCaughtUp": "كل شيء تمام!",
+  "dashboardPpsNumber": "PPS: #{reservationNo}",
+  "@dashboardPpsNumber": {
+    "placeholders": {
+      "reservationNo": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardRmsInvoice": "RMS: {value}",
+  "@dashboardRmsInvoice": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardTopClientsTitle": "أفضل العملاء",
+  "dashboardTopClientsTooltip": "يعرض أفضل 5 عملاء حسب عدد الحجوزات خلال الفترة المحددة.",
+  "dashboardTopClientsSubtitle": "العملاء الأكثر من حيث عدد الحجوزات خلال الفترة المحددة.",
+  "dashboardRankFirstTooltip": "المركز الأول - كأس ذهبي",
+  "dashboardRankSecondTooltip": "المركز الثاني - كأس فضي",
+  "dashboardRankThirdTooltip": "المركز الثالث - ميدالية ذهبية",
+  "dashboardRankFourthTooltip": "المركز الرابع - ميدالية فضية",
+  "dashboardReservationsAbbrev": "{count} حجز",
+  "@dashboardReservationsAbbrev": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "search": "بحث",
+  "reset": "إعادة ضبط",
+  "exportToExcel": "تصدير إلى Excel",
+  "exportToPdf": "تصدير إلى PDF",
+  "createReservation": "إنشاء حجز",
+  "create": "إنشاء",
+  "reservationFiltersInfoGroup": "بيانات الحجز",
+  "reservationFiltersDatesGroup": "تواريخ الحجز",
+  "reservationFiltersGuestNationality": "جنسية النزيل",
+  "reservationFiltersClientNationality": "جنسية العميل",
+  "reservationFiltersHotelCity": "مدينة الفندق",
+  "reservationFiltersHotelCategory": "تصنيف الفندق",
+  "reservationFiltersSaleAllotment": "حصة البيع",
+  "reservationFiltersArrivalDateRange": "نطاق تاريخ الوصول",
+  "reservationFiltersDepartureDateRange": "نطاق تاريخ المغادرة",
+  "reservationFiltersCreationDateRange": "نطاق تاريخ الإنشاء",
+  "reservationFiltersClientOptionDateRange": "نطاق تاريخ خيار العميل",
+  "reservationFiltersHotelOptionDateRange": "نطاق تاريخ خيار الفندق",
+  "reservationFiltersAgentOptionDateRange": "نطاق تاريخ خيار الوكيل",
+  "reservationFiltersServiceDateRange": "نطاق تاريخ الخدمة",
+  "reservationFiltersIncludeServices": "تضمين الخدمات",
+  "reservationFiltersTypesGroup": "الأنواع والحالة",
+  "reservationFiltersReservationType": "نوع الحجز",
+  "reservationFiltersServiceType": "نوع الخدمة",
+  "reservationFiltersMyReservations": "حجوزاتي",
+  "reservationFiltersType": "النوع",
+  "reservationFiltersIsSent": "تم الإرسال",
+  "status": "الحالة",
+  "reservationFiltersFinancialStatus": "الحالة المالية",
+  "reservationFiltersPaymentStatus": "حالة الدفع",
+  "reservationFiltersInvoiced": "تمت الفوترة",
+  "reservationFiltersSplitReservation": "تقسيم الحجز",
+  "reservationFiltersExtraGroup": "تفاصيل إضافية",
+  "reservationFiltersConfirmation": "تأكيد",
+  "reservationFiltersVoucher": "قسيمة",
+  "reservationFiltersFileNo": "رقم الملف",
+  "reservationFiltersReferenceNo": "الرقم المرجعي",
+  "reservationFiltersAgreementNo": "رقم الاتفاقية",
+  "reservationFiltersEnteredBy": "أُدخل بواسطة",
+  "reservationFiltersB2bStatus": "حالة B2B",
+  "company": "الشركة",
+  "reservationFiltersSubClient": "عميل فرعي",
+  "reservationFiltersSalesperson": "مندوب المبيعات",
+  "creator": "المنشئ",
+  "tag": "وسم",
+  "reservationFiltersOrderBy": "ترتيب حسب",
+  "reservationFiltersDirection": "الاتجاه",
+  "reservationFiltersRemarksGroup": "ملاحظات",
+  "reservationFiltersReservationRemarks": "ملاحظات الحجز",
+  "reservationFiltersDetailRemarks": "ملاحظات التفاصيل",
+  "reservationFiltersClientRemarks": "ملاحظات العميل",
+  "reservationFiltersHotelRemarks": "ملاحظات الفندق",
+  "reservationFiltersAgentRemarks": "ملاحظات الوكيل",
+  "fromToHint": "من - إلى",
+  "all": "الكل",
+  "expandAll": "توسيع الكل",
+  "collapseAll": "طيّ الكل",
+  "loading": "جارٍ التحميل...",
+  "loadingServices": "جارٍ تحميل الخدمات...",
+  "noReservationsFound": "لا توجد حجوزات.",
+  "noServicesFoundForReservation": "لا توجد خدمات لهذا الحجز.",
+  "confirmed": "مؤكد",
+  "from": "من",
+  "to": "إلى",
+  "tags": "وسوم",
+  "sale": "البيع",
+  "paid": "المدفوع",
+  "remaining": "المتبقي",
+  "show": "عرض",
+  "entries": "سجلات",
+  "showingEntriesRange": "عرض {from} إلى {to} من {total} سجل",
+  "@showingEntriesRange": {
+    "placeholders": {
+      "from": {
+        "type": "int"
+      },
+      "to": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "rooms": "غرف",
+  "rn": "RN",
+  "cost": "التكلفة",
+  "provider": "المزوّد",
+  "date": "التاريخ",
+  "desc": "الوصف",
+  "service": "الخدمة",
+  "qtyShort": "الكمية",
+  "grandTotal": "الإجمالي الكلي",
+  "view": "عرض",
+  "unpost": "إلغاء ترحيل",
+  "sendEmail": "إرسال بريد",
+  "transactionsDetails": "تفاصيل المعاملات",
+  "auditLog": "سجل التدقيق",
+  "agentDirect": "حجز مباشر",
+  "hotelDirect": "مباشر",
+  "tripWithNumber": "رحلة {no}",
+  "@tripWithNumber": {
+    "placeholders": {
+      "no": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceWithNumber": "خدمة {no}",
+  "@serviceWithNumber": {
+    "placeholders": {
+      "no": {
+        "type": "String"
+      }
+    }
+  },
+  "generalServiceWithName": "خدمة عامة - {name}",
+  "@generalServiceWithName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "providerFallback": "المزوّد",
+  "notEnoughData": "لا توجد بيانات كافية."
 }
